@@ -61,7 +61,8 @@ class Timeline:
                 with doc.tag(f"h1", klass="mt-5"):
                     doc.asis(f"{timeline.name}")
                 with doc.tag("pre", klass="mermaid"):
-                    doc.asis("\ngraph LR\n")
+                    #doc.asis("\ngraph LR\n")
+                    doc.asis("\ngraph TD\n")
                     doc.asis(f"{timeline.id}([{timeline.entryCondition}])\n")
                     instance = self._get_cross_reference(timeline.entryId)
                     if instance['instanceType'] == ScheduledActivityInstance.__name__:
