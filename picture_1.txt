@@ -1,0 +1,35 @@
+CDW Operations \ Metadata Management
+Trial Flowchart Timing Profile Overview
+
+Define Trial Flowchart Item Timing Profile
+
+Trial ID: CDISC360-2
+Trial Definition ID: cTR
+
+Trial Metadata Version: 4
+
+Trial Definition Status: Draft.
+
+Profile Name: 9-point profile
+
+[Sequence Time Glucose, Plasma
+Before breakfast
+
+90 minutes after start of breakfast
+Before lunch.
+
+[90 minutes after start of lunch
+Before main evening meal
+
+90 min after main evening meal
+Bedtime
+
+At 04:00 A.M.
+
+Before breakfast the following day
+‘Number of Samples
+
+\w || > |>< [>| >< >< >< ><!
+
+Select | _Unselea] | Selectall | | Unselectall | | Save | _ Cancel
+
