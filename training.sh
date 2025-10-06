@@ -1,0 +1,2 @@
+python from_excel.py /Users/daveih/Documents/github/usdm_training/modules/nct04184622/examples/NCT04184622.xlsx
+python to_timeline.py /Users/daveih/Documents/github/usdm_training/modules/nct04184622/examples/NCT04184622.json

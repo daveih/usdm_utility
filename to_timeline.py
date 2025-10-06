@@ -23,7 +23,7 @@ class Timeline:
         self._errors = errors
         self._usdm = USDM4()
         self._file_path = file_path
-        self._builder: Builder = self._usdm.builder()
+        self._builder: Builder = self._usdm.builder(errors)
 
     def to_html(self, level=FULL):
         self._builder.seed(self._file_path)
