@@ -42,11 +42,22 @@ class Timeline:
         d2_lines.append("# USDM Timeline Visualization")
         d2_lines.append(f"# Timeline: {timeline.label}")
         d2_lines.append(f"# Condition: {timeline.entryCondition}")
-        d2_lines.append("direction: down")
+        d2_lines.append("direction: right")
         d2_lines.append("")
         
         try:
             timings = timeline.timings
+            
+            # First, collect all instances in sequence
+            instances = []
+            instance = self._get_cross_reference(timeline.entryId)
+            while instance:
+                instances.append(instance)
+                instance = self._get_cross_reference(instance.get('defaultConditionId'))
+            
+            # Separate activity and decision instances
+            activity_instances = [inst for inst in instances if inst['instanceType'] == ScheduledActivityInstance.__name__]
+            decision_instances = [inst for inst in instances if inst['instanceType'] != ScheduledActivityInstance.__name__]
             
             # Timeline entry node (oval shape)
             d2_lines.append(f"{timeline.id}: \"{timeline.label}\" {{")
@@ -58,82 +69,63 @@ class Timeline:
             d2_lines.append("}")
             d2_lines.append("")
             
-            # Get first instance
-            instance = self._get_cross_reference(timeline.entryId)
-            
-            # Add first instance node
-            if instance['instanceType'] == ScheduledActivityInstance.__name__:
-                d2_lines.append(f"{instance['id']}: \"ScheduledActivityInstance\" {{")
+            # Add all activity instances at root level
+            for inst in activity_instances:
+                d2_lines.append(f"{inst['id']}: \"ScheduledActivityInstance\" {{")
                 d2_lines.append("  shape: rectangle")
                 d2_lines.append("  style: {")
                 d2_lines.append("    fill: \"#ADD8E6\"")
                 d2_lines.append("    stroke: \"#4169E1\"")
                 d2_lines.append("  }")
                 d2_lines.append("}")
-            else:
-                d2_lines.append(f"{instance['id']}: \"ScheduledDecisionInstance\" {{")
+                d2_lines.append("")
+            
+            # Connect timeline entry to first activity instance
+            if activity_instances:
+                d2_lines.append(f"{timeline.id} -> {activity_instances[0]['id']}: first")
+                d2_lines.append("")
+            
+            # Add connections between activity instances
+            for i in range(len(activity_instances) - 1):
+                d2_lines.append(f"{activity_instances[i]['id']} -> {activity_instances[i+1]['id']}")
+                d2_lines.append("")
+            
+            # Add decision instances
+            for inst in decision_instances:
+                d2_lines.append(f"{inst['id']}: \"ScheduledDecisionInstance\" {{")
                 d2_lines.append("  shape: diamond")
                 d2_lines.append("  style: {")
                 d2_lines.append("    fill: \"#FFD700\"")
                 d2_lines.append("    stroke: \"#FF8C00\"")
                 d2_lines.append("  }")
                 d2_lines.append("}")
-            d2_lines.append("")
+                d2_lines.append("")
+                
+                # Add condition branches for decision instances
+                for condition in inst.get('conditionAssignments', []):
+                    condition_text = condition['condition'].replace('"', '\\"')
+                    target_id = condition['conditionTargetId']
+                    d2_lines.append(f"{inst['id']} -> {target_id}: \"{condition_text}\"")
+                    d2_lines.append("")
             
-            # Connect timeline to first instance
-            d2_lines.append(f"{timeline.id} -> {instance['id']}: first")
-            d2_lines.append("")
-            
-            # Process chain of instances
-            prev_instance = instance
-            instance = self._get_cross_reference(instance['defaultConditionId'])
-            
-            while instance:
-                # Add instance node
-                if instance['instanceType'] == ScheduledActivityInstance.__name__:
-                    d2_lines.append(f"{instance['id']}: \"ScheduledActivityInstance\" {{")
-                    d2_lines.append("  shape: rectangle")
+            # Add exit node
+            if instances:
+                last_instance = instances[-1]
+                exit_obj = self._get_cross_reference(last_instance.get('timelineExitId'))
+                if exit_obj:
+                    d2_lines.append(f"{exit_obj['id']}: \"Exit\" {{")
+                    d2_lines.append("  shape: oval")
                     d2_lines.append("  style: {")
-                    d2_lines.append("    fill: \"#ADD8E6\"")
-                    d2_lines.append("    stroke: \"#4169E1\"")
-                    d2_lines.append("  }")
-                    d2_lines.append("}")
-                else:
-                    d2_lines.append(f"{instance['id']}: \"ScheduledDecisionInstance\" {{")
-                    d2_lines.append("  shape: diamond")
-                    d2_lines.append("  style: {")
-                    d2_lines.append("    fill: \"#FFD700\"")
-                    d2_lines.append("    stroke: \"#FF8C00\"")
+                    d2_lines.append("    fill: \"#FFB6C1\"")
+                    d2_lines.append("    stroke: \"#DC143C\"")
                     d2_lines.append("  }")
                     d2_lines.append("}")
                     d2_lines.append("")
                     
-                    # Add condition branches for decision instances
-                    for condition in instance['conditionAssignments']:
-                        condition_text = condition['condition'].replace('"', '\\"')
-                        d2_lines.append(f"{instance['id']} -> {condition['conditionTargetId']}: \"{condition_text}\"")
-                
-                d2_lines.append("")
-                
-                # Add default connection
-                d2_lines.append(f"{prev_instance['id']} -> {instance['id']}: default")
-                d2_lines.append("")
-                
-                prev_instance = instance
-                instance = self._get_cross_reference(prev_instance['defaultConditionId'])
-            
-            # Add exit node
-            exit = self._get_cross_reference(prev_instance['timelineExitId'])
-            d2_lines.append(f"{exit['id']}: \"Exit\" {{")
-            d2_lines.append("  shape: oval")
-            d2_lines.append("  style: {")
-            d2_lines.append("    fill: \"#FFB6C1\"")
-            d2_lines.append("    stroke: \"#DC143C\"")
-            d2_lines.append("  }")
-            d2_lines.append("}")
-            d2_lines.append("")
-            d2_lines.append(f"{prev_instance['id']} -> {exit['id']}: exit")
-            d2_lines.append("")
+                    # Connect last activity instance to exit
+                    if activity_instances:
+                        d2_lines.append(f"{activity_instances[-1]['id']} -> {exit_obj['id']}: exit")
+                        d2_lines.append("")
             
             # Add timing nodes
             for timing in timings:
@@ -147,8 +139,12 @@ class Timeline:
                 d2_lines.append("  }")
                 d2_lines.append("}")
                 d2_lines.append("")
-                d2_lines.append(f"{timing.relativeFromScheduledInstanceId} -> {timing.id}: from")
-                d2_lines.append(f"{timing.id} -> {timing.relativeToScheduledInstanceId}: to")
+                
+                from_id = timing.relativeFromScheduledInstanceId
+                to_id = timing.relativeToScheduledInstanceId
+                
+                d2_lines.append(f"{from_id} -> {timing.id}: from")
+                d2_lines.append(f"{timing.id} -> {to_id}: to")
                 d2_lines.append("")
             
             return "\n".join(d2_lines)
