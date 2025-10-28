@@ -200,13 +200,20 @@ class Timeline:
             const marginBottom = 200;
             
             // Calculate positions for nodes in a straight horizontal line
-            const nodes = data.nodes.map((node, i) => ({{
-                ...node,
-                x: marginLeft + i * horizontalSpacing,
-                y: marginTop,
-                width: nodeWidth,
-                height: nodeHeight
-            }}));
+            const nodes = data.nodes.map((node, i) => {{
+                // Entry and exit nodes should be half height
+                const isEntryOrExit = node.type === 'entry' || node.type === 'exit';
+                const height = isEntryOrExit ? nodeHeight / 2 : nodeHeight;
+                const yPos = isEntryOrExit ? marginTop + nodeHeight / 4 : marginTop;
+                
+                return {{
+                    ...node,
+                    x: marginLeft + i * horizontalSpacing,
+                    y: yPos,
+                    width: nodeWidth,
+                    height: height
+                }};
+            }});
             
             // Create a map of node IDs to their positions for timing lookups
             const nodeMap = {{}};
@@ -222,8 +229,8 @@ class Timeline:
                     const toNode = nodeMap[timing.relativeToScheduledInstanceId];
                     
                     if (fromNode && toNode) {{
-                        // Position timing node between the from and to nodes, below the main line
-                        const timingX = (fromNode.x + fromNode.width/2 + toNode.x + toNode.width/2) / 2;
+                        // Position timing node directly under the from node
+                        const timingX = fromNode.x + fromNode.width/2;
                         const timingY = marginTop + nodeHeight + verticalSpacing;
                         
                         timingNodes.push({{
