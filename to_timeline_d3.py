@@ -84,29 +84,30 @@ class Timeline:
         .node rect {{
             stroke-width: 2;
         }}
-        .node-activity rect {{
-            fill: #4A90E2;
-            stroke: #2E5C8A;
+        .node-activity circle {{
+            fill: #C0C0C0;
+            stroke: #000000;
+            stroke-width: 2;
         }}
-        .node-decision rect {{
+        .node-decision circle {{
             fill: #FFD700;
             stroke: #DAA520;
         }}
         .node-exit rect {{
-            fill: #90EE90;
-            stroke: #228B22;
+            fill: #D3D3D3;
+            stroke: #000000;
             rx: 15;
             ry: 15;
         }}
         .node-entry rect {{
-            fill: #FFB6C1;
-            stroke: #C71585;
+            fill: #D3D3D3;
+            stroke: #000000;
             rx: 15;
             ry: 15;
         }}
         .node-timing circle {{
-            fill: #DDA0DD;
-            stroke: #8B008B;
+            fill: #FFFFFF;
+            stroke: #003366;
             stroke-width: 2;
         }}
         .node text {{
@@ -122,9 +123,8 @@ class Timeline:
         }}
         .link-timing {{
             fill: none;
-            stroke: #9370DB;
-            stroke-width: 1.5;
-            stroke-dasharray: 3, 3;
+            stroke: #003366;
+            stroke-width: 2;
         }}
         .link-label {{
             font-size: 10px;
@@ -278,10 +278,33 @@ class Timeline:
                 .join("path")
                 .attr("class", "link")
                 .attr("d", d => {{
-                    const sourceX = d.source.x + d.source.width;
-                    const sourceY = d.source.y + d.source.height / 2;
-                    const targetX = d.target.x;
-                    const targetY = d.target.y + d.target.height / 2;
+                    // Calculate connection points based on node type
+                    let sourceX, sourceY, targetX, targetY;
+                    
+                    // Source node
+                    if (d.source.type === 'activity') {{
+                        // For circles, connect from the right edge
+                        const radius = Math.min(d.source.width, d.source.height) / 2;
+                        sourceX = d.source.x + d.source.width / 2 + radius;
+                        sourceY = d.source.y + d.source.height / 2;
+                    }} else {{
+                        // For rectangles, connect from the right edge
+                        sourceX = d.source.x + d.source.width;
+                        sourceY = d.source.y + d.source.height / 2;
+                    }}
+                    
+                    // Target node
+                    if (d.target.type === 'activity') {{
+                        // For circles, connect to the left edge
+                        const radius = Math.min(d.target.width, d.target.height) / 2;
+                        targetX = d.target.x + d.target.width / 2 - radius;
+                        targetY = d.target.y + d.target.height / 2;
+                    }} else {{
+                        // For rectangles, connect to the left edge
+                        targetX = d.target.x;
+                        targetY = d.target.y + d.target.height / 2;
+                    }}
+                    
                     return `M${{sourceX}},${{sourceY}} L${{targetX}},${{targetY}}`;
                 }})
                 .attr("marker-end", `url(#arrowhead-${{data.id}})`);
@@ -314,10 +337,24 @@ class Timeline:
                 }})
                 .on("mouseout", hideTooltip);
             
-            // Add rectangles
-            nodeElements.append("rect")
-                .attr("width", d => d.width)
-                .attr("height", d => d.height);
+            // Add shapes based on node type
+            nodeElements.each(function(d) {{
+                const node = d3.select(this);
+                
+                if (d.type === 'activity') {{
+                    // Activity nodes are circles
+                    const radius = Math.min(d.width, d.height) / 2;
+                    node.append("circle")
+                        .attr("cx", d.width / 2)
+                        .attr("cy", d.height / 2)
+                        .attr("r", radius);
+                }} else {{
+                    // Entry, exit, and decision nodes are rectangles
+                    node.append("rect")
+                        .attr("width", d.width)
+                        .attr("height", d.height);
+                }}
+            }});
             
             // Add text labels (with wrapping)
             nodeElements.each(function(d) {{
