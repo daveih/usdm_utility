@@ -1,0 +1,427 @@
+import os
+import argparse
+import json
+from uuid import uuid4
+from usdm4.api.scheduled_instance import (
+    ScheduledActivityInstance,
+    ScheduledDecisionInstance,
+)
+from usdm4.api.wrapper import Wrapper
+from usdm4.api.study_design import StudyDesign
+from usdm4 import USDM4
+from usdm4.builder.builder import Builder
+from simple_error_log.errors import Errors
+
+class Timeline:
+    def __init__(self, file_path: str, errors: Errors):
+        self._errors = errors
+        self._usdm = USDM4()
+        self._file_path = file_path
+        self._builder: Builder = self._usdm.builder(errors)
+
+    def to_html(self):
+        """Generate HTML with D3 visualization for all timelines."""
+        self._builder.seed(self._file_path)
+        wrapper_dict: dict = self._builder._data_store.data
+        wrapper_dict['study']['id'] = uuid4()
+        wrapper = Wrapper.model_validate(wrapper_dict)
+        
+        try:
+            study_design = wrapper.study.versions[0].studyDesigns[0]
+            return self._generate_html(study_design)
+        except Exception as e:
+            self._errors.exception(
+                f"Failed generating HTML page", e
+            )
+            return ""
+
+    def _generate_html(self, study_design: StudyDesign):
+        """Generate complete HTML with embedded D3 visualization."""
+        
+        # Collect all timeline data
+        timelines_data = []
+        for timeline in study_design.scheduleTimelines:
+            timeline_data = self._process_timeline(timeline)
+            if timeline_data:
+                timelines_data.append(timeline_data)
+        
+        # Generate HTML
+        html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USDM Timeline Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }}
+        .timeline-container {{
+            background-color: white;
+            margin-bottom: 40px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }}
+        .timeline-title {{
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }}
+        .timeline-condition {{
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+            font-style: italic;
+        }}
+        .node {{
+            cursor: pointer;
+        }}
+        .node rect {{
+            stroke-width: 2;
+        }}
+        .node-activity rect {{
+            fill: #4A90E2;
+            stroke: #2E5C8A;
+        }}
+        .node-decision rect {{
+            fill: #FFD700;
+            stroke: #DAA520;
+        }}
+        .node-exit rect {{
+            fill: #90EE90;
+            stroke: #228B22;
+            rx: 15;
+            ry: 15;
+        }}
+        .node-entry rect {{
+            fill: #FFB6C1;
+            stroke: #C71585;
+            rx: 15;
+            ry: 15;
+        }}
+        .node text {{
+            fill: #333;
+            font-size: 12px;
+            pointer-events: none;
+        }}
+        .link {{
+            fill: none;
+            stroke: #999;
+            stroke-width: 2;
+            marker-end: url(#arrowhead);
+        }}
+        .link-label {{
+            font-size: 10px;
+            fill: #666;
+        }}
+        .tooltip {{
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }}
+    </style>
+</head>
+<body>
+    <h1>USDM Timeline Visualization</h1>
+    <div id="timelines"></div>
+    <div class="tooltip" id="tooltip"></div>
+    
+    <script>
+        const timelinesData = {self._format_timelines_data(timelines_data)};
+        
+        // Tooltip
+        const tooltip = d3.select("#tooltip");
+        
+        function showTooltip(event, text) {{
+            tooltip
+                .style("display", "block")
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px")
+                .html(text);
+        }}
+        
+        function hideTooltip() {{
+            tooltip.style("display", "none");
+        }}
+        
+        // Create visualization for each timeline
+        timelinesData.forEach((timelineData, index) => {{
+            const container = d3.select("#timelines")
+                .append("div")
+                .attr("class", "timeline-container")
+                .attr("id", `timeline-${{index}}`);
+            
+            container.append("div")
+                .attr("class", "timeline-title")
+                .text(timelineData.label);
+            
+            container.append("div")
+                .attr("class", "timeline-condition")
+                .text("Entry Condition: " + timelineData.entryCondition);
+            
+            const svgContainer = container.append("div")
+                .style("overflow-x", "auto");
+            
+            renderTimeline(svgContainer, timelineData);
+        }});
+        
+        function renderTimeline(container, data) {{
+            const nodeWidth = 160;
+            const nodeHeight = 60;
+            const horizontalSpacing = 200;
+            const verticalSpacing = 100;
+            const marginLeft = 50;
+            const marginTop = 50;
+            const marginRight = 50;
+            const marginBottom = 50;
+            
+            // Calculate positions for nodes in a straight horizontal line
+            const nodes = data.nodes.map((node, i) => ({{
+                ...node,
+                x: marginLeft + i * horizontalSpacing,
+                y: marginTop,
+                width: nodeWidth,
+                height: nodeHeight
+            }}));
+            
+            // Calculate SVG dimensions
+            const svgWidth = nodes.length * horizontalSpacing + marginLeft + marginRight;
+            const svgHeight = nodeHeight + marginTop + marginBottom + 100;
+            
+            const svg = container.append("svg")
+                .attr("width", svgWidth)
+                .attr("height", svgHeight);
+            
+            // Define arrowhead marker
+            svg.append("defs").append("marker")
+                .attr("id", `arrowhead-${{data.id}}`)
+                .attr("viewBox", "0 -5 10 10")
+                .attr("refX", 8)
+                .attr("refY", 0)
+                .attr("markerWidth", 6)
+                .attr("markerHeight", 6)
+                .attr("orient", "auto")
+                .append("path")
+                .attr("d", "M0,-5L10,0L0,5")
+                .attr("fill", "#999");
+            
+            // Create links
+            const links = [];
+            nodes.forEach((node, i) => {{
+                if (i < nodes.length - 1) {{
+                    links.push({{
+                        source: node,
+                        target: nodes[i + 1],
+                        label: node.linkLabel || ""
+                    }});
+                }}
+            }});
+            
+            // Draw links
+            const linkGroup = svg.append("g").attr("class", "links");
+            
+            linkGroup.selectAll("path")
+                .data(links)
+                .join("path")
+                .attr("class", "link")
+                .attr("d", d => {{
+                    const sourceX = d.source.x + d.source.width;
+                    const sourceY = d.source.y + d.source.height / 2;
+                    const targetX = d.target.x;
+                    const targetY = d.target.y + d.target.height / 2;
+                    return `M${{sourceX}},${{sourceY}} L${{targetX}},${{targetY}}`;
+                }})
+                .attr("marker-end", `url(#arrowhead-${{data.id}})`);
+            
+            // Draw link labels
+            linkGroup.selectAll("text")
+                .data(links)
+                .join("text")
+                .attr("class", "link-label")
+                .attr("x", d => (d.source.x + d.source.width + d.target.x) / 2)
+                .attr("y", d => (d.source.y + d.target.y) / 2 - 5)
+                .attr("text-anchor", "middle")
+                .text(d => d.label);
+            
+            // Draw nodes
+            const nodeGroup = svg.append("g").attr("class", "nodes");
+            
+            const nodeElements = nodeGroup.selectAll("g")
+                .data(nodes)
+                .join("g")
+                .attr("class", d => `node node-${{d.type}}`)
+                .attr("transform", d => `translate(${{d.x}},${{d.y}})`)
+                .on("mouseover", (event, d) => {{
+                    const tooltipText = `
+                        <strong>${{d.label}}</strong><br/>
+                        Type: ${{d.type}}<br/>
+                        ${{d.description ? 'Description: ' + d.description : ''}}
+                    `;
+                    showTooltip(event, tooltipText);
+                }})
+                .on("mouseout", hideTooltip);
+            
+            // Add rectangles
+            nodeElements.append("rect")
+                .attr("width", d => d.width)
+                .attr("height", d => d.height);
+            
+            // Add text labels (with wrapping)
+            nodeElements.each(function(d) {{
+                const node = d3.select(this);
+                const words = d.label.split(/\\s+/);
+                const lineHeight = 14;
+                const maxWidth = d.width - 10;
+                
+                let line = [];
+                let lineNumber = 0;
+                const text = node.append("text")
+                    .attr("x", d.width / 2)
+                    .attr("y", d.height / 2)
+                    .attr("text-anchor", "middle")
+                    .attr("dominant-baseline", "central");
+                
+                words.forEach((word, i) => {{
+                    line.push(word);
+                    const testLine = line.join(" ");
+                    const tspan = text.append("tspan")
+                        .attr("x", d.width / 2)
+                        .attr("dy", i === 0 ? 0 : lineHeight)
+                        .text(testLine);
+                    
+                    if (tspan.node().getComputedTextLength() > maxWidth && line.length > 1) {{
+                        line.pop();
+                        tspan.text(line.join(" "));
+                        line = [word];
+                        text.append("tspan")
+                            .attr("x", d.width / 2)
+                            .attr("dy", lineHeight)
+                            .text(word);
+                    }}
+                }});
+                
+                // Center the text vertically
+                const bbox = text.node().getBBox();
+                const offset = (d.height - bbox.height) / 2 - bbox.y;
+                text.attr("transform", `translate(0, ${{offset}})`);
+            }});
+        }}
+    </script>
+</body>
+</html>"""
+        return html
+
+    def _process_timeline(self, timeline):
+        """Process a timeline and extract node data."""
+        try:
+            nodes = []
+            
+            # Get the entry instance
+            instance = self._get_cross_reference(timeline.entryId)
+            if not instance:
+                return None
+            
+            # Collect all instances in order
+            while instance:
+                node_data = {
+                    'id': instance['id'],
+                    'label': instance.get('label', instance.get('name', 'Unknown')),
+                    'description': instance.get('description', ''),
+                    'type': 'activity' if instance['instanceType'] == ScheduledActivityInstance.__name__ else 'decision'
+                }
+                
+                # Determine if this is the first or last node
+                if len(nodes) == 0:
+                    node_data['type'] = 'entry'
+                
+                nodes.append(node_data)
+                
+                # Get next instance
+                next_id = instance.get('defaultConditionId')
+                if next_id:
+                    instance = self._get_cross_reference(next_id)
+                else:
+                    # This is the last instance, check for exit
+                    exit_id = instance.get('timelineExitId')
+                    if exit_id:
+                        exit_obj = self._get_cross_reference(exit_id)
+                        if exit_obj:
+                            nodes.append({
+                                'id': exit_obj['id'],
+                                'label': 'Exit',
+                                'description': 'Timeline Exit',
+                                'type': 'exit'
+                            })
+                    instance = None
+            
+            return {
+                'id': timeline.id,
+                'label': timeline.label,
+                'entryCondition': timeline.entryCondition,
+                'nodes': nodes
+            }
+        except Exception as e:
+            self._errors.exception(
+                f"Failed processing timeline {timeline.label}", e
+            )
+            return None
+
+    def _format_timelines_data(self, timelines_data):
+        """Format timeline data as JSON for embedding in HTML."""
+        return json.dumps(timelines_data)
+
+    def _get_cross_reference(self, id):
+        """Get cross reference by ID."""
+        return self._builder._data_store.instance_by_id(id)
+
+
+def save_html(file_path, result):
+    """Save HTML content to file."""
+    with open(file_path, "w") as f:
+        f.write(result)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        prog='USDM D3 Timeline Program',
+        description='Display USDM timelines using D3 in a horizontal layout',
+        epilog='Creates a single HTML file with all timelines'
+    )
+    parser.add_argument('filename', help="The name of the USDM JSON file.") 
+    args = parser.parse_args()
+    filename = args.filename
+    
+    input_path, tail = os.path.split(filename)
+    root_filename = tail.replace(".json", "")
+    full_filename = filename
+    output_path = input_path if input_path else "."
+    full_output_filename = os.path.join(output_path, f"{root_filename}_timeline.html")
+
+    print("")
+    print(f"Input file: {full_filename}")
+    print(f"Output path: {output_path}")
+    print(f"Output file: {full_output_filename}")
+    print("")
+    
+    errors = Errors()
+    timeline = Timeline(full_filename, errors)
+    html = timeline.to_html()
+    
+    if errors.error_count() > 0:
+        print(f"Errors: {errors.dump(0)}")
+    else:
+        save_html(full_output_filename, html)
+        print(f"Successfully created: {full_output_filename}")
+        print("")
+        print("Open this file in your browser to view the timeline visualization.")

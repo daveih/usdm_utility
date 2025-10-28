@@ -59,12 +59,15 @@ class Timeline:
             activity_instances = [inst for inst in instances if inst['instanceType'] == ScheduledActivityInstance.__name__]
             decision_instances = [inst for inst in instances if inst['instanceType'] != ScheduledActivityInstance.__name__]
             
-            # Timeline entry node (oval shape)
+            # Timeline entry node (pill/capsule shape)
             d2_lines.append(f"{timeline.id}: \"{timeline.label}\" {{")
             d2_lines.append("  shape: oval")
+            d2_lines.append("  width: 150")
+            d2_lines.append("  height: 60")
             d2_lines.append("  style: {")
             d2_lines.append("    fill: \"#90EE90\"")
             d2_lines.append("    stroke: \"#006400\"")
+            d2_lines.append("    stroke-width: 2")
             d2_lines.append("  }")
             d2_lines.append("}")
             d2_lines.append("")
@@ -115,9 +118,12 @@ class Timeline:
                 if exit_obj:
                     d2_lines.append(f"{exit_obj['id']}: \"Exit\" {{")
                     d2_lines.append("  shape: oval")
+                    d2_lines.append("  width: 100")
+                    d2_lines.append("  height: 60")
                     d2_lines.append("  style: {")
                     d2_lines.append("    fill: \"#FFB6C1\"")
                     d2_lines.append("    stroke: \"#DC143C\"")
+                    d2_lines.append("    stroke-width: 2")
                     d2_lines.append("  }")
                     d2_lines.append("}")
                     d2_lines.append("")
