@@ -188,10 +188,11 @@ class Timeline:
         }});
         
         function renderTimeline(container, data) {{
-            const nodeWidth = 160;
-            const nodeHeight = 60;
+            const activityNodeRadius = 40;
+            const nodeWidth = activityNodeRadius * 2;
+            const nodeHeight = activityNodeRadius * 2;
             const timingNodeRadius = 40;
-            const horizontalSpacing = 200;
+            const horizontalSpacing = 250;
             const verticalSpacing = 150;
             const marginLeft = 50;
             const marginTop = 50;
