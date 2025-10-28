@@ -450,31 +450,80 @@ class Timeline:
             timingElements.append("circle")
                 .attr("r", d => d.radius);
             
-            // Add text labels for timing nodes
+            // Add text labels or anchor icon for timing nodes
             timingElements.each(function(d) {{
                 const node = d3.select(this);
-                const text = node.append("text")
-                    .attr("text-anchor", "middle")
-                    .attr("dominant-baseline", "central")
-                    .style("font-size", "10px");
                 
-                // Create multi-line text
-                const lines = [d.label, d.type, d.valueLabel];
-                if (d.windowLabel) {{
-                    lines.push(d.windowLabel);
+                if (d.isAnchor) {{
+                    // Draw ship's anchor icon matching the reference design
+                    const anchorGroup = node.append("g")
+                        .attr("transform", "scale(1.4)");
+                    
+                    // Ring at top
+                    anchorGroup.append("circle")
+                        .attr("cx", 0)
+                        .attr("cy", -18)
+                        .attr("r", 5)
+                        .attr("fill", "none")
+                        .attr("stroke", "#003366")
+                        .attr("stroke-width", 3);
+                    
+                    // Vertical shaft
+                    anchorGroup.append("line")
+                        .attr("x1", 0)
+                        .attr("y1", -13)
+                        .attr("x2", 0)
+                        .attr("y2", 18)
+                        .attr("stroke", "#003366")
+                        .attr("stroke-width", 3)
+                        .attr("stroke-linecap", "round");
+                    
+                    // Horizontal crossbar (stock)
+                    anchorGroup.append("rect")
+                        .attr("x", -12)
+                        .attr("y", -3)
+                        .attr("width", 24)
+                        .attr("height", 5)
+                        .attr("rx", 2.5)
+                        .attr("ry", 2.5)
+                        .attr("fill", "#003366");
+                    
+                    // Left fluke
+                    const leftFlukePath = "M 0,18 Q -8,18 -15,12 Q -18,9 -16,5 L -12,8 Q -10,10 -8,11 L 0,18";
+                    anchorGroup.append("path")
+                        .attr("d", leftFlukePath)
+                        .attr("fill", "#003366");
+                    
+                    // Right fluke
+                    const rightFlukePath = "M 0,18 Q 8,18 15,12 Q 18,9 16,5 L 12,8 Q 10,10 8,11 L 0,18";
+                    anchorGroup.append("path")
+                        .attr("d", rightFlukePath)
+                        .attr("fill", "#003366");
+                }} else {{
+                    // Draw text for non-anchor nodes
+                    const text = node.append("text")
+                        .attr("text-anchor", "middle")
+                        .attr("dominant-baseline", "central")
+                        .style("font-size", "10px");
+                    
+                    // Create multi-line text
+                    const lines = [d.label, d.type, d.valueLabel];
+                    if (d.windowLabel) {{
+                        lines.push(d.windowLabel);
+                    }}
+                    
+                    lines.forEach((line, i) => {{
+                        text.append("tspan")
+                            .attr("x", 0)
+                            .attr("dy", i === 0 ? 0 : 12)
+                            .text(line);
+                    }});
+                    
+                    // Center the text vertically
+                    const bbox = text.node().getBBox();
+                    const offset = -bbox.height / 2 - bbox.y;
+                    text.attr("transform", `translate(0, ${{offset}})`);
                 }}
-                
-                lines.forEach((line, i) => {{
-                    text.append("tspan")
-                        .attr("x", 0)
-                        .attr("dy", i === 0 ? 0 : 12)
-                        .text(line);
-                }});
-                
-                // Center the text vertically
-                const bbox = text.node().getBBox();
-                const offset = -bbox.height / 2 - bbox.y;
-                text.attr("transform", `translate(0, ${{offset}})`);
             }});
         }}
     </script>
@@ -528,10 +577,15 @@ class Timeline:
             # Process timings
             timings = []
             for timing in timeline.timings:
+                # Check if this is an anchor node (Fixed Reference type)
+                is_anchor = timing.type and timing.type.code == 'C201358'
+                
                 timing_data = {
                     'id': timing.id,
                     'label': timing.label,
                     'type': timing.type.decode if timing.type else 'Unknown',
+                    'typeCode': timing.type.code if timing.type else '',
+                    'isAnchor': is_anchor,
                     'value': timing.value,
                     'valueLabel': timing.valueLabel if timing.valueLabel else timing.value,
                     'windowLower': timing.windowLower if timing.windowLower else '',
