@@ -253,8 +253,11 @@ class Timeline:
                 .attr("width", svgWidth)
                 .attr("height", svgHeight);
             
-            // Define arrowhead marker
-            svg.append("defs").append("marker")
+            // Define arrowhead markers
+            const defs = svg.append("defs");
+            
+            // Gray arrowhead for regular links
+            defs.append("marker")
                 .attr("id", `arrowhead-${{data.id}}`)
                 .attr("viewBox", "0 -5 10 10")
                 .attr("refX", 8)
@@ -265,6 +268,19 @@ class Timeline:
                 .append("path")
                 .attr("d", "M0,-5L10,0L0,5")
                 .attr("fill", "#999");
+            
+            // Blue arrowhead for timing links
+            defs.append("marker")
+                .attr("id", `arrowhead-timing-${{data.id}}`)
+                .attr("viewBox", "0 -5 10 10")
+                .attr("refX", 8)
+                .attr("refY", 0)
+                .attr("markerWidth", 6)
+                .attr("markerHeight", 6)
+                .attr("orient", "auto")
+                .append("path")
+                .attr("d", "M0,-5L10,0L0,5")
+                .attr("fill", "#003366");
             
             // Create links
             const links = [];
@@ -404,27 +420,51 @@ class Timeline:
                 text.attr("transform", `translate(0, ${{offset}})`);
             }});
             
-            // Draw timing links (dashed lines from activity nodes to timing nodes)
+            // Draw timing links with arrows and labels
             const timingLinkGroup = svg.append("g").attr("class", "timing-links");
             
             timingNodes.forEach(timing => {{
-                // Line from "from" node to timing node
-                timingLinkGroup.append("path")
+                // Line from "from" node to timing node (with arrow pointing UP at activity node)
+                const fromX = timing.fromNode.x + timing.fromNode.width / 2;
+                const fromY = timing.fromNode.y + timing.fromNode.height;
+                const fromPath = timingLinkGroup.append("path")
                     .attr("class", "link-timing")
-                    .attr("d", () => {{
-                        const fromX = timing.fromNode.x + timing.fromNode.width / 2;
-                        const fromY = timing.fromNode.y + timing.fromNode.height;
-                        return `M${{fromX}},${{fromY}} L${{timing.x}},${{timing.y}}`;
-                    }});
+                    .attr("d", `M${{timing.x}},${{timing.y}} L${{fromX}},${{fromY}}`)
+                    .attr("marker-end", `url(#arrowhead-timing-${{data.id}})`);
                 
-                // Line from timing node to "to" node
-                timingLinkGroup.append("path")
+                // Label for "from" link
+                const fromMidX = (timing.x + fromX) / 2;
+                const fromMidY = (timing.y + fromY) / 2;
+                timingLinkGroup.append("text")
+                    .attr("class", "link-label")
+                    .attr("x", fromMidX - 10)
+                    .attr("y", fromMidY)
+                    .attr("text-anchor", "end")
+                    .style("fill", "#003366")
+                    .style("font-size", "10px")
+                    .style("font-weight", "bold")
+                    .text("from");
+                
+                // Line from timing node to "to" node (with arrow pointing UP at activity node)
+                const toX = timing.toNode.x + timing.toNode.width / 2;
+                const toY = timing.toNode.y + timing.toNode.height;
+                const toPath = timingLinkGroup.append("path")
                     .attr("class", "link-timing")
-                    .attr("d", () => {{
-                        const toX = timing.toNode.x + timing.toNode.width / 2;
-                        const toY = timing.toNode.y + timing.toNode.height;
-                        return `M${{timing.x}},${{timing.y}} L${{toX}},${{toY}}`;
-                    }});
+                    .attr("d", `M${{timing.x}},${{timing.y}} L${{toX}},${{toY}}`)
+                    .attr("marker-end", `url(#arrowhead-timing-${{data.id}})`);
+                
+                // Label for "to" link
+                const toMidX = (timing.x + toX) / 2;
+                const toMidY = (timing.y + toY) / 2;
+                timingLinkGroup.append("text")
+                    .attr("class", "link-label")
+                    .attr("x", toMidX + 10)
+                    .attr("y", toMidY)
+                    .attr("text-anchor", "start")
+                    .style("fill", "#003366")
+                    .style("font-size", "10px")
+                    .style("font-weight", "bold")
+                    .text("to");
             }});
             
             // Draw timing nodes
