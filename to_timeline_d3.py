@@ -104,6 +104,11 @@ class Timeline:
             rx: 15;
             ry: 15;
         }}
+        .node-timing circle {{
+            fill: #DDA0DD;
+            stroke: #8B008B;
+            stroke-width: 2;
+        }}
         .node text {{
             fill: #333;
             font-size: 12px;
@@ -114,6 +119,12 @@ class Timeline:
             stroke: #999;
             stroke-width: 2;
             marker-end: url(#arrowhead);
+        }}
+        .link-timing {{
+            fill: none;
+            stroke: #9370DB;
+            stroke-width: 1.5;
+            stroke-dasharray: 3, 3;
         }}
         .link-label {{
             font-size: 10px;
@@ -179,12 +190,13 @@ class Timeline:
         function renderTimeline(container, data) {{
             const nodeWidth = 160;
             const nodeHeight = 60;
+            const timingNodeRadius = 40;
             const horizontalSpacing = 200;
-            const verticalSpacing = 100;
+            const verticalSpacing = 150;
             const marginLeft = 50;
             const marginTop = 50;
             const marginRight = 50;
-            const marginBottom = 50;
+            const marginBottom = 200;
             
             // Calculate positions for nodes in a straight horizontal line
             const nodes = data.nodes.map((node, i) => ({{
@@ -195,9 +207,39 @@ class Timeline:
                 height: nodeHeight
             }}));
             
+            // Create a map of node IDs to their positions for timing lookups
+            const nodeMap = {{}};
+            nodes.forEach(node => {{
+                nodeMap[node.id] = node;
+            }});
+            
+            // Process timing nodes and position them below the main timeline
+            const timingNodes = [];
+            if (data.timings) {{
+                data.timings.forEach((timing, idx) => {{
+                    const fromNode = nodeMap[timing.relativeFromScheduledInstanceId];
+                    const toNode = nodeMap[timing.relativeToScheduledInstanceId];
+                    
+                    if (fromNode && toNode) {{
+                        // Position timing node between the from and to nodes, below the main line
+                        const timingX = (fromNode.x + fromNode.width/2 + toNode.x + toNode.width/2) / 2;
+                        const timingY = marginTop + nodeHeight + verticalSpacing;
+                        
+                        timingNodes.push({{
+                            ...timing,
+                            x: timingX,
+                            y: timingY,
+                            radius: timingNodeRadius,
+                            fromNode: fromNode,
+                            toNode: toNode
+                        }});
+                    }}
+                }});
+            }}
+            
             // Calculate SVG dimensions
             const svgWidth = nodes.length * horizontalSpacing + marginLeft + marginRight;
-            const svgHeight = nodeHeight + marginTop + marginBottom + 100;
+            const svgHeight = marginTop + nodeHeight + verticalSpacing + timingNodeRadius * 2 + marginBottom;
             
             const svg = container.append("svg")
                 .attr("width", svgWidth)
@@ -316,6 +358,79 @@ class Timeline:
                 const offset = (d.height - bbox.height) / 2 - bbox.y;
                 text.attr("transform", `translate(0, ${{offset}})`);
             }});
+            
+            // Draw timing links (dashed lines from activity nodes to timing nodes)
+            const timingLinkGroup = svg.append("g").attr("class", "timing-links");
+            
+            timingNodes.forEach(timing => {{
+                // Line from "from" node to timing node
+                timingLinkGroup.append("path")
+                    .attr("class", "link-timing")
+                    .attr("d", () => {{
+                        const fromX = timing.fromNode.x + timing.fromNode.width / 2;
+                        const fromY = timing.fromNode.y + timing.fromNode.height;
+                        return `M${{fromX}},${{fromY}} L${{timing.x}},${{timing.y}}`;
+                    }});
+                
+                // Line from timing node to "to" node
+                timingLinkGroup.append("path")
+                    .attr("class", "link-timing")
+                    .attr("d", () => {{
+                        const toX = timing.toNode.x + timing.toNode.width / 2;
+                        const toY = timing.toNode.y + timing.toNode.height;
+                        return `M${{timing.x}},${{timing.y}} L${{toX}},${{toY}}`;
+                    }});
+            }});
+            
+            // Draw timing nodes
+            const timingNodeGroup = svg.append("g").attr("class", "timing-nodes");
+            
+            const timingElements = timingNodeGroup.selectAll("g")
+                .data(timingNodes)
+                .join("g")
+                .attr("class", "node node-timing")
+                .attr("transform", d => `translate(${{d.x}},${{d.y}})`)
+                .on("mouseover", (event, d) => {{
+                    const tooltipText = `
+                        <strong>${{d.label}}</strong><br/>
+                        Type: ${{d.type}}<br/>
+                        Value: ${{d.valueLabel}}<br/>
+                        ${{d.windowLabel ? 'Window: ' + d.windowLabel : ''}}
+                    `;
+                    showTooltip(event, tooltipText);
+                }})
+                .on("mouseout", hideTooltip);
+            
+            // Add circles for timing nodes
+            timingElements.append("circle")
+                .attr("r", d => d.radius);
+            
+            // Add text labels for timing nodes
+            timingElements.each(function(d) {{
+                const node = d3.select(this);
+                const text = node.append("text")
+                    .attr("text-anchor", "middle")
+                    .attr("dominant-baseline", "central")
+                    .style("font-size", "10px");
+                
+                // Create multi-line text
+                const lines = [d.label, d.type, d.valueLabel];
+                if (d.windowLabel) {{
+                    lines.push(d.windowLabel);
+                }}
+                
+                lines.forEach((line, i) => {{
+                    text.append("tspan")
+                        .attr("x", 0)
+                        .attr("dy", i === 0 ? 0 : 12)
+                        .text(line);
+                }});
+                
+                // Center the text vertically
+                const bbox = text.node().getBBox();
+                const offset = -bbox.height / 2 - bbox.y;
+                text.attr("transform", `translate(0, ${{offset}})`);
+            }});
         }}
     </script>
 </body>
@@ -365,11 +480,29 @@ class Timeline:
                             })
                     instance = None
             
+            # Process timings
+            timings = []
+            for timing in timeline.timings:
+                timing_data = {
+                    'id': timing.id,
+                    'label': timing.label,
+                    'type': timing.type.decode if timing.type else 'Unknown',
+                    'value': timing.value,
+                    'valueLabel': timing.valueLabel if timing.valueLabel else timing.value,
+                    'windowLower': timing.windowLower if timing.windowLower else '',
+                    'windowUpper': timing.windowUpper if timing.windowUpper else '',
+                    'windowLabel': timing.windowLabel if timing.windowLabel else '',
+                    'relativeFromScheduledInstanceId': timing.relativeFromScheduledInstanceId,
+                    'relativeToScheduledInstanceId': timing.relativeToScheduledInstanceId
+                }
+                timings.append(timing_data)
+            
             return {
                 'id': timeline.id,
                 'label': timeline.label,
                 'entryCondition': timeline.entryCondition,
-                'nodes': nodes
+                'nodes': nodes,
+                'timings': timings
             }
         except Exception as e:
             self._errors.exception(
