@@ -210,7 +210,7 @@ class Timeline:
             const marginBottom = 200;
             
             // Calculate space needed for orphan nodes at the very top (above conditional links)
-            const orphanHeight = (data.orphanNodes && data.orphanNodes.length > 0) ? nodeHeight + 240 : 0;
+            const orphanHeight = (data.orphanNodes && data.orphanNodes.length > 0) ? nodeHeight + 60 : 0;
             
             // Calculate space needed for conditional links above timeline
             let maxConditionalHeight = 0;
