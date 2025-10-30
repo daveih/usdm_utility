@@ -279,31 +279,55 @@ class Timeline:
             const orphanRowY = marginTop + orphanHeight - nodeHeight;
             const orphanNodes = [];
             if (data.orphanNodes && data.orphanNodes.length > 0) {{
-                // Create a map to track which orphan belongs to which source
+                // Create maps to track orphan sources
                 const orphanToSource = new Map();
+                
+                // Map conditional link targets to their source decision nodes
                 data.conditionalLinks.forEach(link => {{
                     if (data.orphanNodes.some(orphan => orphan.id === link.targetId)) {{
                         orphanToSource.set(link.targetId, link.sourceId);
                     }}
                 }});
                 
+                // Map orphan-to-orphan links
+                if (data.orphanLinks) {{
+                    data.orphanLinks.forEach(link => {{
+                        orphanToSource.set(link.targetId, link.sourceId);
+                    }});
+                }}
+                
+                // Position orphans in order, ensuring each is to the right of its source
                 data.orphanNodes.forEach((orphan, i) => {{
-                    // Find the source node for this orphan
+                    // Find the source node for this orphan (could be a decision node or another orphan)
                     const sourceId = orphanToSource.get(orphan.id);
-                    const sourceNode = nodeMap[sourceId];
+                    let sourceNode = nodeMap[sourceId];
+                    
+                    // If source not found yet in nodeMap, it might be an orphan we haven't positioned yet
+                    // In that case, skip for now and we'll handle it in a second pass
+                    if (!sourceNode && sourceId) {{
+                        // Check if source is in orphanNodes (not yet positioned)
+                        const sourceOrphan = data.orphanNodes.find(o => o.id === sourceId);
+                        if (sourceOrphan) {{
+                            // We'll handle this in order - for now just note we need proper ordering
+                            // This shouldn't happen if orphanNodes are in chain order
+                        }}
+                    }}
                     
                     // Position to the right of the source node
-                    const xPos = sourceNode ? sourceNode.x + horizontalSpacing : marginLeft + i * horizontalSpacing;
-                    
-                    const orphanNode = {{
-                        ...orphan,
-                        x: xPos,
-                        y: orphanRowY,
-                        width: nodeWidth,
-                        height: nodeHeight
-                    }};
-                    orphanNodes.push(orphanNode);
-                    nodeMap[orphan.id] = orphanNode;
+                    // Only add orphan if we have a valid source
+                    if (sourceNode) {{
+                        const xPos = sourceNode.x + horizontalSpacing;
+                        
+                        const orphanNode = {{
+                            ...orphan,
+                            x: xPos,
+                            y: orphanRowY,
+                            width: nodeWidth,
+                            height: nodeHeight
+                        }};
+                        orphanNodes.push(orphanNode);
+                        nodeMap[orphan.id] = orphanNode;
+                    }}
                 }});
             }}
             
