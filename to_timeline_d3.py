@@ -272,11 +272,11 @@ class Timeline:
                 }});
             }}
             
-            // Calculate space needed for orphan nodes at the top
-            const orphanHeight = (data.orphanNodes && data.orphanNodes.length > 0) ? nodeHeight + 80 : 0;
+            // Calculate space needed for orphan nodes at the very top (above conditional links)
+            const orphanHeight = (data.orphanNodes && data.orphanNodes.length > 0) ? nodeHeight + 60 : 0;
             
-            // Position orphan nodes well above main timeline, to the right of their source nodes
-            const orphanRowY = marginTop;
+            // Position orphan nodes at the very top, above everything else
+            const orphanRowY = 20; // Small margin from top edge
             const orphanNodes = [];
             if (data.orphanNodes && data.orphanNodes.length > 0) {{
                 // Create maps to track orphan sources
