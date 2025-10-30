@@ -120,7 +120,6 @@ class Timeline:
             fill: none;
             stroke: #999;
             stroke-width: 2;
-            marker-end: url(#arrowhead);
         }}
         .link-timing {{
             fill: none;
@@ -284,7 +283,7 @@ class Timeline:
             // Define arrowhead markers
             const defs = svg.append("defs");
             
-            // Gray arrowhead for regular links
+            // Black arrowhead for regular links
             defs.append("marker")
                 .attr("id", `arrowhead-${{data.id}}`)
                 .attr("viewBox", "0 -5 10 10")
@@ -295,7 +294,7 @@ class Timeline:
                 .attr("orient", "auto")
                 .append("path")
                 .attr("d", "M0,-5L10,0L0,5")
-                .attr("fill", "#999");
+                .attr("fill", "#000000");
             
             // Blue arrowhead for timing links
             defs.append("marker")
