@@ -272,9 +272,42 @@ class Timeline:
                 }});
             }}
             
-            // Calculate SVG dimensions with space for conditional links above
-            const svgWidth = nodes.length * horizontalSpacing + marginLeft + marginRight;
-            const svgHeight = maxConditionalHeight + marginTop + nodeHeight + verticalSpacing + timingNodeRadius * 2 + marginBottom;
+            // Position orphan nodes above main timeline, to the right of their source nodes
+            const orphanRowY = maxConditionalHeight + marginTop - nodeHeight - 20;
+            const orphanNodes = [];
+            if (data.orphanNodes && data.orphanNodes.length > 0) {{
+                // Create a map to track which orphan belongs to which source
+                const orphanToSource = new Map();
+                data.conditionalLinks.forEach(link => {{
+                    if (data.orphanNodes.some(orphan => orphan.id === link.targetId)) {{
+                        orphanToSource.set(link.targetId, link.sourceId);
+                    }}
+                }});
+                
+                data.orphanNodes.forEach((orphan, i) => {{
+                    // Find the source node for this orphan
+                    const sourceId = orphanToSource.get(orphan.id);
+                    const sourceNode = nodeMap[sourceId];
+                    
+                    // Position to the right of the source node
+                    const xPos = sourceNode ? sourceNode.x + horizontalSpacing : marginLeft + i * horizontalSpacing;
+                    
+                    const orphanNode = {{
+                        ...orphan,
+                        x: xPos,
+                        y: orphanRowY,
+                        width: nodeWidth,
+                        height: nodeHeight
+                    }};
+                    orphanNodes.push(orphanNode);
+                    nodeMap[orphan.id] = orphanNode;
+                }});
+            }}
+            
+            // Calculate SVG dimensions - orphan nodes are now above, so adjust height calculation
+            const orphanHeight = orphanNodes.length > 0 ? nodeHeight + 40 : 0;
+            const svgWidth = Math.max(nodes.length, orphanNodes.length) * horizontalSpacing + marginLeft + marginRight;
+            const svgHeight = maxConditionalHeight + orphanHeight + marginTop + nodeHeight + verticalSpacing + timingNodeRadius * 2 + marginBottom;
             
             const svg = container.append("svg")
                 .attr("width", svgWidth)
@@ -703,6 +736,131 @@ class Timeline:
                     }}
                 }});
             }}
+            
+            // Draw orphan nodes
+            if (orphanNodes.length > 0) {{
+                const orphanNodeGroup = svg.append("g").attr("class", "orphan-nodes");
+                
+                const orphanNodeElements = orphanNodeGroup.selectAll("g")
+                    .data(orphanNodes)
+                    .join("g")
+                    .attr("class", d => `node node-${{d.type}}`)
+                    .attr("transform", d => `translate(${{d.x}},${{d.y}})`)
+                    .on("mouseover", (event, d) => {{
+                        const tooltipText = `
+                            <strong>${{d.label}}</strong><br/>
+                            Type: ${{d.type}}<br/>
+                            ${{d.description ? 'Description: ' + d.description : ''}}
+                        `;
+                        showTooltip(event, tooltipText);
+                    }})
+                    .on("mouseout", hideTooltip);
+                
+                // Add shapes for orphan nodes
+                orphanNodeElements.each(function(d) {{
+                    const node = d3.select(this);
+                    
+                    if (d.type === 'activity') {{
+                        const radius = Math.min(d.width, d.height) / 2;
+                        node.append("circle")
+                            .attr("cx", d.width / 2)
+                            .attr("cy", d.height / 2)
+                            .attr("r", radius);
+                    }} else if (d.type === 'decision') {{
+                        const centerX = d.width / 2;
+                        const centerY = d.height / 2;
+                        const diamondPath = `M ${{centerX}},${{0}} L ${{d.width}},${{centerY}} L ${{centerX}},${{d.height}} L ${{0}},${{centerY}} Z`;
+                        node.append("path")
+                            .attr("d", diamondPath);
+                    }} else {{
+                        node.append("rect")
+                            .attr("width", d.width)
+                            .attr("height", d.height);
+                    }}
+                }});
+                
+                // Add text labels for orphan nodes
+                orphanNodeElements.each(function(d) {{
+                    const node = d3.select(this);
+                    const words = d.label.split(/\\s+/);
+                    const lineHeight = 14;
+                    const maxWidth = d.width - 10;
+                    
+                    let line = [];
+                    const text = node.append("text")
+                        .attr("x", d.width / 2)
+                        .attr("y", d.height / 2)
+                        .attr("text-anchor", "middle")
+                        .attr("dominant-baseline", "central");
+                    
+                    words.forEach((word, i) => {{
+                        line.push(word);
+                        const testLine = line.join(" ");
+                        const tspan = text.append("tspan")
+                            .attr("x", d.width / 2)
+                            .attr("dy", i === 0 ? 0 : lineHeight)
+                            .text(testLine);
+                        
+                        if (tspan.node().getComputedTextLength() > maxWidth && line.length > 1) {{
+                            line.pop();
+                            tspan.text(line.join(" "));
+                            line = [word];
+                            text.append("tspan")
+                                .attr("x", d.width / 2)
+                                .attr("dy", lineHeight)
+                                .text(word);
+                        }}
+                    }});
+                    
+                    const bbox = text.node().getBBox();
+                    const offset = (d.height - bbox.height) / 2 - bbox.y;
+                    text.attr("transform", `translate(0, ${{offset}})`);
+                }});
+                
+                // Draw links between orphan nodes
+                if (data.orphanLinks && data.orphanLinks.length > 0) {{
+                    const orphanLinkGroup = svg.append("g").attr("class", "orphan-links");
+                    
+                    data.orphanLinks.forEach(link => {{
+                        const sourceNode = nodeMap[link.sourceId];
+                        const targetNode = nodeMap[link.targetId];
+                        
+                        if (sourceNode && targetNode) {{
+                            let sourceX, sourceY, targetX, targetY;
+                            
+                            if (sourceNode.type === 'activity') {{
+                                const radius = Math.min(sourceNode.width, sourceNode.height) / 2;
+                                sourceX = sourceNode.x + sourceNode.width / 2 + radius;
+                                sourceY = sourceNode.y + sourceNode.height / 2;
+                            }} else if (sourceNode.type === 'decision') {{
+                                sourceX = sourceNode.x + sourceNode.width;
+                                sourceY = sourceNode.y + sourceNode.height / 2;
+                            }} else {{
+                                sourceX = sourceNode.x + sourceNode.width;
+                                sourceY = sourceNode.y + sourceNode.height / 2;
+                            }}
+                            
+                            if (targetNode.type === 'activity') {{
+                                const radius = Math.min(targetNode.width, targetNode.height) / 2;
+                                targetX = targetNode.x + targetNode.width / 2 - radius;
+                                targetY = targetNode.y + targetNode.height / 2;
+                            }} else if (targetNode.type === 'decision') {{
+                                targetX = targetNode.x;
+                                targetY = targetNode.y + targetNode.height / 2;
+                            }} else {{
+                                targetX = targetNode.x;
+                                targetY = targetNode.y + targetNode.height / 2;
+                            }}
+                            
+                            orphanLinkGroup.append("path")
+                                .attr("class", "link")
+                                .attr("d", `M${{sourceX}},${{sourceY}} L${{targetX}},${{targetY}}`)
+                                .attr("marker-end", `url(#arrowhead-${{data.id}})`);
+                        }}
+                    }});
+                }}
+            }}
+            
         }}
     </script>
 </body>
@@ -719,8 +877,10 @@ class Timeline:
             if not instance:
                 return None
             
-            # Collect all instances in order
+            # Collect all instances in order - first pass for main timeline
             conditional_links = []
+            main_timeline_node_ids = set()
+            
             while instance:
                 # Determine the node type
                 if instance['instanceType'] == ScheduledActivityInstance.__name__:
@@ -751,6 +911,7 @@ class Timeline:
                         })
                 
                 nodes.append(node_data)
+                main_timeline_node_ids.add(instance['id'])
                 
                 # Get next instance
                 next_id = instance.get('defaultConditionId')
@@ -769,6 +930,48 @@ class Timeline:
                                 'type': 'exit'
                             })
                     instance = None
+            
+            # Second pass: collect orphan nodes (nodes referenced by conditional links but not in main timeline)
+            orphan_nodes = []
+            orphan_links = []
+            processed_orphan_ids = set()
+            
+            for cond_link in conditional_links:
+                target_id = cond_link['targetId']
+                if target_id not in main_timeline_node_ids and target_id not in processed_orphan_ids:
+                    # This is an orphan node - follow its chain
+                    orphan_instance = self._get_cross_reference(target_id)
+                    while orphan_instance and orphan_instance['id'] not in main_timeline_node_ids:
+                        if orphan_instance['id'] in processed_orphan_ids:
+                            break
+                        
+                        # Determine node type
+                        if orphan_instance['instanceType'] == ScheduledActivityInstance.__name__:
+                            orphan_type = 'activity'
+                        elif orphan_instance['instanceType'] == ScheduledDecisionInstance.__name__:
+                            orphan_type = 'decision'
+                        else:
+                            orphan_type = 'unknown'
+                        
+                        orphan_node_data = {
+                            'id': orphan_instance['id'],
+                            'label': orphan_instance.get('label', orphan_instance.get('name', 'Unknown')),
+                            'description': orphan_instance.get('description', ''),
+                            'type': orphan_type
+                        }
+                        orphan_nodes.append(orphan_node_data)
+                        processed_orphan_ids.add(orphan_instance['id'])
+                        
+                        # Check if this orphan links to another orphan
+                        next_id = orphan_instance.get('defaultConditionId')
+                        if next_id and next_id not in main_timeline_node_ids:
+                            orphan_links.append({
+                                'sourceId': orphan_instance['id'],
+                                'targetId': next_id
+                            })
+                            orphan_instance = self._get_cross_reference(next_id)
+                        else:
+                            break
             
             # Process timings
             timings = []
@@ -798,7 +1001,9 @@ class Timeline:
                 'entryCondition': timeline.entryCondition,
                 'nodes': nodes,
                 'timings': timings,
-                'conditionalLinks': conditional_links
+                'conditionalLinks': conditional_links,
+                'orphanNodes': orphan_nodes,
+                'orphanLinks': orphan_links
             }
         except Exception as e:
             self._errors.exception(
