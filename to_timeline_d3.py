@@ -90,8 +90,8 @@ class Timeline:
             stroke-width: 2;
         }}
         .node-decision path {{
-            fill: #FFD700;
-            stroke: #DAA520;
+            fill: #C0C0C0;
+            stroke: #000000;
             stroke-width: 2;
         }}
         .node-exit rect {{
