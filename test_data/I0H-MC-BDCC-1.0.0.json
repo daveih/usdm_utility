@@ -1,0 +1,1213 @@
+{
+  "study": {
+    "id": "I0H-MC-BDCC",
+    "name": "I0H-MC-BDCC",
+    "description": "Testing DSoA in Dev",
+    "label": false,
+    "versions": [
+      {
+        "id": "d0c2cf63-ef22-4a92-94cb-e0cb695474e0",
+        "extensionAttributes": [],
+        "versionIdentifier": "1.0.0",
+        "rationale": "Trial for Metrics Calculations of Duration Type",
+        "studyIdentifiers": [
+          {
+            "id": "7155029d-bb45-4ade-bf86-9a2e13019675",
+            "extensionAttributes": [],
+            "text": "I0H-MC-BDCC",
+            "scopeId": "b96a7e0f-42e1-4ff7-8597-8e207ffd2fd4",
+            "instanceType": "StudyIdentifier",
+            "instanceType": "StudyIdentifier"
+          }
+        ],
+        "studyDesigns": [
+          {
+            "id": "4f9f1a2f-bd8f-48a6-8619-4fd372544f59",
+            "extensionAttributes": [],
+            "rationale": "",
+            "name": "Trial for Metrics Calculations of Duration Type",
+            "label": "I0H-MC-BDCC",
+            "description": "The main design for the study",
+            "studyType": {
+              "id": "0cd44be8-1400-4e13-aeb4-6df36f064766",
+              "extensionAttributes": [],
+              "code": "C16084",
+              "codeSystem": "http://www.cdisc.org",
+              "codeSystemVersion": "2024-03-29 04:44:12",
+              "decode": "Observational Study",
+              "instanceType": "Code",
+              "instanceType": "Code"
+            },
+            "studyPhase": {
+              "id": "d6870e9d-97ea-41be-9aba-47722e550bc7",
+              "extensionAttributes": [],
+              "standardCode": {
+                "id": "45a34681-f232-46cc-ac79-acb6074c51f2",
+                "extensionAttributes": [],
+                "code": "C15601",
+                "codeSystem": "http://www.cdisc.org",
+                "codeSystemVersion": "2024-03-29 04:44:12",
+                "decode": "Phase II Trial",
+                "instanceType": "Code",
+                "instanceType": "Code"
+              },
+              "standardCodeAliases": null,
+              "instanceType": "AliasCode",
+              "instanceType": "AliasCode"
+            },
+            "therapeuticAreas": [
+              "Immunology"
+            ],
+            "encounters": [
+              {
+                "id": "487f7881-d418-4f1c-83ff-9afce212b9fc",
+                "extensionAttributes": [],
+                "name": "1",
+                "label": "",
+                "description": "Telephone",
+                "type": {
+                  "id": "3054f634-8eb2-4441-a01b-135a42ff7962",
+                  "extensionAttributes": [],
+                  "code": "",
+                  "codeSystem": "Design Studio",
+                  "codeSystemVersion": "",
+                  "decode": "VISIT",
+                  "instanceType": "Code",
+                  "instanceType": "Code"
+                },
+                "previousId": "",
+                "nextId": "16fa2f58-5788-484c-a73d-b7d4bee26b17",
+                "scheduledAtId": "",
+                "environmentalSettings": [],
+                "contactModes": [
+                  {
+                    "id": "1bfec084-3894-4de2-8071-853fc6e0d609",
+                    "extensionAttributes": [],
+                    "code": "C171537",
+                    "codeSystem": "http://www.cdisc.org",
+                    "codeSystemVersion": "2024-03-29 04:44:12",
+                    "decode": "Telephone Call",
+                    "instanceType": "Code",
+                    "instanceType": "Code"
+                  }
+                ],
+                "notes": [],
+                "instanceType": "Encounter",
+                "instanceType": "Encounter"
+              },
+              {
+                "id": "16fa2f58-5788-484c-a73d-b7d4bee26b17",
+                "extensionAttributes": [],
+                "name": "2",
+                "label": "",
+                "description": "",
+                "type": {
+                  "id": "535146ba-f29a-4f6a-9d47-c697354e0cc5",
+                  "extensionAttributes": [],
+                  "code": "",
+                  "codeSystem": "Design Studio",
+                  "codeSystemVersion": "",
+                  "decode": "VISIT",
+                  "instanceType": "Code",
+                  "instanceType": "Code"
+                },
+                "previousId": "487f7881-d418-4f1c-83ff-9afce212b9fc",
+                "nextId": "1dfe56df-44ef-4fbc-8762-7d248570f6e7",
+                "scheduledAtId": "",
+                "environmentalSettings": [],
+                "contactModes": [],
+                "notes": [],
+                "instanceType": "Encounter",
+                "instanceType": "Encounter"
+              },
+              {
+                "id": "1dfe56df-44ef-4fbc-8762-7d248570f6e7",
+                "extensionAttributes": [],
+                "name": "3",
+                "label": "",
+                "description": "Person",
+                "type": {
+                  "id": "51f7f4b0-2726-4607-af3e-cad62a439ff1",
+                  "extensionAttributes": [],
+                  "code": "",
+                  "codeSystem": "Design Studio",
+                  "codeSystemVersion": "",
+                  "decode": "VISIT",
+                  "instanceType": "Code",
+                  "instanceType": "Code"
+                },
+                "previousId": "16fa2f58-5788-484c-a73d-b7d4bee26b17",
+                "nextId": "44d3259c-c2eb-4981-a0b1-6aac414a217f",
+                "scheduledAtId": "",
+                "environmentalSettings": [],
+                "contactModes": [
+                  {
+                    "id": "d324aac3-bff7-4616-9569-1fac58b68cca",
+                    "extensionAttributes": [],
+                    "code": "C175574",
+                    "codeSystem": "http://www.cdisc.org",
+                    "codeSystemVersion": "2024-03-29 04:44:12",
+                    "decode": "In Person",
+                    "instanceType": "Code",
+                    "instanceType": "Code"
+                  }
+                ],
+                "notes": [],
+                "instanceType": "Encounter",
+                "instanceType": "Encounter"
+              },
+              {
+                "id": "44d3259c-c2eb-4981-a0b1-6aac414a217f",
+                "extensionAttributes": [],
+                "name": "4",
+                "label": "",
+                "description": "Person",
+                "type": {
+                  "id": "a1243acb-9dd8-4402-b3c1-aa26ee3ce320",
+                  "extensionAttributes": [],
+                  "code": "",
+                  "codeSystem": "Design Studio",
+                  "codeSystemVersion": "",
+                  "decode": "VISIT",
+                  "instanceType": "Code",
+                  "instanceType": "Code"
+                },
+                "previousId": "1dfe56df-44ef-4fbc-8762-7d248570f6e7",
+                "nextId": "a96a7cf2-949a-42d4-ba10-ea27d86c02ae",
+                "scheduledAtId": "",
+                "environmentalSettings": [],
+                "contactModes": [
+                  {
+                    "id": "62d71901-178e-44e2-894c-ad13fa8c01df",
+                    "extensionAttributes": [],
+                    "code": "C175574",
+                    "codeSystem": "http://www.cdisc.org",
+                    "codeSystemVersion": "2024-03-29 04:44:12",
+                    "decode": "In Person",
+                    "instanceType": "Code",
+                    "instanceType": "Code"
+                  }
+                ],
+                "notes": [],
+                "instanceType": "Encounter",
+                "instanceType": "Encounter"
+              },
+              {
+                "id": "a96a7cf2-949a-42d4-ba10-ea27d86c02ae",
+                "extensionAttributes": [],
+                "name": "V802",
+                "label": "",
+                "description": "",
+                "type": {
+                  "id": "c450862f-2c85-464a-87b7-c9f6cbe1c165",
+                  "extensionAttributes": [],
+                  "code": "",
+                  "codeSystem": "Design Studio",
+                  "codeSystemVersion": "",
+                  "decode": "VISIT",
+                  "instanceType": "Code",
+                  "instanceType": "Code"
+                },
+                "previousId": "44d3259c-c2eb-4981-a0b1-6aac414a217f",
+                "nextId": "aee3ba1c-b38a-46de-8878-4540cf9f235d",
+                "scheduledAtId": "",
+                "environmentalSettings": [],
+                "contactModes": [],
+                "notes": [],
+                "instanceType": "Encounter",
+                "instanceType": "Encounter"
+              },
+              {
+                "id": "aee3ba1c-b38a-46de-8878-4540cf9f235d",
+                "extensionAttributes": [],
+                "name": "ED",
+                "label": "",
+                "description": "",
+                "type": {
+                  "id": "a1bdcb98-7caa-4c30-9207-20bc79bb2cea",
+                  "extensionAttributes": [],
+                  "code": "",
+                  "codeSystem": "Design Studio",
+                  "codeSystemVersion": "",
+                  "decode": "VISIT",
+                  "instanceType": "Code",
+                  "instanceType": "Code"
+                },
+                "previousId": "a96a7cf2-949a-42d4-ba10-ea27d86c02ae",
+                "nextId": "",
+                "scheduledAtId": "",
+                "environmentalSettings": [],
+                "contactModes": [],
+                "notes": [],
+                "instanceType": "Encounter",
+                "instanceType": "Encounter"
+              }
+            ],
+            "activities": [
+              {
+                "id": "e15551bc-e104-44dc-b703-ed8fe6d655f4",
+                "extensionAttributes": [
+                  {
+                    "id": "Consent and Demographics",
+                    "url": "DScategory",
+                    "valueString": "Consent and Demographics",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Complete Informed Consent",
+                "label": "Complete Informed Consent",
+                "description": "",
+                "previousId": "",
+                "nextId": "4ca0ca23-31e8-4071-8d00-6c6790eda90f",
+                "childIds": [],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              },
+              {
+                "id": "4ca0ca23-31e8-4071-8d00-6c6790eda90f",
+                "extensionAttributes": [
+                  {
+                    "id": "Consent and Demographics",
+                    "url": "DScategory",
+                    "valueString": "Consent and Demographics",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Inclusion/Exclusion Criteria; Confirmation of Eligibility",
+                "label": "Inclusion/Exclusion Criteria; Confirmation of Eligibility",
+                "description": "",
+                "previousId": "e15551bc-e104-44dc-b703-ed8fe6d655f4",
+                "nextId": "f62d2429-7ac5-4bb2-bbb5-7470b21d71c2",
+                "childIds": [],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              },
+              {
+                "id": "f62d2429-7ac5-4bb2-bbb5-7470b21d71c2",
+                "extensionAttributes": [
+                  {
+                    "id": "Consent and Demographics",
+                    "url": "DScategory",
+                    "valueString": "Consent and Demographics",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Demographics",
+                "label": "Demographics",
+                "description": "",
+                "previousId": "4ca0ca23-31e8-4071-8d00-6c6790eda90f",
+                "nextId": "115499b4-e1db-4f7f-a049-73c9cebcdbc0",
+                "childIds": [],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              },
+              {
+                "id": "115499b4-e1db-4f7f-a049-73c9cebcdbc0",
+                "extensionAttributes": [
+                  {
+                    "id": "Consent and Demographics",
+                    "url": "DScategory",
+                    "valueString": "Consent and Demographics",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Concomitant Medications",
+                "label": "Concomitant Medications",
+                "description": "",
+                "previousId": "f62d2429-7ac5-4bb2-bbb5-7470b21d71c2",
+                "nextId": "bb07b47b-2d36-4b90-8a36-cf17ae356a6a",
+                "childIds": [],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              },
+              {
+                "id": "bb07b47b-2d36-4b90-8a36-cf17ae356a6a",
+                "extensionAttributes": [
+                  {
+                    "id": "Consent and Demographics",
+                    "url": "DScategory",
+                    "valueString": "Consent and Demographics",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Adverse Events (AEs)",
+                "label": "Adverse Events (AEs)",
+                "description": "See Section X.X for requirements for AE collection.",
+                "previousId": "115499b4-e1db-4f7f-a049-73c9cebcdbc0",
+                "nextId": "4e32502a-8696-43e7-b34d-02abbfab8927",
+                "childIds": [],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              },
+              {
+                "id": "4e32502a-8696-43e7-b34d-02abbfab8927",
+                "extensionAttributes": [
+                  {
+                    "id": "Physical Evaluation",
+                    "url": "DScategory",
+                    "valueString": "Physical Evaluation",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Height",
+                "label": "Height",
+                "description": "Comment has been added",
+                "previousId": "bb07b47b-2d36-4b90-8a36-cf17ae356a6a",
+                "nextId": "7d99f95b-88dd-413f-87b2-c6fc2977dad3",
+                "childIds": [],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              },
+              {
+                "id": "7d99f95b-88dd-413f-87b2-c6fc2977dad3",
+                "extensionAttributes": [
+                  {
+                    "id": "Physical Evaluation",
+                    "url": "DScategory",
+                    "valueString": "Physical Evaluation",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Vital Signs",
+                "label": "Vital Signs",
+                "description": "",
+                "previousId": "4e32502a-8696-43e7-b34d-02abbfab8927",
+                "nextId": "0cdc9fd2-6190-4c60-bcba-e27c9c7722b7",
+                "childIds": [
+                  "0cdc9fd2-6190-4c60-bcba-e27c9c7722b7"
+                ],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              },
+              {
+                "id": "0cdc9fd2-6190-4c60-bcba-e27c9c7722b7",
+                "extensionAttributes": [
+                  {
+                    "id": "Physical Evaluation",
+                    "url": "DScategory",
+                    "valueString": "Physical Evaluation",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Pulse",
+                "label": "Pulse",
+                "description": "",
+                "previousId": "7d99f95b-88dd-413f-87b2-c6fc2977dad3",
+                "nextId": "bcdea4d9-61b0-4c0b-a3f1-48d397dae2d8",
+                "childIds": [],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              },
+              {
+                "id": "bcdea4d9-61b0-4c0b-a3f1-48d397dae2d8",
+                "extensionAttributes": [
+                  {
+                    "id": "Physical Evaluation",
+                    "url": "DScategory",
+                    "valueString": "Physical Evaluation",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Blood Pressure",
+                "label": "Blood Pressure",
+                "description": "",
+                "previousId": "0cdc9fd2-6190-4c60-bcba-e27c9c7722b7",
+                "nextId": "dbf2b0f8-8126-4596-84ab-0d7fcc427fb6",
+                "childIds": [],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              },
+              {
+                "id": "dbf2b0f8-8126-4596-84ab-0d7fcc427fb6",
+                "extensionAttributes": [
+                  {
+                    "id": "Physical Evaluation",
+                    "url": "DScategory",
+                    "valueString": "Physical Evaluation",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Body Temperature",
+                "label": "Body Temperature",
+                "description": "",
+                "previousId": "bcdea4d9-61b0-4c0b-a3f1-48d397dae2d8",
+                "nextId": "bbc9c528-d9b0-411d-93a5-9cd08a013890",
+                "childIds": [],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              },
+              {
+                "id": "bbc9c528-d9b0-411d-93a5-9cd08a013890",
+                "extensionAttributes": [
+                  {
+                    "id": "bbc9c528-d9b0-411d-93a5-9cd08a013890",
+                    "url": "isBlindToSite",
+                    "valueString": "",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Hematology",
+                "label": "Hematology",
+                "description": "",
+                "previousId": "dbf2b0f8-8126-4596-84ab-0d7fcc427fb6",
+                "nextId": "a757e6a6-ccd1-4050-93c1-82e36bd0f291",
+                "childIds": [
+                  "a757e6a6-ccd1-4050-93c1-82e36bd0f291"
+                ],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              },
+              {
+                "id": "a757e6a6-ccd1-4050-93c1-82e36bd0f291",
+                "extensionAttributes": [
+                  {
+                    "id": "Laboratory Tests and Sample Collections",
+                    "url": "DScategory",
+                    "valueString": "Laboratory Tests and Sample Collections",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Hemoglobin",
+                "label": "Hemoglobin",
+                "description": "",
+                "previousId": "bbc9c528-d9b0-411d-93a5-9cd08a013890",
+                "nextId": "b1f0b062-fe5a-4780-a754-9c67475b66ae",
+                "childIds": [],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              },
+              {
+                "id": "b1f0b062-fe5a-4780-a754-9c67475b66ae",
+                "extensionAttributes": [
+                  {
+                    "id": "Laboratory Tests and Sample Collections",
+                    "url": "DScategory",
+                    "valueString": "Laboratory Tests and Sample Collections",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Platelets",
+                "label": "Platelets",
+                "description": "",
+                "previousId": "a757e6a6-ccd1-4050-93c1-82e36bd0f291",
+                "nextId": "8e390dcc-669c-429a-b530-dd1721727dd7",
+                "childIds": [],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              },
+              {
+                "id": "8e390dcc-669c-429a-b530-dd1721727dd7",
+                "extensionAttributes": [
+                  {
+                    "id": "Laboratory Tests and Sample Collections",
+                    "url": "DScategory",
+                    "valueString": "Laboratory Tests and Sample Collections",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Clinical Chemistry",
+                "label": "Clinical Chemistry",
+                "description": "",
+                "previousId": "b1f0b062-fe5a-4780-a754-9c67475b66ae",
+                "nextId": "a611f953-3862-4d1a-a26b-5ef68e1b1971",
+                "childIds": [
+                  "a611f953-3862-4d1a-a26b-5ef68e1b1971"
+                ],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              },
+              {
+                "id": "a611f953-3862-4d1a-a26b-5ef68e1b1971",
+                "extensionAttributes": [
+                  {
+                    "id": "Laboratory Tests and Sample Collections",
+                    "url": "DScategory",
+                    "valueString": "Laboratory Tests and Sample Collections",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Glucose",
+                "label": "Glucose",
+                "description": "",
+                "previousId": "8e390dcc-669c-429a-b530-dd1721727dd7",
+                "nextId": "c9178c68-ccc6-4617-87da-e16da37354c5",
+                "childIds": [],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              },
+              {
+                "id": "c9178c68-ccc6-4617-87da-e16da37354c5",
+                "extensionAttributes": [
+                  {
+                    "id": "Laboratory Tests and Sample Collections",
+                    "url": "DScategory",
+                    "valueString": "Laboratory Tests and Sample Collections",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Calcium",
+                "label": "Calcium",
+                "description": "",
+                "previousId": "a611f953-3862-4d1a-a26b-5ef68e1b1971",
+                "nextId": "9ec03af9-d08a-4e45-9a73-aa4230572716",
+                "childIds": [],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              },
+              {
+                "id": "9ec03af9-d08a-4e45-9a73-aa4230572716",
+                "extensionAttributes": [
+                  {
+                    "id": "Laboratory Tests and Sample Collections",
+                    "url": "DScategory",
+                    "valueString": "Laboratory Tests and Sample Collections",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Pharmacokinetics (PK) Samples - Predose",
+                "label": "Pharmacokinetics (PK) Samples - Predose",
+                "description": "",
+                "previousId": "c9178c68-ccc6-4617-87da-e16da37354c5",
+                "nextId": "62063ef4-5b48-4e14-96e6-9aadecdd4317",
+                "childIds": [],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              },
+              {
+                "id": "62063ef4-5b48-4e14-96e6-9aadecdd4317",
+                "extensionAttributes": [
+                  {
+                    "id": "Laboratory Tests and Sample Collections",
+                    "url": "DScategory",
+                    "valueString": "Laboratory Tests and Sample Collections",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Pharmacokinetics (PK) Samples - Postdose",
+                "label": "Pharmacokinetics (PK) Samples - Postdose",
+                "description": "",
+                "previousId": "9ec03af9-d08a-4e45-9a73-aa4230572716",
+                "nextId": "d22d8d8f-0159-41f1-96c8-7c8fdcc569c2",
+                "childIds": [],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              },
+              {
+                "id": "d22d8d8f-0159-41f1-96c8-7c8fdcc569c2",
+                "extensionAttributes": [
+                  {
+                    "id": "Randomization and Dosing Related Activities",
+                    "url": "DScategory",
+                    "valueString": "Randomization and Dosing Related Activities",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Randomization via IWRS",
+                "label": "Randomization via IWRS",
+                "description": "",
+                "previousId": "62063ef4-5b48-4e14-96e6-9aadecdd4317",
+                "nextId": "d7d70668-a433-4335-8f55-2b511f5fa26a",
+                "childIds": [],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              },
+              {
+                "id": "d7d70668-a433-4335-8f55-2b511f5fa26a",
+                "extensionAttributes": [
+                  {
+                    "id": "Randomization and Dosing Related Activities",
+                    "url": "DScategory",
+                    "valueString": "Randomization and Dosing Related Activities",
+                    "instanceType": "ExtensionAttribute",
+                    "instanceType": "ExtensionAttribute"
+                  }
+                ],
+                "name": "Dispense Study Intervention via IWRS",
+                "label": "Dispense Study Intervention via IWRS",
+                "description": "",
+                "previousId": "d22d8d8f-0159-41f1-96c8-7c8fdcc569c2",
+                "nextId": "",
+                "childIds": [],
+                "timelineId": "",
+                "notes": [],
+                "parentActivityId": "",
+                "instanceType": "Activity",
+                "instanceType": "Activity"
+              }
+            ],
+            "epochs": [
+              {
+                "id": "ff47ae76-fc19-4089-82de-766960c69395",
+                "extensionAttributes": [],
+                "name": "Screening/Lead In",
+                "label": "Screening/Lead In",
+                "description": "Screening/Lead In",
+                "type": {
+                  "id": "1df7c4fe-5fe3-4274-8290-f5bb04c6cdda",
+                  "extensionAttributes": [],
+                  "code": "C202487",
+                  "codeSystem": "http://www.cdisc.org",
+                  "codeSystemVersion": "2024-03-29 04:44:12",
+                  "decode": "Screening Epoch",
+                  "instanceType": "Code",
+                  "instanceType": "Code"
+                },
+                "previousId": "",
+                "nextId": "7f548f0c-cd00-48fe-979e-54daf28399b5",
+                "notes": [],
+                "instanceType": "StudyEpoch",
+                "instanceType": "Epoch"
+              },
+              {
+                "id": "7f548f0c-cd00-48fe-979e-54daf28399b5",
+                "extensionAttributes": [],
+                "name": "Treatment Period",
+                "label": "Treatment Period",
+                "description": "Treatment Period",
+                "type": {
+                  "id": "dcb2f0fa-373e-44d8-833b-6e2466552eb3",
+                  "extensionAttributes": [],
+                  "code": "C49656",
+                  "codeSystem": "http://www.cdisc.org",
+                  "codeSystemVersion": "2024-03-29 04:44:12",
+                  "decode": "Treatment Study",
+                  "instanceType": "Code",
+                  "instanceType": "Code"
+                },
+                "previousId": "ff47ae76-fc19-4089-82de-766960c69395",
+                "nextId": "2d4b9aa3-33a4-4285-9bdf-9f3a26cb5a01",
+                "notes": [],
+                "instanceType": "StudyEpoch",
+                "instanceType": "Epoch"
+              },
+              {
+                "id": "2d4b9aa3-33a4-4285-9bdf-9f3a26cb5a01",
+                "extensionAttributes": [],
+                "name": "Safety Follow-up",
+                "label": "Safety Follow-up",
+                "description": "Safety Follow-up",
+                "type": {
+                  "id": "b140157f-6db6-4b0b-9d02-963fb5443297",
+                  "extensionAttributes": [],
+                  "code": "C49667",
+                  "codeSystem": "http://www.cdisc.org",
+                  "codeSystemVersion": "2024-03-29 04:44:12",
+                  "decode": "Safety Study",
+                  "instanceType": "Code",
+                  "instanceType": "Code"
+                },
+                "previousId": "7f548f0c-cd00-48fe-979e-54daf28399b5",
+                "nextId": "",
+                "notes": [],
+                "instanceType": "StudyEpoch",
+                "instanceType": "Epoch"
+              }
+            ],
+            "scheduleTimelines": [
+              {
+                "id": "10ab0928-52a1-4d73-88b2-e3d23fee06ab",
+                "extensionAttributes": [],
+                "name": "Main Timeline",
+                "label": "Main Timeline",
+                "description": "Schedule of Activities for Primary Study Endpoint",
+                "mainTimeline": true,
+                "entryId": "e7e8a3c3-363e-4317-8338-12ff624624cc",
+                "exits": [],
+                "timings": [
+                  {
+                    "id": "91e466e7-1a80-46f0-96d8-23a98fa5dbf4",
+                    "extensionAttributes": [],
+                    "name": "TIMING 1",
+                    "label": "",
+                    "description": "",
+                    "type": {
+                      "id": "40b91d16-550b-4eac-a42e-bda07fe97fbd",
+                      "extensionAttributes": [],
+                      "code": "C25629",
+                      "codeSystem": "http://www.cdisc.org",
+                      "codeSystemVersion": "2024-03-29 04:44:12",
+                      "decode": "Prior",
+                      "instanceType": "Code",
+                      "instanceType": "Code"
+                    },
+                    "value": "P4W",
+                    "valueLabel": "P4W",
+                    "relativeToFrom": {
+                      "id": "8da75048-1ffb-44e5-be23-480e9dab22b8",
+                      "extensionAttributes": [],
+                      "code": "",
+                      "codeSystem": "Design Studio",
+                      "codeSystemVersion": "",
+                      "decode": "START_TO_END",
+                      "instanceType": "Code",
+                      "instanceType": "Code"
+                    },
+                    "relativeFromScheduledInstanceId": "2a8561e2-08db-4619-bf33-b50aeeddd2be",
+                    "relativeToScheduledInstanceId": "e7e8a3c3-363e-4317-8338-12ff624624cc",
+                    "windowLower": "P5D",
+                    "windowUpper": "P5D",
+                    "windowLabel": "",
+                    "instanceType": "Timing",
+                    "instanceType": "Timing"
+                  },
+                  {
+                    "id": "e33c169b-f673-4887-ab84-716cfbeaebf3",
+                    "extensionAttributes": [],
+                    "name": "TIMING 2",
+                    "label": "",
+                    "description": "",
+                    "type": {
+                      "id": "2b33c300-4385-495d-95fb-1c78455ff04f",
+                      "extensionAttributes": [],
+                      "code": "C25629",
+                      "codeSystem": "http://www.cdisc.org",
+                      "codeSystemVersion": "2024-03-29 04:44:12",
+                      "decode": "Prior",
+                      "instanceType": "Code",
+                      "instanceType": "Code"
+                    },
+                    "value": "P2W",
+                    "valueLabel": "P2W",
+                    "relativeToFrom": {
+                      "id": "e74a1e81-d950-49e0-a625-f82f9105fb58",
+                      "extensionAttributes": [],
+                      "code": "",
+                      "codeSystem": "Design Studio",
+                      "codeSystemVersion": "",
+                      "decode": "START_TO_END",
+                      "instanceType": "Code",
+                      "instanceType": "Code"
+                    },
+                    "relativeFromScheduledInstanceId": "2a8561e2-08db-4619-bf33-b50aeeddd2be",
+                    "relativeToScheduledInstanceId": "e277c6c2-adfe-47f3-9abf-52ac98cdb557",
+                    "windowLower": "",
+                    "windowUpper": "",
+                    "windowLabel": "",
+                    "instanceType": "Timing",
+                    "instanceType": "Timing"
+                  },
+                  {
+                    "id": "e205cd40-61af-48d5-9b78-2ccf406b584e",
+                    "extensionAttributes": [],
+                    "name": "TIMING 3",
+                    "label": "",
+                    "description": "",
+                    "type": {
+                      "id": "06433f4a-ca58-44cf-8be7-e0999c365076",
+                      "extensionAttributes": [],
+                      "code": "",
+                      "codeSystem": "Design Studio",
+                      "codeSystemVersion": "",
+                      "decode": "FIXED_REFERENCE",
+                      "instanceType": "Code",
+                      "instanceType": "Code"
+                    },
+                    "value": "P0D",
+                    "valueLabel": "P0D",
+                    "relativeToFrom": {
+                      "id": "2b8c094b-a735-4cc7-93c8-c8728e0bf58a",
+                      "extensionAttributes": [],
+                      "code": "",
+                      "codeSystem": "Design Studio",
+                      "codeSystemVersion": "",
+                      "decode": "START_TO_START",
+                      "instanceType": "Code",
+                      "instanceType": "Code"
+                    },
+                    "relativeFromScheduledInstanceId": "2a8561e2-08db-4619-bf33-b50aeeddd2be",
+                    "relativeToScheduledInstanceId": "2a8561e2-08db-4619-bf33-b50aeeddd2be",
+                    "windowLower": "P7D",
+                    "windowUpper": "P7D",
+                    "windowLabel": "",
+                    "instanceType": "Timing",
+                    "instanceType": "Timing"
+                  },
+                  {
+                    "id": "194bd9f1-99d3-41bf-8e2f-6aca27d32e3a",
+                    "extensionAttributes": [],
+                    "name": "TIMING 4",
+                    "label": "",
+                    "description": "",
+                    "type": {
+                      "id": "5950a91d-beb9-43d9-9008-8356b0cf93f8",
+                      "extensionAttributes": [],
+                      "code": "C38008",
+                      "codeSystem": "http://www.cdisc.org",
+                      "codeSystemVersion": "2024-03-29 04:44:12",
+                      "decode": "Post",
+                      "instanceType": "Code",
+                      "instanceType": "Code"
+                    },
+                    "value": "P2W",
+                    "valueLabel": "P2W",
+                    "relativeToFrom": {
+                      "id": "c751847a-893e-4c32-8df6-d2b5eecfdd03",
+                      "extensionAttributes": [],
+                      "code": "",
+                      "codeSystem": "Design Studio",
+                      "codeSystemVersion": "",
+                      "decode": "END_TO_START",
+                      "instanceType": "Code",
+                      "instanceType": "Code"
+                    },
+                    "relativeFromScheduledInstanceId": "2a8561e2-08db-4619-bf33-b50aeeddd2be",
+                    "relativeToScheduledInstanceId": "4769f645-8ee6-4a54-8378-493487c6bbc9",
+                    "windowLower": "P7D",
+                    "windowUpper": "P7D",
+                    "windowLabel": "",
+                    "instanceType": "Timing",
+                    "instanceType": "Timing"
+                  },
+                  {
+                    "id": "59999f4c-3c8e-4fce-a37f-470da69d8b24",
+                    "extensionAttributes": [],
+                    "name": "TIMING 5",
+                    "label": "",
+                    "description": "",
+                    "type": {
+                      "id": "0511701e-a8a7-4efd-8554-8e3187a90024",
+                      "extensionAttributes": [],
+                      "code": "C38008",
+                      "codeSystem": "http://www.cdisc.org",
+                      "codeSystemVersion": "2024-03-29 04:44:12",
+                      "decode": "Post",
+                      "instanceType": "Code",
+                      "instanceType": "Code"
+                    },
+                    "value": "P5W",
+                    "valueLabel": "P5W",
+                    "relativeToFrom": {
+                      "id": "9ef703bb-1a2a-42bc-a74b-c9147127f8c4",
+                      "extensionAttributes": [],
+                      "code": "",
+                      "codeSystem": "Design Studio",
+                      "codeSystemVersion": "",
+                      "decode": "END_TO_START",
+                      "instanceType": "Code",
+                      "instanceType": "Code"
+                    },
+                    "relativeFromScheduledInstanceId": "2a8561e2-08db-4619-bf33-b50aeeddd2be",
+                    "relativeToScheduledInstanceId": "05065d96-934b-4e8c-901f-1a0a1933910b",
+                    "windowLower": "P8D",
+                    "windowUpper": "P8D",
+                    "windowLabel": "",
+                    "instanceType": "Timing",
+                    "instanceType": "Timing"
+                  },
+                  {
+                    "id": "4c1c0c99-c1d3-4ebc-acee-98ec057248a5",
+                    "extensionAttributes": [],
+                    "name": "TIMING 6",
+                    "label": "",
+                    "description": "",
+                    "type": {
+                      "id": "49d94ab8-c7ba-4bc9-b166-5c48a8eab048",
+                      "extensionAttributes": [],
+                      "code": "C38008",
+                      "codeSystem": "http://www.cdisc.org",
+                      "codeSystemVersion": "2024-03-29 04:44:12",
+                      "decode": "Post",
+                      "instanceType": "Code",
+                      "instanceType": "Code"
+                    },
+                    "value": "P5W",
+                    "valueLabel": "P5W",
+                    "relativeToFrom": {
+                      "id": "c810585a-7a76-4931-a3eb-a32d74dfaa96",
+                      "extensionAttributes": [],
+                      "code": "",
+                      "codeSystem": "Design Studio",
+                      "codeSystemVersion": "",
+                      "decode": "END_TO_START",
+                      "instanceType": "Code",
+                      "instanceType": "Code"
+                    },
+                    "relativeFromScheduledInstanceId": "2a8561e2-08db-4619-bf33-b50aeeddd2be",
+                    "relativeToScheduledInstanceId": "b84fc523-a525-4339-8bb5-5169b2308001",
+                    "windowLower": "P8D",
+                    "windowUpper": "P8D",
+                    "windowLabel": "",
+                    "instanceType": "Timing",
+                    "instanceType": "Timing"
+                  }
+                ],
+                "instances": [],
+                "plannedDuration": "",
+                "instanceType": "10ab0928-52a1-4d73-88b2-e3d23fee06ab",
+                "instanceType": "ScheduleTimeline"
+              }
+            ],
+            "notes": [],
+            "intentTypes": [],
+            "instanceType": "InterventionalStudyDesign",
+            "instanceType": "StudyDesign"
+          }
+        ],
+        "sourceVersion": {
+          "id": "5222a7-9e7f-45db-8d53-63e6a960497d",
+          "authorId": "pai_shalini@lilly.com",
+          "sentBy": "pai_shalini@lilly.com",
+          "sourceName": "DESIGN STUDIO",
+          "createdAt": "2025-03-18T11:03:15.071Z",
+          "updatedAt": "2025-10-28T12:09:16.277Z",
+          "collaborators": [
+            "pai_shalini@lilly.com",
+            "jyotsna.raghuraman@network.lilly.com",
+            "greg.lara@network.lilly.com",
+            "jana_samit@lilly.com",
+            "jennings_donald@lilly.com"
+          ],
+          "createdBy": "pai_shalini@lilly.com",
+          "updatedBy": "",
+          "instanceType": "SourceVersion"
+        },
+        "titles": [
+          {
+            "id": "c87cc05b-3d64-409e-baae-c5f4c332a862",
+            "extensionAttributes": [],
+            "text": "Trial for Metrics Calculations of Duration Type",
+            "type": {
+              "id": "3e90f1c2-2a4b-4b50-8aa3-5e160e8a4ecf",
+              "extensionAttributes": [],
+              "code": "",
+              "codeSystem": "Design Studio",
+              "codeSystemVersion": "",
+              "decode": "BRIEF STUDY TITLE",
+              "instanceType": "Code",
+              "instanceType": "Code"
+            },
+            "instanceType": "StudyTitle",
+            "instanceType": "StudyTitle"
+          }
+        ],
+        "organizations": [
+          {
+            "id": "b96a7e0f-42e1-4ff7-8597-8e207ffd2fd4",
+            "extensionAttributes": [],
+            "name": "LILLY",
+            "label": "Eli Lilly",
+            "type": {
+              "id": "8d537c50-ab06-46f5-94bf-e19d95cd519d",
+              "extensionAttributes": [],
+              "code": "C70793",
+              "codeSystem": "http://www.cdisc.org",
+              "codeSystemVersion": "2024-09-27",
+              "decode": "Clinical Study Sponsor",
+              "instanceType": "Code",
+              "instanceType": "Code"
+            },
+            "identifierScheme": "DUNS",
+            "identifier": "00-642-1325",
+            "legalAddress": {
+              "id": "",
+              "text": "",
+              "lines": [],
+              "city": "",
+              "district": "",
+              "state": "",
+              "postalCode": "",
+              "country": {
+                "id": "",
+                "extensionAttributes": [],
+                "code": "",
+                "codeSystem": "",
+                "codeSystemVersion": "",
+                "decode": "",
+                "instanceType": "",
+                "instanceType": "Code"
+              },
+              "instanceType": "",
+              "instanceType": "Address"
+            },
+            "managedSites": [],
+            "instanceType": "Organization",
+            "instanceType": "Organization"
+          }
+        ],
+        "conditions": [
+          {
+            "id": "fcfc5c1a-ed68-4e98-bf56-bc0d64583c78",
+            "extensionAttributes": [],
+            "name": "Condition 1",
+            "label": "Condition 1",
+            "description": "Confirm inclusion and exclusion criteria before randomization and administration of first dose of study intervention.",
+            "text": "Confirm inclusion and exclusion criteria before randomization and administration of first dose of study intervention.",
+            "dictionaryId": "",
+            "notes": [],
+            "instanceType": "Condition",
+            "contextIds": [],
+            "appliesToIds": [
+              "activity2"
+            ],
+            "instanceType": "Condition"
+          },
+          {
+            "id": "5db89699-0bfe-4364-bbf2-086e35c56178",
+            "extensionAttributes": [],
+            "name": "Condition 2",
+            "label": "Condition 2",
+            "description": "Includes ethnicity (where permissible), year of birth, sex assigned at birth and race.",
+            "text": "Includes ethnicity (where permissible), year of birth, sex assigned at birth and race.",
+            "dictionaryId": "",
+            "notes": [],
+            "instanceType": "Condition",
+            "contextIds": [],
+            "appliesToIds": [
+              "activity3"
+            ],
+            "instanceType": "Condition"
+          },
+          {
+            "id": "2e4c4091-8437-49aa-b2a6-d3ccb5c50feb",
+            "extensionAttributes": [],
+            "name": "Condition 3",
+            "label": "Condition 3",
+            "description": "Includes pulse rate, blood pressure, respiratory rate, and temperature. Measured after participant has been sitting at least 5 minutes.",
+            "text": "Includes pulse rate, blood pressure, respiratory rate, and temperature. Measured after participant has been sitting at least 5 minutes.",
+            "dictionaryId": "",
+            "notes": [],
+            "instanceType": "Condition",
+            "contextIds": [],
+            "appliesToIds": [
+              "activity7"
+            ],
+            "instanceType": "Condition"
+          },
+          {
+            "id": "156082f4-8089-449c-8461-7fcac964bfa0",
+            "extensionAttributes": [],
+            "name": "Condition 4",
+            "label": "Condition 4",
+            "description": "Sample one hour before drug intake.",
+            "text": "Sample one hour before drug intake.",
+            "dictionaryId": "",
+            "notes": [],
+            "instanceType": "Condition",
+            "contextIds": [],
+            "appliesToIds": [
+              "activity17"
+            ],
+            "instanceType": "Condition"
+          },
+          {
+            "id": "d5d35359-f297-4270-9ac1-44c7674d45c6",
+            "extensionAttributes": [],
+            "name": "Condition 5",
+            "label": "Condition 5",
+            "description": "Sample twice after drug intake at given frequency.",
+            "text": "Sample twice after drug intake at given frequency.",
+            "dictionaryId": "",
+            "notes": [],
+            "instanceType": "Condition",
+            "contextIds": [],
+            "appliesToIds": [
+              "activity18"
+            ],
+            "instanceType": "Condition"
+          },
+          {
+            "id": "33be0dd4-65ae-4e3c-b8df-a7a7eaa528fb",
+            "extensionAttributes": [],
+            "name": "Condition 6",
+            "label": "Condition 6",
+            "description": "This is a fasting visit - participant must fast for at least 8 hours prior to the visit.",
+            "text": "This is a fasting visit - participant must fast for at least 8 hours prior to the visit.",
+            "dictionaryId": "",
+            "notes": [],
+            "instanceType": "Condition",
+            "contextIds": [
+              "instance3"
+            ],
+            "appliesToIds": [],
+            "instanceType": "Condition"
+          }
+        ],
+        "notes": [],
+        "instanceType": "StudyVersion",
+        "instanceType": "StudyVersion"
+      }
+    ],
+    "instanceType": "Study",
+    "instanceType": "Study"
+  },
+  "usdmVersion": "4.0.0",
+  "systemName": "CDISC USDM E2J",
+  "systemVersion": "0.63.0",
+  "instanceType": "StudyResponse"
+}
