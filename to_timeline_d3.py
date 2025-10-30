@@ -209,6 +209,9 @@ class Timeline:
             const marginRight = 50;
             const marginBottom = 200;
             
+            // Calculate space needed for orphan nodes at the very top (above conditional links)
+            const orphanHeight = (data.orphanNodes && data.orphanNodes.length > 0) ? nodeHeight + 240 : 0;
+            
             // Calculate space needed for conditional links above timeline
             let maxConditionalHeight = 0;
             if (data.conditionalLinks && data.conditionalLinks.length > 0) {{
@@ -225,12 +228,12 @@ class Timeline:
             }}
             
             // Calculate positions for nodes in a straight horizontal line
-            // Shift nodes down by maxConditionalHeight to make space for conditional links above
+            // Shift nodes down by orphanHeight AND maxConditionalHeight to make space above
             const nodes = data.nodes.map((node, i) => {{
                 // Entry and exit nodes should be half height
                 const isEntryOrExit = node.type === 'entry' || node.type === 'exit';
                 const height = isEntryOrExit ? nodeHeight / 2 : nodeHeight;
-                const yPos = isEntryOrExit ? maxConditionalHeight + marginTop + nodeHeight / 4 : maxConditionalHeight + marginTop;
+                const yPos = isEntryOrExit ? orphanHeight + maxConditionalHeight + marginTop + nodeHeight / 4 : orphanHeight + maxConditionalHeight + marginTop;
                 
                 return {{
                     ...node,
@@ -256,9 +259,9 @@ class Timeline:
                     
                     if (fromNode && toNode) {{
                         // Position timing node directly under the from node
-                        // Account for the conditional links space above
+                        // Account for orphan nodes AND conditional links space above
                         const timingX = fromNode.x + fromNode.width/2;
-                        const timingY = maxConditionalHeight + marginTop + nodeHeight + verticalSpacing;
+                        const timingY = orphanHeight + maxConditionalHeight + marginTop + nodeHeight + verticalSpacing;
                         
                         timingNodes.push({{
                             ...timing,
@@ -271,9 +274,6 @@ class Timeline:
                     }}
                 }});
             }}
-            
-            // Calculate space needed for orphan nodes at the very top (above conditional links)
-            const orphanHeight = (data.orphanNodes && data.orphanNodes.length > 0) ? nodeHeight + 60 : 0;
             
             // Position orphan nodes at the very top, above everything else
             const orphanRowY = 20; // Small margin from top edge
