@@ -89,9 +89,10 @@ class Timeline:
             stroke: #000000;
             stroke-width: 2;
         }}
-        .node-decision circle {{
+        .node-decision path {{
             fill: #FFD700;
             stroke: #DAA520;
+            stroke-width: 2;
         }}
         .node-exit rect {{
             fill: #D3D3D3;
@@ -311,8 +312,12 @@ class Timeline:
                         const radius = Math.min(d.source.width, d.source.height) / 2;
                         sourceX = d.source.x + d.source.width / 2 + radius;
                         sourceY = d.source.y + d.source.height / 2;
+                    }} else if (d.source.type === 'decision') {{
+                        // For diamonds, connect from the right point
+                        sourceX = d.source.x + d.source.width;
+                        sourceY = d.source.y + d.source.height / 2;
                     }} else {{
-                        // For rectangles, connect from the right edge
+                        // For rectangles (entry/exit), connect from the right edge
                         sourceX = d.source.x + d.source.width;
                         sourceY = d.source.y + d.source.height / 2;
                     }}
@@ -323,8 +328,12 @@ class Timeline:
                         const radius = Math.min(d.target.width, d.target.height) / 2;
                         targetX = d.target.x + d.target.width / 2 - radius;
                         targetY = d.target.y + d.target.height / 2;
+                    }} else if (d.target.type === 'decision') {{
+                        // For diamonds, connect to the left point
+                        targetX = d.target.x;
+                        targetY = d.target.y + d.target.height / 2;
                     }} else {{
-                        // For rectangles, connect to the left edge
+                        // For rectangles (entry/exit), connect to the left edge
                         targetX = d.target.x;
                         targetY = d.target.y + d.target.height / 2;
                     }}
@@ -372,8 +381,15 @@ class Timeline:
                         .attr("cx", d.width / 2)
                         .attr("cy", d.height / 2)
                         .attr("r", radius);
+                }} else if (d.type === 'decision') {{
+                    // Decision nodes are diamonds
+                    const centerX = d.width / 2;
+                    const centerY = d.height / 2;
+                    const diamondPath = `M ${{centerX}},${{0}} L ${{d.width}},${{centerY}} L ${{centerX}},${{d.height}} L ${{0}},${{centerY}} Z`;
+                    node.append("path")
+                        .attr("d", diamondPath);
                 }} else {{
-                    // Entry, exit, and decision nodes are rectangles
+                    // Entry and exit nodes are rectangles
                     node.append("rect")
                         .attr("width", d.width)
                         .attr("height", d.height);
@@ -583,16 +599,24 @@ class Timeline:
             
             # Collect all instances in order
             while instance:
+                # Determine the node type
+                if instance['instanceType'] == ScheduledActivityInstance.__name__:
+                    node_type = 'activity'
+                elif instance['instanceType'] == ScheduledDecisionInstance.__name__:
+                    node_type = 'decision'
+                else:
+                    node_type = 'unknown'
+                
+                # Override type for entry node (first node)
+                if len(nodes) == 0:
+                    node_type = 'entry'
+                
                 node_data = {
                     'id': instance['id'],
                     'label': instance.get('label', instance.get('name', 'Unknown')),
                     'description': instance.get('description', ''),
-                    'type': 'activity' if instance['instanceType'] == ScheduledActivityInstance.__name__ else ScheduledDecisionInstance.__name__
+                    'type': node_type
                 }
-                
-                # Determine if this is the first or last node
-                if len(nodes) == 0:
-                    node_data['type'] = 'entry'
                 
                 nodes.append(node_data)
                 
