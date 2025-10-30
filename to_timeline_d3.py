@@ -902,6 +902,57 @@ class Timeline:
                         }}
                     }});
                 }}
+                
+                // Draw links from orphan nodes back to main timeline
+                if (data.orphanToMainLinks && data.orphanToMainLinks.length > 0) {{
+                    const orphanToMainLinkGroup = svg.append("g").attr("class", "orphan-to-main-links");
+                    
+                    data.orphanToMainLinks.forEach(link => {{
+                        const sourceNode = nodeMap[link.sourceId];
+                        const targetNode = nodeMap[link.targetId];
+                        
+                        if (sourceNode && targetNode) {{
+                            // Start from bottom of orphan node
+                            let startX, startY;
+                            if (sourceNode.type === 'activity') {{
+                                const radius = Math.min(sourceNode.width, sourceNode.height) / 2;
+                                startX = sourceNode.x + sourceNode.width / 2;
+                                startY = sourceNode.y + sourceNode.height / 2 + radius;
+                            }} else if (sourceNode.type === 'decision') {{
+                                startX = sourceNode.x + sourceNode.width / 2;
+                                startY = sourceNode.y + sourceNode.height;
+                            }} else {{
+                                startX = sourceNode.x + sourceNode.width / 2;
+                                startY = sourceNode.y + sourceNode.height;
+                            }}
+                            
+                            // End at top of target node on main timeline
+                            let endX, endY;
+                            if (targetNode.type === 'activity') {{
+                                const radius = Math.min(targetNode.width, targetNode.height) / 2;
+                                endX = targetNode.x + targetNode.width / 2;
+                                endY = targetNode.y + targetNode.height / 2 - radius;
+                            }} else if (targetNode.type === 'decision') {{
+                                endX = targetNode.x + targetNode.width / 2;
+                                endY = targetNode.y;
+                            }} else {{
+                                endX = targetNode.x + targetNode.width / 2;
+                                endY = targetNode.y;
+                            }}
+                            
+                            // Calculate intermediate Y for horizontal segment (midpoint between source and target)
+                            const midY = (startY + endY) / 2;
+                            
+                            // Create orthogonal path: down, across, down
+                            const pathD = `M ${{startX}} ${{startY}} L ${{startX}} ${{midY}} L ${{endX}} ${{midY}} L ${{endX}} ${{endY}}`;
+                            
+                            orphanToMainLinkGroup.append("path")
+                                .attr("class", "link")
+                                .attr("d", pathD)
+                                .attr("marker-end", `url(#arrowhead-${{data.id}})`);
+                        }}
+                    }});
+                }}
             }}
             
         }}
@@ -977,6 +1028,7 @@ class Timeline:
             # Second pass: collect orphan nodes (nodes referenced by conditional links but not in main timeline)
             orphan_nodes = []
             orphan_links = []
+            orphan_to_main_links = []
             processed_orphan_ids = set()
             
             for cond_link in conditional_links:
@@ -1005,14 +1057,23 @@ class Timeline:
                         orphan_nodes.append(orphan_node_data)
                         processed_orphan_ids.add(orphan_instance['id'])
                         
-                        # Check if this orphan links to another orphan
+                        # Check if this orphan links to another node
                         next_id = orphan_instance.get('defaultConditionId')
-                        if next_id and next_id not in main_timeline_node_ids:
-                            orphan_links.append({
-                                'sourceId': orphan_instance['id'],
-                                'targetId': next_id
-                            })
-                            orphan_instance = self._get_cross_reference(next_id)
+                        if next_id:
+                            if next_id not in main_timeline_node_ids:
+                                # Link to another orphan
+                                orphan_links.append({
+                                    'sourceId': orphan_instance['id'],
+                                    'targetId': next_id
+                                })
+                                orphan_instance = self._get_cross_reference(next_id)
+                            else:
+                                # Link back to main timeline
+                                orphan_to_main_links.append({
+                                    'sourceId': orphan_instance['id'],
+                                    'targetId': next_id
+                                })
+                                break
                         else:
                             break
             
@@ -1046,7 +1107,8 @@ class Timeline:
                 'timings': timings,
                 'conditionalLinks': conditional_links,
                 'orphanNodes': orphan_nodes,
-                'orphanLinks': orphan_links
+                'orphanLinks': orphan_links,
+                'orphanToMainLinks': orphan_to_main_links
             }
         except Exception as e:
             self._errors.exception(
