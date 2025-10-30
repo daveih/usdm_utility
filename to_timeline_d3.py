@@ -127,9 +127,19 @@ class Timeline:
             stroke: #003366;
             stroke-width: 2;
         }}
+        .link-conditional {{
+            fill: none;
+            stroke: #8B0000;
+            stroke-width: 2;
+        }}
         .link-label {{
             font-size: 10px;
             fill: #666;
+        }}
+        .conditional-label {{
+            font-size: 10px;
+            fill: #8B0000;
+            font-weight: bold;
         }}
         .tooltip {{
             position: absolute;
@@ -200,12 +210,28 @@ class Timeline:
             const marginRight = 50;
             const marginBottom = 200;
             
+            // Calculate space needed for conditional links above timeline
+            let maxConditionalHeight = 0;
+            if (data.conditionalLinks && data.conditionalLinks.length > 0) {{
+                // Calculate the maximum height needed for conditional links
+                const sourceNodeLinkCount = new Map();
+                data.conditionalLinks.forEach(link => {{
+                    const count = sourceNodeLinkCount.get(link.sourceId) || 0;
+                    sourceNodeLinkCount.set(link.sourceId, count + 1);
+                }});
+                const maxLinksFromSingleSource = Math.max(...Array.from(sourceNodeLinkCount.values()));
+                const baseHeight = 60;
+                const heightIncrement = 40;
+                maxConditionalHeight = baseHeight + ((maxLinksFromSingleSource - 1) * heightIncrement) + 30; // +30 for label space
+            }}
+            
             // Calculate positions for nodes in a straight horizontal line
+            // Shift nodes down by maxConditionalHeight to make space for conditional links above
             const nodes = data.nodes.map((node, i) => {{
                 // Entry and exit nodes should be half height
                 const isEntryOrExit = node.type === 'entry' || node.type === 'exit';
                 const height = isEntryOrExit ? nodeHeight / 2 : nodeHeight;
-                const yPos = isEntryOrExit ? marginTop + nodeHeight / 4 : marginTop;
+                const yPos = isEntryOrExit ? maxConditionalHeight + marginTop + nodeHeight / 4 : maxConditionalHeight + marginTop;
                 
                 return {{
                     ...node,
@@ -231,8 +257,9 @@ class Timeline:
                     
                     if (fromNode && toNode) {{
                         // Position timing node directly under the from node
+                        // Account for the conditional links space above
                         const timingX = fromNode.x + fromNode.width/2;
-                        const timingY = marginTop + nodeHeight + verticalSpacing;
+                        const timingY = maxConditionalHeight + marginTop + nodeHeight + verticalSpacing;
                         
                         timingNodes.push({{
                             ...timing,
@@ -246,9 +273,9 @@ class Timeline:
                 }});
             }}
             
-            // Calculate SVG dimensions
+            // Calculate SVG dimensions with space for conditional links above
             const svgWidth = nodes.length * horizontalSpacing + marginLeft + marginRight;
-            const svgHeight = marginTop + nodeHeight + verticalSpacing + timingNodeRadius * 2 + marginBottom;
+            const svgHeight = maxConditionalHeight + marginTop + nodeHeight + verticalSpacing + timingNodeRadius * 2 + marginBottom;
             
             const svg = container.append("svg")
                 .attr("width", svgWidth)
@@ -282,6 +309,19 @@ class Timeline:
                 .append("path")
                 .attr("d", "M0,-5L10,0L0,5")
                 .attr("fill", "#003366");
+            
+            // Red arrowhead for conditional links
+            defs.append("marker")
+                .attr("id", `arrowhead-conditional-${{data.id}}`)
+                .attr("viewBox", "0 -5 10 10")
+                .attr("refX", 8)
+                .attr("refY", 0)
+                .attr("markerWidth", 6)
+                .attr("markerHeight", 6)
+                .attr("orient", "auto")
+                .append("path")
+                .attr("d", "M0,-5L10,0L0,5")
+                .attr("fill", "#8B0000");
             
             // Create links
             const links = [];
@@ -581,6 +621,89 @@ class Timeline:
                     text.attr("transform", `translate(0, ${{offset}})`);
                 }}
             }});
+            
+            // Draw conditional links above the timeline
+            if (data.conditionalLinks && data.conditionalLinks.length > 0) {{
+                const conditionalLinkGroup = svg.append("g").attr("class", "conditional-links");
+                
+                // Calculate height levels for each link to avoid overlaps
+                // Group links by source node and assign heights
+                const baseHeight = 60; // Base height above timeline
+                const heightIncrement = 40; // Additional height per level
+                
+                // Create a map to track which nodes are involved and at what level
+                const linkHeights = new Map();
+                const sourceNodeLinkCount = new Map();
+                
+                // Count links per source node
+                data.conditionalLinks.forEach(link => {{
+                    const count = sourceNodeLinkCount.get(link.sourceId) || 0;
+                    sourceNodeLinkCount.set(link.sourceId, count + 1);
+                }});
+                
+                // Assign heights based on source node position and link index
+                let currentSourceId = null;
+                let linkIndexForSource = 0;
+                data.conditionalLinks.forEach((link, idx) => {{
+                    if (link.sourceId !== currentSourceId) {{
+                        currentSourceId = link.sourceId;
+                        linkIndexForSource = 0;
+                    }}
+                    
+                    // Calculate height level: use link index within source to stagger heights
+                    const heightLevel = linkIndexForSource;
+                    const height = baseHeight + (heightLevel * heightIncrement);
+                    linkHeights.set(idx, height);
+                    linkIndexForSource++;
+                }});
+                
+                data.conditionalLinks.forEach((link, idx) => {{
+                    const sourceNode = nodeMap[link.sourceId];
+                    const targetNode = nodeMap[link.targetId];
+                    
+                    if (sourceNode && targetNode) {{
+                        // Calculate start and end points
+                        // From top of diamond (decision node)
+                        const startX = sourceNode.x + sourceNode.width / 2;
+                        const startY = sourceNode.y;
+                        
+                        // To top of target node
+                        let endX, endY;
+                        if (targetNode.type === 'activity') {{
+                            endX = targetNode.x + targetNode.width / 2;
+                            endY = targetNode.y + targetNode.height / 2 - Math.min(targetNode.width, targetNode.height) / 2;
+                        }} else if (targetNode.type === 'decision') {{
+                            endX = targetNode.x + targetNode.width / 2;
+                            endY = targetNode.y;
+                        }} else {{
+                            endX = targetNode.x + targetNode.width / 2;
+                            endY = targetNode.y;
+                        }}
+                        
+                        // Get assigned height for this link
+                        const linkHeight = linkHeights.get(idx);
+                        const horizontalY = startY - linkHeight;
+                        
+                        // Create orthogonal path: up, across, down
+                        // Note: Must use separate segments to ensure all lines render
+                        const pathD = `M ${{startX}} ${{startY}} L ${{startX}} ${{horizontalY}} L ${{endX}} ${{horizontalY}} L ${{endX}} ${{endY}}`;
+                        
+                        conditionalLinkGroup.append("path")
+                            .attr("class", "link-conditional")
+                            .attr("d", pathD)
+                            .attr("marker-end", `url(#arrowhead-conditional-${{data.id}})`);
+                        
+                        // Add condition label at the midpoint of the horizontal segment
+                        const midX = (startX + endX) / 2;
+                        conditionalLinkGroup.append("text")
+                            .attr("class", "conditional-label")
+                            .attr("x", midX)
+                            .attr("y", horizontalY - 5)
+                            .attr("text-anchor", "middle")
+                            .text(link.condition);
+                    }}
+                }});
+            }}
         }}
     </script>
 </body>
@@ -598,6 +721,7 @@ class Timeline:
                 return None
             
             # Collect all instances in order
+            conditional_links = []
             while instance:
                 # Determine the node type
                 if instance['instanceType'] == ScheduledActivityInstance.__name__:
@@ -617,6 +741,15 @@ class Timeline:
                     'description': instance.get('description', ''),
                     'type': node_type
                 }
+                
+                # Extract condition assignments for decision nodes
+                if node_type == 'decision' and 'conditionAssignments' in instance:
+                    for assignment in instance['conditionAssignments']:
+                        conditional_links.append({
+                            'sourceId': instance['id'],
+                            'targetId': assignment.get('conditionTargetId'),
+                            'condition': assignment.get('condition', 'Condition')
+                        })
                 
                 nodes.append(node_data)
                 
@@ -665,7 +798,8 @@ class Timeline:
                 'label': timeline.label,
                 'entryCondition': timeline.entryCondition,
                 'nodes': nodes,
-                'timings': timings
+                'timings': timings,
+                'conditionalLinks': conditional_links
             }
         except Exception as e:
             self._errors.exception(
