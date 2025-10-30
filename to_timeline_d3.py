@@ -272,8 +272,11 @@ class Timeline:
                 }});
             }}
             
-            // Position orphan nodes above main timeline, to the right of their source nodes
-            const orphanRowY = maxConditionalHeight + marginTop - nodeHeight - 20;
+            // Calculate space needed for orphan nodes at the top
+            const orphanHeight = (data.orphanNodes && data.orphanNodes.length > 0) ? nodeHeight + 40 : 0;
+            
+            // Position orphan nodes at the top, to the right of their source nodes
+            const orphanRowY = marginTop + orphanHeight - nodeHeight;
             const orphanNodes = [];
             if (data.orphanNodes && data.orphanNodes.length > 0) {{
                 // Create a map to track which orphan belongs to which source
@@ -304,10 +307,9 @@ class Timeline:
                 }});
             }}
             
-            // Calculate SVG dimensions - orphan nodes are now above, so adjust height calculation
-            const orphanHeight = orphanNodes.length > 0 ? nodeHeight + 40 : 0;
+            // Calculate SVG dimensions - add space for orphan nodes at top
             const svgWidth = Math.max(nodes.length, orphanNodes.length) * horizontalSpacing + marginLeft + marginRight;
-            const svgHeight = maxConditionalHeight + orphanHeight + marginTop + nodeHeight + verticalSpacing + timingNodeRadius * 2 + marginBottom;
+            const svgHeight = orphanHeight + maxConditionalHeight + marginTop + nodeHeight + verticalSpacing + timingNodeRadius * 2 + marginBottom;
             
             const svg = container.append("svg")
                 .attr("width", svgWidth)
