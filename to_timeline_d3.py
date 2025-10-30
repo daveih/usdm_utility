@@ -587,7 +587,7 @@ class Timeline:
                     'id': instance['id'],
                     'label': instance.get('label', instance.get('name', 'Unknown')),
                     'description': instance.get('description', ''),
-                    'type': 'activity' if instance['instanceType'] == ScheduledActivityInstance.__name__ else 'decision'
+                    'type': 'activity' if instance['instanceType'] == ScheduledActivityInstance.__name__ else ScheduledDecisionInstance.__name__
                 }
                 
                 # Determine if this is the first or last node
