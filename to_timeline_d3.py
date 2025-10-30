@@ -129,7 +129,7 @@ class Timeline:
         }}
         .link-conditional {{
             fill: none;
-            stroke: #8B0000;
+            stroke: #000000;
             stroke-width: 2;
         }}
         .link-label {{
@@ -138,7 +138,7 @@ class Timeline:
         }}
         .conditional-label {{
             font-size: 10px;
-            fill: #8B0000;
+            fill: #000000;
             font-weight: bold;
         }}
         .tooltip {{
@@ -310,7 +310,7 @@ class Timeline:
                 .attr("d", "M0,-5L10,0L0,5")
                 .attr("fill", "#003366");
             
-            // Red arrowhead for conditional links
+            // Black arrowhead for conditional links
             defs.append("marker")
                 .attr("id", `arrowhead-conditional-${{data.id}}`)
                 .attr("viewBox", "0 -5 10 10")
@@ -321,7 +321,7 @@ class Timeline:
                 .attr("orient", "auto")
                 .append("path")
                 .attr("d", "M0,-5L10,0L0,5")
-                .attr("fill", "#8B0000");
+                .attr("fill", "#000000");
             
             // Create links
             const links = [];
