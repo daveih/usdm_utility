@@ -725,22 +725,39 @@ class Timeline:
                         const startX = sourceNode.x + sourceNode.width / 2;
                         const startY = sourceNode.y;
                         
-                        // To top of target node
+                        // Check if target is an orphan node (has Y position near top)
+                        const isOrphanTarget = targetNode.y < 100; // Orphan nodes are positioned at Y=20
+                        
+                        // To center of target node (left side for orphans, top for regular nodes)
                         let endX, endY;
-                        if (targetNode.type === 'activity') {{
-                            endX = targetNode.x + targetNode.width / 2;
-                            endY = targetNode.y + targetNode.height / 2 - Math.min(targetNode.width, targetNode.height) / 2;
-                        }} else if (targetNode.type === 'decision') {{
-                            endX = targetNode.x + targetNode.width / 2;
-                            endY = targetNode.y;
+                        if (isOrphanTarget) {{
+                            // For orphan nodes, connect to the left center
+                            if (targetNode.type === 'activity') {{
+                                const radius = Math.min(targetNode.width, targetNode.height) / 2;
+                                endX = targetNode.x + targetNode.width / 2 - radius;
+                                endY = targetNode.y + targetNode.height / 2;
+                            }} else {{
+                                endX = targetNode.x;
+                                endY = targetNode.y + targetNode.height / 2;
+                            }}
                         }} else {{
-                            endX = targetNode.x + targetNode.width / 2;
-                            endY = targetNode.y;
+                            // For regular nodes, connect to the top
+                            if (targetNode.type === 'activity') {{
+                                endX = targetNode.x + targetNode.width / 2;
+                                endY = targetNode.y + targetNode.height / 2 - Math.min(targetNode.width, targetNode.height) / 2;
+                            }} else if (targetNode.type === 'decision') {{
+                                endX = targetNode.x + targetNode.width / 2;
+                                endY = targetNode.y;
+                            }} else {{
+                                endX = targetNode.x + targetNode.width / 2;
+                                endY = targetNode.y;
+                            }}
                         }}
                         
                         // Get assigned height for this link
+                        // For orphan targets, use the orphan's Y position for horizontal segment
                         const linkHeight = linkHeights.get(idx);
-                        const horizontalY = startY - linkHeight;
+                        const horizontalY = isOrphanTarget ? endY : startY - linkHeight;
                         
                         // Create orthogonal path: up, across, down
                         // Note: Must use separate segments to ensure all lines render
