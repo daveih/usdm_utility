@@ -509,19 +509,20 @@ class Timeline:
                     .attr("text-anchor", "middle")
                     .attr("dominant-baseline", "central");
                 
+                let tspan = text.append("tspan")
+                    .attr("x", d.width / 2)
+                    .attr("dy", 0);
+                
                 words.forEach((word, i) => {{
                     line.push(word);
                     const testLine = line.join(" ");
-                    const tspan = text.append("tspan")
-                        .attr("x", d.width / 2)
-                        .attr("dy", i === 0 ? 0 : lineHeight)
-                        .text(testLine);
+                    tspan.text(testLine);
                     
                     if (tspan.node().getComputedTextLength() > maxWidth && line.length > 1) {{
                         line.pop();
                         tspan.text(line.join(" "));
                         line = [word];
-                        text.append("tspan")
+                        tspan = text.append("tspan")
                             .attr("x", d.width / 2)
                             .attr("dy", lineHeight)
                             .text(word);
@@ -836,19 +837,20 @@ class Timeline:
                         .attr("text-anchor", "middle")
                         .attr("dominant-baseline", "central");
                     
+                    let tspan = text.append("tspan")
+                        .attr("x", d.width / 2)
+                        .attr("dy", 0);
+                    
                     words.forEach((word, i) => {{
                         line.push(word);
                         const testLine = line.join(" ");
-                        const tspan = text.append("tspan")
-                            .attr("x", d.width / 2)
-                            .attr("dy", i === 0 ? 0 : lineHeight)
-                            .text(testLine);
+                        tspan.text(testLine);
                         
                         if (tspan.node().getComputedTextLength() > maxWidth && line.length > 1) {{
                             line.pop();
                             tspan.text(line.join(" "));
                             line = [word];
-                            text.append("tspan")
+                            tspan = text.append("tspan")
                                 .attr("x", d.width / 2)
                                 .attr("dy", lineHeight)
                                 .text(word);
