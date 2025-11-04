@@ -9,3 +9,4 @@ argparse
 yattag
 ruff
 pytesseract
+lmstudio
