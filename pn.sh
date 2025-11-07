@@ -1,0 +1,4 @@
+python from_excel.py '/Users/daveih/Library/CloudStorage/OneDrive-SharedLibraries-data4knowledge/d4k - Documents/Projects/0024 - argenx/protocols/footnotes/p2.xlsx'
+python to_timeline_d3.py '/Users/daveih/Library/CloudStorage/OneDrive-SharedLibraries-data4knowledge/d4k - Documents/Projects/0024 - argenx/protocols/footnotes/p2.json'
+python from_excel.py '/Users/daveih/Library/CloudStorage/OneDrive-SharedLibraries-data4knowledge/d4k - Documents/Projects/0024 - argenx/protocols/footnotes/p6.xlsx'
+python to_timeline_d3.py '/Users/daveih/Library/CloudStorage/OneDrive-SharedLibraries-data4knowledge/d4k - Documents/Projects/0024 - argenx/protocols/footnotes/p6.json'
