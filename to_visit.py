@@ -1,15 +1,8 @@
 import os
 import argparse
-import json
 from bs4 import BeautifulSoup
 from yattag import Doc
 from uuid import uuid4
-from usdm4.api.scheduled_instance import (
-    ScheduledActivityInstance,
-    ScheduledDecisionInstance,
-)
-from usdm4.api.wrapper import Wrapper
-from usdm4.api.study_design import StudyDesign
 from usdm4 import USDM4
 from usdm4.builder.builder import Builder, DataStore
 from simple_error_log.errors import Errors
@@ -26,9 +19,6 @@ class Visit:
     def to_html(self, visit_id: str) -> str:
         try:
             self._builder.seed(self._file_path)
-            # wrapper_dict: dict = self._data_store.data
-            # wrapper = Wrapper.model_validate(wrapper_dict)
-            # study_design = wrapper.study.versions[0].studyDesigns[0]
             label, visit_data = self._visit_data(visit_id)
             return self._generate_html(label, visit_data)
         except Exception as e:
@@ -161,8 +151,7 @@ class Visit:
                             <div class="d-flex align-items-center">
                                 <i class="bi bi-calendar-check me-2" style="font-size: 1.5rem;"></i>
                                 <div>
-                                    <h2 class="mb-0">USDM Visit</h2>
-                                    <small class="opacity-75">{label}</small>
+                                    <h2 class="mb-0">{label} Visit</h2>
                                 </div>
                             </div>
                         </div>
@@ -175,12 +164,6 @@ class Visit:
             </html>
         """
         return html
-
-def save_html(file_path, result):
-    """Save HTML content to file."""
-    with open(file_path, "w") as f:
-        f.write(result)
-
 
 def save_html(file_path, result):
     soup = BeautifulSoup(result, "html.parser")
