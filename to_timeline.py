@@ -123,7 +123,7 @@ if __name__ == '__main__':
         description='Will display USDM timelines using Mermaid',
         epilog='Note: Not that sophisticated! :)'
     )
-    parser.add_argument('filename', help="The name of the USDM USDM file.") 
+    parser.add_argument('filename', help="The name of the USDM file.") 
     args = parser.parse_args()
     filename = args.filename
     
