@@ -1,6 +1,7 @@
 import lmstudio as lms
 from pydantic import BaseModel
 
+
 # A class based schema for a book
 class AddressSchema(BaseModel):
     house_number: str
@@ -10,6 +11,7 @@ class AddressSchema(BaseModel):
     state: str
     postal_code: str
     country: str
+
 
 prompt = """
     Find the address in the following text. 

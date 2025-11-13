@@ -5,20 +5,22 @@ from pytesseract import pytesseract
 
 # See https://www.nutrient.io/blog/how-to-use-tesseract-ocr-in-python/
 
+
 def save_text(file_path, data):
     with open(file_path, "w") as f:
         f.write(data)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        prog='USDM Simple Text from Images Program',
-        description='Will display text exracted from image',
-        epilog='Note: Not that sophisticated! :)'
+        prog="USDM Simple Text from Images Program",
+        description="Will display text exracted from image",
+        epilog="Note: Not that sophisticated! :)",
     )
-    parser.add_argument('filename', help="The name of the image file.") 
+    parser.add_argument("filename", help="The name of the image file.")
     args = parser.parse_args()
     filename = args.filename
-    
+
     input_path, tail = os.path.split(filename)
     if not input_path:
         input_path = os.getcwd()
@@ -32,4 +34,3 @@ if __name__ == '__main__':
     image = Image.open(full_input_filename)
     extracted_text = pytesseract.image_to_string(image)
     save_text(full_output_filename, extracted_text)
-

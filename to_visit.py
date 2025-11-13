@@ -3,14 +3,12 @@ import argparse
 import warnings
 from bs4 import BeautifulSoup
 from yattag import Doc
-from uuid import uuid4
 from usdm4 import USDM4
 from usdm4.builder.builder import Builder, DataStore
 from simple_error_log.errors import Errors
 
 
 class Visit:
-
     def __init__(self, file_path: str, errors: Errors):
         self._errors = errors
         self._usdm = USDM4()
@@ -23,19 +21,33 @@ class Visit:
             label, visit_data = self._visit_data(visit_id)
             return self._generate_html(label, visit_data)
         except Exception as e:
-            self._errors.exception(
-                f"Failed generating HTML page", e
-            )
+            self._errors.exception(f"Failed generating HTML page", e)
             return ""
 
     def _visit_data(self, visit_id: str) -> tuple[str, dict]:
         results = {}
         label = "Not Found"
         self._data_store: DataStore = self._builder._data_store
-        encounter = next((x for x in self._data_store.instances_by_klass("Encounter") if x["id"] == visit_id), None)
+        encounter = next(
+            (
+                x
+                for x in self._data_store.instances_by_klass("Encounter")
+                if x["id"] == visit_id
+            ),
+            None,
+        )
         if encounter:
             label = encounter["label"]
-            timepoint = next((x for x in self._data_store.instances_by_klass("ScheduledActivityInstance") if x["encounterId"] == encounter["id"]), None)
+            timepoint = next(
+                (
+                    x
+                    for x in self._data_store.instances_by_klass(
+                        "ScheduledActivityInstance"
+                    )
+                    if x["encounterId"] == encounter["id"]
+                ),
+                None,
+            )
             if timepoint:
                 for id in timepoint["activityIds"]:
                     activity = self._data_store.instance_by_id(id)
@@ -44,11 +56,17 @@ class Visit:
                         if activity["label"].startswith("Inclusion"):
                             results["Inclusion Criteria"] = []
                             results["Exclusion Criteria"] = []
-                            for ec in self._data_store.instances_by_klass("EligibilityCriterion"):
-                                eci = self._data_store.instance_by_id(ec["criterionItemId"])
-                                translated_text = self._translate_references(eci["text"])
+                            for ec in self._data_store.instances_by_klass(
+                                "EligibilityCriterion"
+                            ):
+                                eci = self._data_store.instance_by_id(
+                                    ec["criterionItemId"]
+                                )
+                                translated_text = self._translate_references(
+                                    eci, eci["text"]
+                                )
                                 if ec["category"]["code"] == "C25532":
-                                    checkbox_html = '''
+                                    checkbox_html = """
                                     <div class="d-flex align-items-start gap-3">
                                         <div class="flex-grow-1">
                                             <strong>IN{identifier}:</strong> {text}
@@ -64,10 +82,13 @@ class Visit:
                                             </label>
                                         </div>
                                     </div>
-                                    '''.format(identifier=ec["identifier"], text=translated_text)
+                                    """.format(
+                                        identifier=ec["identifier"],
+                                        text=str(translated_text),
+                                    )
                                     results["Inclusion Criteria"].append(checkbox_html)
                                 if ec["category"]["code"] == "C25370":
-                                    checkbox_html = '''
+                                    checkbox_html = """
                                     <div class="d-flex align-items-start gap-3">
                                         <div class="flex-grow-1">
                                             <strong>EX{identifier}:</strong> {text}
@@ -83,16 +104,18 @@ class Visit:
                                             </label>
                                         </div>
                                     </div>
-                                    '''.format(identifier=ec["identifier"], text=translated_text)
+                                    """.format(
+                                        identifier=ec["identifier"],
+                                        text=translated_text,
+                                    )
                                     results["Exclusion Criteria"].append(checkbox_html)
                         else:
                             results[key] = []
-                            
+
         for k, v in results.items():
             if not v:
                 v.append("Some instructions here ...")
         return label, results
-
 
     def _generate_html(self, label: str, data: dict):
         doc = Doc()
@@ -101,10 +124,12 @@ class Visit:
                 for k, v in data.items():
                     with doc.tag(f"div", klass="col-12"):
                         with doc.tag(f"div", klass="card shadow-sm border-0"):
-                            with doc.tag(f"div", klass="card-header bg-primary text-white py-2"):
+                            with doc.tag(
+                                f"div", klass="card-header bg-primary text-white py-2"
+                            ):
                                 with doc.tag(f"h5", klass="mb-0"):
                                     doc.asis(f"{k}")
-                            with doc.tag(f"div", klass="card-body p-3"):                            
+                            with doc.tag(f"div", klass="card-body p-3"):
                                 for item in v:
                                     with doc.tag(f"p", klass="card-text mb-2 small"):
                                         doc.asis(f"{item}")
@@ -165,64 +190,55 @@ class Visit:
         """
         return html
 
-    def _translate_references(self, text: str) -> str:
-        print(f"TEXT: {text}")
-        soup = self._get_soup(text)
-        for ref in soup(['usdm:ref']):
-            try:
-                print(f"REF: {ref}")
-                attributes = ref.attrs
-                # instance = self._cross_ref.get(attributes['klass'], )
-                instance = self._data_store.instance_by_id(attributes['id'])
-                value = self._resolve_instance(instance, attributes['attribute'])
-                translated_text = self._translate_references(value)
-                ref.replace_with(translated_text)
-                # self._replace_and_highlight(soup, ref, translated_text)
-            except Exception as e:
-                errors.exception(f"Exception raised while attempting to translate reference '{attributes}' while generating the HTML document, see the logs for more info", e)
-                ref.replace_with('Missing content: exception')
-                # self._replace_and_highlight(soup, ref, 'Missing content: exception')
-        # errors.debug(f"Translate references from {text} => {self._get_soup(str(soup))}")
-        return self._get_soup(str(soup))
+    def _translate_references(self, instance: dict, text: str) -> str:
+        return self._translate_references_recurse(instance, text)
 
-    def _resolve_instance(self, instance, attribute):
-        # dictionary = self._get_dictionary(instance)
-        dictionary = self._data_store.instance_by_id(instance.dictionaryId)
-        value = str(getattr(instance, attribute))
-        soup = self._get_soup(value, errors)
-        for ref in soup(['usdm:tag']):
+    def _translate_references_recurse(self, instance: dict, text: str) -> str:
+        # print(f"LEVEL: {text}")
+        soup = self._get_soup(text)
+        more = False
+        for ref in soup(["usdm:ref", "usdm:tag"]):
+            print(f"REF: {ref}, {ref.name}")
+            more = True
             try:
-                attributes = ref.attrs
-                if dictionary:
-                    entry = next((item for item in dictionary.parameterMaps if item.tag == attributes['name']), None)
-                    ref.replace_with(self._get_soup(entry.reference))
-                    # self._replace_and_highlight(ref, self._get_soup(entry.reference))
-                else:
-                    errors.error(f"Missing dictionary while attempting to resolve reference '{attributes}' while generating the HTML document")
-                    ref.replace_with(self._get_soup('Missing content: missing dictionary'))
-                    # self._replace_and_highlight(ref, 'Missing content: missing dictionary')
+                if ref.name == "usdm:ref":
+                    text = self._resolve_usdm_ref(instance, ref)
+                    ref.replace_with(self._translate_references_recurse(instance, text))
+                if ref.name == "usdm:tag":
+                    text = self._resolve_usdm_tag(instance, ref)
+                    ref.replace_with(self._translate_references_recurse(instance, text))
             except Exception as e:
-                errors.exception(f"Failed to resolve reference '{attributes} while generating the HTML document", e)
-                ref.replace_with(self._get_soup('Missing content: exception'))
-                # self._replace_and_highlight(ref, 'Missing content: exception')
+                errors.exception(
+                    f"Exception raised while attempting to translate '{ref}' while generating the HTML document, see the logs for more info",
+                    e,
+                )
         return str(soup)
 
-    # def _get_dictionary(self, instance):
-    #     try:
-    #         return self._cross_ref.get('SyntaxTemplateDictionary', instance.dictionaryId)
-    #     except:
-    #         return None  
+    def _resolve_usdm_ref(self, instance, ref) -> str:
+        attributes = ref.attrs
+        instance = self._data_store.instance_by_id(attributes["id"])
+        value = str(instance[attributes["attribute"]])
+        return value
 
-    # def _replace_and_highlight(ref, text):
-    #     ref.replace_with(text)
+    def _resolve_usdm_tag(self, instance, ref) -> str:
+        attributes = ref.attrs
+        dictionary = self._data_store.instance_by_id(instance["dictionaryId"])
+        if dictionary:
+            for p_map in dictionary["parameterMaps"]:
+                if p_map["tag"] == attributes["name"]:
+                    value = p_map["reference"]
+                    return value
+        return f"<i>missing dictionary reference</i>"
 
     def _get_soup(self, text: str):
         try:
             with warnings.catch_warnings(record=True) as warning_list:
-                result =  BeautifulSoup(text, 'html.parser')
+                result = BeautifulSoup(text, "html.parser")
                 if warning_list:
                     for item in warning_list:
-                        errors.debug(f"Warning raised within Soup package, processing '{text}'\nMessage returned '{item.message}'")
+                        errors.debug(
+                            f"Warning raised within Soup package, processing '{text}'\nMessage returned '{item.message}'"
+                        )
                 return result
         except Exception as e:
             errors.exception(f"Parsing '{text}' with soup", e)
@@ -235,18 +251,19 @@ def save_html(file_path, result):
     with open(file_path, "w") as f:
         f.write(data)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        prog='USDM Simple Visit Program',
-        description='Will display USDM visits',
-        epilog='Note: Not that sophisticated! :)'
+        prog="USDM Simple Visit Program",
+        description="Will display USDM visits",
+        epilog="Note: Not that sophisticated! :)",
     )
-    parser.add_argument('filename', help="The name of the USDM file.") 
-    parser.add_argument('id', help="The id for the visit.") 
+    parser.add_argument("filename", help="The name of the USDM file.")
+    parser.add_argument("id", help="The id for the visit.")
     args = parser.parse_args()
     filename = args.filename
     id = args.id
-    
+
     input_path, tail = os.path.split(filename)
     root_filename = tail.replace(".json", "")
     full_filename = filename

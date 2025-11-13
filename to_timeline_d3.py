@@ -12,6 +12,7 @@ from usdm4 import USDM4
 from usdm4.builder.builder import Builder
 from simple_error_log.errors import Errors
 
+
 class Timeline:
     def __init__(self, file_path: str, errors: Errors):
         self._errors = errors
@@ -23,28 +24,26 @@ class Timeline:
         """Generate HTML with D3 visualization for all timelines."""
         self._builder.seed(self._file_path)
         wrapper_dict: dict = self._builder._data_store.data
-        wrapper_dict['study']['id'] = uuid4()
+        wrapper_dict["study"]["id"] = uuid4()
         wrapper = Wrapper.model_validate(wrapper_dict)
-        
+
         try:
             study_design = wrapper.study.versions[0].studyDesigns[0]
             return self._generate_html(study_design)
         except Exception as e:
-            self._errors.exception(
-                f"Failed generating HTML page", e
-            )
+            self._errors.exception(f"Failed generating HTML page", e)
             return ""
 
     def _generate_html(self, study_design: StudyDesign):
         """Generate complete HTML with embedded D3 visualization."""
-        
+
         # Collect all timeline data
         timelines_data = []
         for timeline in study_design.scheduleTimelines:
             timeline_data = self._process_timeline(timeline)
             if timeline_data:
                 timelines_data.append(timeline_data)
-        
+
         # Generate HTML
         html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -967,155 +966,177 @@ class Timeline:
         """Process a timeline and extract node data."""
         try:
             nodes = []
-            
+
             # Get the entry instance
             instance = self._get_cross_reference(timeline.entryId)
             if not instance:
                 return None
-            
+
             # Collect all instances in order - first pass for main timeline
             conditional_links = []
             main_timeline_node_ids = set()
-            
+
             while instance:
                 # Determine the node type
-                if instance['instanceType'] == ScheduledActivityInstance.__name__:
-                    node_type = 'activity'
-                elif instance['instanceType'] == ScheduledDecisionInstance.__name__:
-                    node_type = 'decision'
+                if instance["instanceType"] == ScheduledActivityInstance.__name__:
+                    node_type = "activity"
+                elif instance["instanceType"] == ScheduledDecisionInstance.__name__:
+                    node_type = "decision"
                 else:
-                    node_type = 'unknown'
-                
+                    node_type = "unknown"
+
                 # Override type for entry node (first node)
                 if len(nodes) == 0:
-                    node_type = 'entry'
-                
+                    node_type = "entry"
+
                 node_data = {
-                    'id': instance['id'],
-                    'label': instance.get('label', instance.get('name', 'Unknown')),
-                    'description': instance.get('description', ''),
-                    'type': node_type
+                    "id": instance["id"],
+                    "label": instance.get("label", instance.get("name", "Unknown")),
+                    "description": instance.get("description", ""),
+                    "type": node_type,
                 }
-                
+
                 # Extract condition assignments for decision nodes
-                if node_type == 'decision' and 'conditionAssignments' in instance:
-                    for assignment in instance['conditionAssignments']:
-                        conditional_links.append({
-                            'sourceId': instance['id'],
-                            'targetId': assignment.get('conditionTargetId'),
-                            'condition': assignment.get('condition', 'Condition')
-                        })
-                
+                if node_type == "decision" and "conditionAssignments" in instance:
+                    for assignment in instance["conditionAssignments"]:
+                        conditional_links.append(
+                            {
+                                "sourceId": instance["id"],
+                                "targetId": assignment.get("conditionTargetId"),
+                                "condition": assignment.get("condition", "Condition"),
+                            }
+                        )
+
                 nodes.append(node_data)
-                main_timeline_node_ids.add(instance['id'])
-                
+                main_timeline_node_ids.add(instance["id"])
+
                 # Get next instance
-                next_id = instance.get('defaultConditionId')
+                next_id = instance.get("defaultConditionId")
                 if next_id:
                     instance = self._get_cross_reference(next_id)
                 else:
                     # This is the last instance, check for exit
-                    exit_id = instance.get('timelineExitId')
+                    exit_id = instance.get("timelineExitId")
                     if exit_id:
                         exit_obj = self._get_cross_reference(exit_id)
                         if exit_obj:
-                            nodes.append({
-                                'id': exit_obj['id'],
-                                'label': 'Exit',
-                                'description': 'Timeline Exit',
-                                'type': 'exit'
-                            })
+                            nodes.append(
+                                {
+                                    "id": exit_obj["id"],
+                                    "label": "Exit",
+                                    "description": "Timeline Exit",
+                                    "type": "exit",
+                                }
+                            )
                     instance = None
-            
+
             # Second pass: collect orphan nodes (nodes referenced by conditional links but not in main timeline)
             orphan_nodes = []
             orphan_links = []
             orphan_to_main_links = []
             processed_orphan_ids = set()
-            
+
             for cond_link in conditional_links:
-                target_id = cond_link['targetId']
-                if target_id not in main_timeline_node_ids and target_id not in processed_orphan_ids:
+                target_id = cond_link["targetId"]
+                if (
+                    target_id not in main_timeline_node_ids
+                    and target_id not in processed_orphan_ids
+                ):
                     # This is an orphan node - follow its chain
                     orphan_instance = self._get_cross_reference(target_id)
-                    while orphan_instance and orphan_instance['id'] not in main_timeline_node_ids:
-                        if orphan_instance['id'] in processed_orphan_ids:
+                    while (
+                        orphan_instance
+                        and orphan_instance["id"] not in main_timeline_node_ids
+                    ):
+                        if orphan_instance["id"] in processed_orphan_ids:
                             break
-                        
+
                         # Determine node type
-                        if orphan_instance['instanceType'] == ScheduledActivityInstance.__name__:
-                            orphan_type = 'activity'
-                        elif orphan_instance['instanceType'] == ScheduledDecisionInstance.__name__:
-                            orphan_type = 'decision'
+                        if (
+                            orphan_instance["instanceType"]
+                            == ScheduledActivityInstance.__name__
+                        ):
+                            orphan_type = "activity"
+                        elif (
+                            orphan_instance["instanceType"]
+                            == ScheduledDecisionInstance.__name__
+                        ):
+                            orphan_type = "decision"
                         else:
-                            orphan_type = 'unknown'
-                        
+                            orphan_type = "unknown"
+
                         orphan_node_data = {
-                            'id': orphan_instance['id'],
-                            'label': orphan_instance.get('label', orphan_instance.get('name', 'Unknown')),
-                            'description': orphan_instance.get('description', ''),
-                            'type': orphan_type
+                            "id": orphan_instance["id"],
+                            "label": orphan_instance.get(
+                                "label", orphan_instance.get("name", "Unknown")
+                            ),
+                            "description": orphan_instance.get("description", ""),
+                            "type": orphan_type,
                         }
                         orphan_nodes.append(orphan_node_data)
-                        processed_orphan_ids.add(orphan_instance['id'])
-                        
+                        processed_orphan_ids.add(orphan_instance["id"])
+
                         # Check if this orphan links to another node
-                        next_id = orphan_instance.get('defaultConditionId')
+                        next_id = orphan_instance.get("defaultConditionId")
                         if next_id:
                             if next_id not in main_timeline_node_ids:
                                 # Link to another orphan
-                                orphan_links.append({
-                                    'sourceId': orphan_instance['id'],
-                                    'targetId': next_id
-                                })
+                                orphan_links.append(
+                                    {
+                                        "sourceId": orphan_instance["id"],
+                                        "targetId": next_id,
+                                    }
+                                )
                                 orphan_instance = self._get_cross_reference(next_id)
                             else:
                                 # Link back to main timeline
-                                orphan_to_main_links.append({
-                                    'sourceId': orphan_instance['id'],
-                                    'targetId': next_id
-                                })
+                                orphan_to_main_links.append(
+                                    {
+                                        "sourceId": orphan_instance["id"],
+                                        "targetId": next_id,
+                                    }
+                                )
                                 break
                         else:
                             break
-            
+
             # Process timings
             timings = []
             for timing in timeline.timings:
                 # Check if this is an anchor node (Fixed Reference type)
-                is_anchor = timing.type and timing.type.code == 'C201358'
-                
+                is_anchor = timing.type and timing.type.code == "C201358"
+
                 timing_data = {
-                    'id': timing.id,
-                    'label': timing.label,
-                    'type': timing.type.decode if timing.type else 'Unknown',
-                    'typeCode': timing.type.code if timing.type else '',
-                    'isAnchor': is_anchor,
-                    'value': timing.value,
-                    'valueLabel': timing.valueLabel if timing.valueLabel else timing.value,
-                    'windowLower': timing.windowLower if timing.windowLower else '',
-                    'windowUpper': timing.windowUpper if timing.windowUpper else '',
-                    'windowLabel': timing.windowLabel if timing.windowLabel else '',
-                    'relativeFromScheduledInstanceId': timing.relativeFromScheduledInstanceId,
-                    'relativeToScheduledInstanceId': timing.relativeToScheduledInstanceId
+                    "id": timing.id,
+                    "label": timing.label,
+                    "type": timing.type.decode if timing.type else "Unknown",
+                    "typeCode": timing.type.code if timing.type else "",
+                    "isAnchor": is_anchor,
+                    "value": timing.value,
+                    "valueLabel": timing.valueLabel
+                    if timing.valueLabel
+                    else timing.value,
+                    "windowLower": timing.windowLower if timing.windowLower else "",
+                    "windowUpper": timing.windowUpper if timing.windowUpper else "",
+                    "windowLabel": timing.windowLabel if timing.windowLabel else "",
+                    "relativeFromScheduledInstanceId": timing.relativeFromScheduledInstanceId,
+                    "relativeToScheduledInstanceId": timing.relativeToScheduledInstanceId,
                 }
                 timings.append(timing_data)
-            
+
             return {
-                'id': timeline.id,
-                'label': timeline.label,
-                'entryCondition': timeline.entryCondition,
-                'nodes': nodes,
-                'timings': timings,
-                'conditionalLinks': conditional_links,
-                'orphanNodes': orphan_nodes,
-                'orphanLinks': orphan_links,
-                'orphanToMainLinks': orphan_to_main_links
+                "id": timeline.id,
+                "label": timeline.label,
+                "entryCondition": timeline.entryCondition,
+                "nodes": nodes,
+                "timings": timings,
+                "conditionalLinks": conditional_links,
+                "orphanNodes": orphan_nodes,
+                "orphanLinks": orphan_links,
+                "orphanToMainLinks": orphan_to_main_links,
             }
         except Exception as e:
-            self._errors.exception(
-                f"Failed processing timeline {timeline.label}", e
-            )
+            self._errors.exception(f"Failed processing timeline {timeline.label}", e)
             return None
 
     def _format_timelines_data(self, timelines_data):
@@ -1133,16 +1154,16 @@ def save_html(file_path, result):
         f.write(result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        prog='USDM D3 Timeline Program',
-        description='Display USDM timelines using D3 in a horizontal layout',
-        epilog='Creates a single HTML file with all timelines'
+        prog="USDM D3 Timeline Program",
+        description="Display USDM timelines using D3 in a horizontal layout",
+        epilog="Creates a single HTML file with all timelines",
     )
-    parser.add_argument('filename', help="The name of the USDM JSON file.") 
+    parser.add_argument("filename", help="The name of the USDM JSON file.")
     args = parser.parse_args()
     filename = args.filename
-    
+
     input_path, tail = os.path.split(filename)
     root_filename = tail.replace(".json", "")
     full_filename = filename
@@ -1154,11 +1175,11 @@ if __name__ == '__main__':
     print(f"Output path: {output_path}")
     print(f"Output file: {full_output_filename}")
     print("")
-    
+
     errors = Errors()
     timeline = Timeline(full_filename, errors)
     html = timeline.to_html()
-    
+
     if errors.error_count() > 0:
         print(f"Errors: {errors.dump(0)}")
     else:

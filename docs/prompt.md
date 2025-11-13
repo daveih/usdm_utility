@@ -28,3 +28,9 @@ Using the D3 graphic library, write a single web page to be included within an e
 Take the utility program to_visit.py and update the HTML presentation aspects to:
 - Use the bootstrap theme from here "https://bootswatch.com/zephyr/" 
 - Make the presentation more modern and compact
+
+----- + -----
+
+In the text there can be two forms of embedded XML:
+- <usdm:tag name="StudyPopulation"/>
+- <usdm:ref attribute="text" id="StudyTitle_2" klass="StudyTitle"></usdm:ref>
