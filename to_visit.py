@@ -57,10 +57,44 @@ class Visit:
                                 print(f"EC: {ec}")
                                 if ec["category"]["code"] == "C25532":
                                     eci = data_store.instance_by_id(ec["criterionItemId"])
-                                    results["Inclusion Criteria"].append(f"<strong>IN{ec["identifier"]}:</strong> {eci["text"]}")
+                                    checkbox_html = '''
+                                    <div class="d-flex align-items-start gap-3">
+                                        <div class="flex-grow-1">
+                                            <strong>IN{identifier}:</strong> {text}
+                                        </div>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <input type="checkbox" class="btn-check" id="in{identifier}-yes" autocomplete="off">
+                                            <label class="btn btn-outline-success" for="in{identifier}-yes">
+                                                <i class="bi bi-check-lg"></i> Yes
+                                            </label>
+                                            <input type="checkbox" class="btn-check" id="in{identifier}-no" autocomplete="off">
+                                            <label class="btn btn-outline-danger" for="in{identifier}-no">
+                                                <i class="bi bi-x-lg"></i> No
+                                            </label>
+                                        </div>
+                                    </div>
+                                    '''.format(identifier=ec["identifier"], text=eci["text"])
+                                    results["Inclusion Criteria"].append(checkbox_html)
                                 if ec["category"]["code"] == "C25370":
                                     eci = data_store.instance_by_id(ec["criterionItemId"])
-                                    results["Exclusion Criteria"].append(f"<strong>EX{ec["identifier"]}:</strong> {eci["text"]}")
+                                    checkbox_html = '''
+                                    <div class="d-flex align-items-start gap-3">
+                                        <div class="flex-grow-1">
+                                            <strong>EX{identifier}:</strong> {text}
+                                        </div>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <input type="checkbox" class="btn-check" id="ex{identifier}-yes" autocomplete="off">
+                                            <label class="btn btn-outline-success" for="ex{identifier}-yes">
+                                                <i class="bi bi-check-lg"></i> Yes
+                                            </label>
+                                            <input type="checkbox" class="btn-check" id="ex{identifier}-no" autocomplete="off">
+                                            <label class="btn btn-outline-danger" for="ex{identifier}-no">
+                                                <i class="bi bi-x-lg"></i> No
+                                            </label>
+                                        </div>
+                                    </div>
+                                    '''.format(identifier=ec["identifier"], text=eci["text"])
+                                    results["Exclusion Criteria"].append(checkbox_html)
                         else:
                             results[key] = []
                             
@@ -72,16 +106,17 @@ class Visit:
 
     def _generate_html(self, label: str, data: dict):
         doc = Doc()
-        with doc.tag(f"div", klass="container-fluid"):
-            with doc.tag(f"div", klass="col mt-3"):
+        with doc.tag(f"div", klass="container-fluid px-4"):
+            with doc.tag(f"div", klass="row g-3"):
                 for k, v in data.items():
-                    with doc.tag(f"div", klass="card rounded-3"):
-                        with doc.tag(f"div", klass="card-header"):
-                            with doc.tag(f"h4", klass="mt-5"):
-                                doc.asis(f"{k}")
-                            with doc.tag(f"div", klass="card-body"):                            
+                    with doc.tag(f"div", klass="col-12"):
+                        with doc.tag(f"div", klass="card shadow-sm border-0"):
+                            with doc.tag(f"div", klass="card-header bg-primary text-white py-2"):
+                                with doc.tag(f"h5", klass="mb-0"):
+                                    doc.asis(f"{k}")
+                            with doc.tag(f"div", klass="card-body p-3"):                            
                                 for item in v:
-                                    with doc.tag(f"p", klass="card-text"):
+                                    with doc.tag(f"p", klass="card-text mb-2 small"):
                                         doc.asis(f"{item}")
 
         # Generate HTML
@@ -90,14 +125,51 @@ class Visit:
                 <head>
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>USDM Visit Visualization for {label}</title>
-                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+                    <title>USDM Visit - {label}</title>
+                    <link href="https://bootswatch.com/5/zephyr/bootstrap.min.css" rel="stylesheet">
                     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+                    <style>
+                        body {{
+                            background-color: #f8f9fa;
+                            font-size: 0.9rem;
+                        }}
+                        .page-header {{
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            padding: 1.5rem 0;
+                            margin-bottom: 1.5rem;
+                            border-radius: 0;
+                        }}
+                        .card {{
+                            transition: transform 0.2s;
+                        }}
+                        .card:hover {{
+                            transform: translateY(-2px);
+                        }}
+                        .card-header {{
+                            font-weight: 500;
+                            letter-spacing: 0.3px;
+                        }}
+                        .btn-group-sm .btn {{
+                            min-width: 60px;
+                        }}
+                    </style>
                 </head>
                 <body>
-                    <div class="container-fluid">
-                        <h1>USDM Visit Visualization for {label}</h1>
-                        {doc.getvalue()}
+                    <div class="page-header">
+                        <div class="container-fluid px-4">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-calendar-check me-2" style="font-size: 1.5rem;"></i>
+                                <div>
+                                    <h2 class="mb-0">USDM Visit</h2>
+                                    <small class="opacity-75">{label}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {doc.getvalue()}
+                    <div class="container-fluid px-4 py-3">
+                        <small class="text-muted">Generated with USDM4 Utility</small>
                     </div>
                 </body>
             </html>

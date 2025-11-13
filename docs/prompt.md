@@ -22,3 +22,9 @@ Using the D3 graphic library, write a single web page to be included within an e
         - Display in a style similar to the attached image
     - Allow the user to expand by clicking on attributes that have linked instances
         - In response expand the display to include the instances selected
+
+----- + -----
+
+Take the utility program to_visit.py and update the HTML presentation aspects to:
+- Use the bootstrap theme from here "https://bootswatch.com/zephyr/" 
+- Make the presentation more modern and compact
