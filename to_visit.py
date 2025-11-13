@@ -1,5 +1,6 @@
 import os
 import argparse
+import warnings
 from bs4 import BeautifulSoup
 from yattag import Doc
 from uuid import uuid4
@@ -30,23 +31,23 @@ class Visit:
     def _visit_data(self, visit_id: str) -> tuple[str, dict]:
         results = {}
         label = "Not Found"
-        data_store: DataStore = self._builder._data_store
-        encounter = next((x for x in data_store.instances_by_klass("Encounter") if x["id"] == visit_id), None)
+        self._data_store: DataStore = self._builder._data_store
+        encounter = next((x for x in self._data_store.instances_by_klass("Encounter") if x["id"] == visit_id), None)
         if encounter:
             label = encounter["label"]
-            timepoint = next((x for x in data_store.instances_by_klass("ScheduledActivityInstance") if x["encounterId"] == encounter["id"]), None)
+            timepoint = next((x for x in self._data_store.instances_by_klass("ScheduledActivityInstance") if x["encounterId"] == encounter["id"]), None)
             if timepoint:
                 for id in timepoint["activityIds"]:
-                    activity = data_store.instance_by_id(id)
+                    activity = self._data_store.instance_by_id(id)
                     key = activity["label"]
                     if key not in results:
                         if activity["label"].startswith("Inclusion"):
                             results["Inclusion Criteria"] = []
                             results["Exclusion Criteria"] = []
-                            for ec in data_store.instances_by_klass("EligibilityCriterion"):
-                                print(f"EC: {ec}")
+                            for ec in self._data_store.instances_by_klass("EligibilityCriterion"):
+                                eci = self._data_store.instance_by_id(ec["criterionItemId"])
+                                translated_text = self._translate_references(eci["text"])
                                 if ec["category"]["code"] == "C25532":
-                                    eci = data_store.instance_by_id(ec["criterionItemId"])
                                     checkbox_html = '''
                                     <div class="d-flex align-items-start gap-3">
                                         <div class="flex-grow-1">
@@ -63,10 +64,9 @@ class Visit:
                                             </label>
                                         </div>
                                     </div>
-                                    '''.format(identifier=ec["identifier"], text=eci["text"])
+                                    '''.format(identifier=ec["identifier"], text=translated_text)
                                     results["Inclusion Criteria"].append(checkbox_html)
                                 if ec["category"]["code"] == "C25370":
-                                    eci = data_store.instance_by_id(ec["criterionItemId"])
                                     checkbox_html = '''
                                     <div class="d-flex align-items-start gap-3">
                                         <div class="flex-grow-1">
@@ -83,7 +83,7 @@ class Visit:
                                             </label>
                                         </div>
                                     </div>
-                                    '''.format(identifier=ec["identifier"], text=eci["text"])
+                                    '''.format(identifier=ec["identifier"], text=translated_text)
                                     results["Exclusion Criteria"].append(checkbox_html)
                         else:
                             results[key] = []
@@ -164,6 +164,70 @@ class Visit:
             </html>
         """
         return html
+
+    def _translate_references(self, text: str) -> str:
+        print(f"TEXT: {text}")
+        soup = self._get_soup(text)
+        for ref in soup(['usdm:ref']):
+            try:
+                print(f"REF: {ref}")
+                attributes = ref.attrs
+                # instance = self._cross_ref.get(attributes['klass'], )
+                instance = self._data_store.instance_by_id(attributes['id'])
+                value = self._resolve_instance(instance, attributes['attribute'])
+                translated_text = self._translate_references(value)
+                ref.replace_with(translated_text)
+                # self._replace_and_highlight(soup, ref, translated_text)
+            except Exception as e:
+                errors.exception(f"Exception raised while attempting to translate reference '{attributes}' while generating the HTML document, see the logs for more info", e)
+                ref.replace_with('Missing content: exception')
+                # self._replace_and_highlight(soup, ref, 'Missing content: exception')
+        # errors.debug(f"Translate references from {text} => {self._get_soup(str(soup))}")
+        return self._get_soup(str(soup))
+
+    def _resolve_instance(self, instance, attribute):
+        # dictionary = self._get_dictionary(instance)
+        dictionary = self._data_store.instance_by_id(instance.dictionaryId)
+        value = str(getattr(instance, attribute))
+        soup = self._get_soup(value, errors)
+        for ref in soup(['usdm:tag']):
+            try:
+                attributes = ref.attrs
+                if dictionary:
+                    entry = next((item for item in dictionary.parameterMaps if item.tag == attributes['name']), None)
+                    ref.replace_with(self._get_soup(entry.reference))
+                    # self._replace_and_highlight(ref, self._get_soup(entry.reference))
+                else:
+                    errors.error(f"Missing dictionary while attempting to resolve reference '{attributes}' while generating the HTML document")
+                    ref.replace_with(self._get_soup('Missing content: missing dictionary'))
+                    # self._replace_and_highlight(ref, 'Missing content: missing dictionary')
+            except Exception as e:
+                errors.exception(f"Failed to resolve reference '{attributes} while generating the HTML document", e)
+                ref.replace_with(self._get_soup('Missing content: exception'))
+                # self._replace_and_highlight(ref, 'Missing content: exception')
+        return str(soup)
+
+    # def _get_dictionary(self, instance):
+    #     try:
+    #         return self._cross_ref.get('SyntaxTemplateDictionary', instance.dictionaryId)
+    #     except:
+    #         return None  
+
+    # def _replace_and_highlight(ref, text):
+    #     ref.replace_with(text)
+
+    def _get_soup(self, text: str):
+        try:
+            with warnings.catch_warnings(record=True) as warning_list:
+                result =  BeautifulSoup(text, 'html.parser')
+                if warning_list:
+                    for item in warning_list:
+                        errors.debug(f"Warning raised within Soup package, processing '{text}'\nMessage returned '{item.message}'")
+                return result
+        except Exception as e:
+            errors.exception(f"Parsing '{text}' with soup", e)
+            return ""
+
 
 def save_html(file_path, result):
     soup = BeautifulSoup(result, "html.parser")
