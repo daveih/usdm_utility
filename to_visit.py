@@ -191,15 +191,20 @@ class Visit:
         return html
 
     def _translate_references(self, instance: dict, text: str) -> str:
+        text = self._wrap_tag(text, "u")
+        text = self._wrap_tag(text, "i")
         return self._translate_references_recurse(instance, text)
+
+    def _wrap_tag(self, text: str, tag: str) -> str:
+        soup = self._get_soup(text)
+        for ref in soup(["usdm:ref", "usdm:tag"]):
+            ref.wrap(soup.new_tag(tag))
+        return str(soup)
 
     def _translate_references_recurse(self, instance: dict, text: str) -> str:
         # print(f"LEVEL: {text}")
         soup = self._get_soup(text)
-        more = False
         for ref in soup(["usdm:ref", "usdm:tag"]):
-            print(f"REF: {ref}, {ref.name}")
-            more = True
             try:
                 if ref.name == "usdm:ref":
                     text = self._resolve_usdm_ref(instance, ref)
@@ -268,7 +273,7 @@ if __name__ == "__main__":
     root_filename = tail.replace(".json", "")
     full_filename = filename
     output_path = input_path
-    full_output_filename = os.path.join(output_path, f"{root_filename}.html")
+    full_output_filename = os.path.join(output_path, f"{root_filename}_visit.html")
 
     print("")
     print(f"Output path is: {output_path}")

@@ -1,0 +1,6 @@
+python to_visit.py test_data/NCT04184622.json "Encounter_1"
+python to_visit.py test_data/NCT04557384.json "Encounter_1"
+python to_visit.py test_data/NCT03637764.json "Encounter_1"
+python to_visit.py test_data/NCT03421379.json "Encounter_1"
+python to_visit.py test_data/NCT04573309.json "Encounter_1"
+python to_visit.py test_data/NCT12345678.json "Encounter_1"
