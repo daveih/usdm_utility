@@ -50,9 +50,20 @@ class Visit:
                     activity = data_store.instance_by_id(id)
                     key = activity["label"]
                     if key not in results:
-                        results[key] = []
                         if activity["label"].startswith("Inclusion"):
-                            pass
+                            results["Inclusion Criteria"] = []
+                            results["Exclusion Criteria"] = []
+                            for ec in data_store.instances_by_klass("EligibilityCriterion"):
+                                print(f"EC: {ec}")
+                                if ec["category"]["code"] == "C25532":
+                                    eci = data_store.instance_by_id(ec["criterionItemId"])
+                                    results["Inclusion Criteria"].append(f"<strong>IN{ec["identifier"]}:</strong> {eci["text"]}")
+                                if ec["category"]["code"] == "C25370":
+                                    eci = data_store.instance_by_id(ec["criterionItemId"])
+                                    results["Exclusion Criteria"].append(f"<strong>EX{ec["identifier"]}:</strong> {eci["text"]}")
+                        else:
+                            results[key] = []
+                            
         for k, v in results.items():
             if not v:
                 v.append("Some instructions here ...")
@@ -61,13 +72,17 @@ class Visit:
 
     def _generate_html(self, label: str, data: dict):
         doc = Doc()
-        with doc.tag(f"div", klass="container"):
-            for k, v in data.items():
-                with doc.tag(f"h2", klass="mt-5"):
-                    doc.asis(f"{k}")
-                for item in v:
-                    with doc.tag(f"p"):
-                        doc.asis(f"{item}")
+        with doc.tag(f"div", klass="container-fluid"):
+            with doc.tag(f"div", klass="col mt-3"):
+                for k, v in data.items():
+                    with doc.tag(f"div", klass="card rounded-3"):
+                        with doc.tag(f"div", klass="card-header"):
+                            with doc.tag(f"h4", klass="mt-5"):
+                                doc.asis(f"{k}")
+                            with doc.tag(f"div", klass="card-body"):                            
+                                for item in v:
+                                    with doc.tag(f"p", klass="card-text"):
+                                        doc.asis(f"{item}")
 
         # Generate HTML
         html = f"""<!DOCTYPE html>
@@ -80,8 +95,10 @@ class Visit:
                     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
                 </head>
                 <body>
-                    <h1>USDM Visit Visualization for {label}</h1>
-                    {doc.getvalue()}
+                    <div class="container-fluid">
+                        <h1>USDM Visit Visualization for {label}</h1>
+                        {doc.getvalue()}
+                    </div>
                 </body>
             </html>
         """
