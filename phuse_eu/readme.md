@@ -1,13 +1,11 @@
-# Script
+# SDW Overview
 
-## SDW
-
-### Login
+## Login
 
 - u: phuse2025_hamburg@outlook.com
 - p: CDISC_TcB_2025
 
-### Data Pre Loaded
+## Data Pre Loaded
 
 Three "study definitions" of the same study, the CDISC Pilot Study, LZZT
 
@@ -15,12 +13,12 @@ Three "study definitions" of the same study, the CDISC Pilot Study, LZZT
 - M11 Word document with an SoA in a table
 - Excel version. Hand built to reflect the protocol but as a result it has USDM structure
 
-### JSON Viewer
+## JSON Viewer
 
 - Look at JSON viewer for M11 doc
 - Search for "EligibilityCriterion_1"
 
-### JSON Explorer
+## JSON Explorer
 
 - Look at explorer for Excel
 - Select EligibilityCriteria number 1
@@ -31,6 +29,44 @@ Three "study definitions" of the same study, the CDISC Pilot Study, LZZT
 - Jump to the quantity
 - Quantity 9 value is 50
 - Expand to the unit ... Year
+
+# M11 Export
+
+- Export from the Word "USDM" and the "Excel" USDM
+- Export USDM v4 for the Word version
+- Export the Excel version
+- In the usdm_utility project:
+    - python to_m11.py phuse_eu/CDISC_Pilot_Study_M11_USDM.json- 
+    - python to_m11.py phuse_eu/CDISC_Pilot_Study_USDM.json
+- From finder click on:
+    - phuse_eu/CDISC_Pilot_Study_USDM_criterion.html
+    - phuse_eu/CDISC_Pilot_Study_M11_USDM_criterion.html
+- Note the underline italics on the excel version
+    - Why is it there?
+    - It is the structured data 
+
+## Other Export / Reuse
+
+- In the usdm_utility project:
+    - python to_visit.py phuse_eu/CDISC_Pilot_Study_USDM.json "Encounter_1"
+    - The "Encounter_1" is a short cut, would not normally do this
+- From finder slick on:
+    - phuse_eu/CDISC_Pilot_Study_USDM_visit.html
+- Again, note the underline italics
+
+## FHIR Export
+
+- In SDW, export the FHIR Madrid version
+- Explain the versions
+- Examine the FHIR message in an editor
+- Search for "resourceType": "Group"
+- Note, no fields, been expanded before transmission
+- FHIR does have a mechanism for structure, current UDP work is "aligning" these
+
+## To Another Application
+
+- Using d4k tech demonstrator
+...
 
 # Commands
 
