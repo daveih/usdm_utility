@@ -96,6 +96,7 @@ class IE:
                         .times-new-roman,
                         .times-new-roman * {{
                             font-family: 'Times New Roman', Times, serif !important;
+                            font-size: 12pt;
                         }}
                         .times-new-roman h2 {{
                             font-size: 14pt;
@@ -117,9 +118,9 @@ class IE:
         with doc.tag("table"):
             for c in criteria:
                 with doc.tag("tr"):
-                    with doc.tag("td"):
+                    with doc.tag("td", style="vertical-align: top;"):
                         doc.asis(f"{c['identifier']}:")
-                    with doc.tag("td"):
+                    with doc.tag("td", style="vertical-align: top;"):
                         doc.asis(f"{c['text']}")
 
     def _translate_references(self, instance: dict, text: str) -> str:
