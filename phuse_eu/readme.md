@@ -1,0 +1,48 @@
+# Script
+
+## SDW
+
+### Login
+
+- u: phuse2025_hamburg@outlook.com
+- p: CDISC_TcB_2025
+
+### Data Pre Loaded
+
+Three "study definitions" of the same study, the CDISC Pilot Study, LZZT
+
+- M11 Word document (SoA is an image)
+- M11 Word document with an SoA in a table
+- Excel version. Hand built to reflect the protocol but as a result it has USDM structure
+
+### JSON Viewer
+
+- Look at JSON viewer for M11 doc
+- Search for "EligibilityCriterion_1"
+
+### JSON Explorer
+
+- Look at explorer for Excel
+- Select EligibilityCriteria number 1
+- Reference to a tag
+- Go to the SyntaxTemplateDictionary
+- Expand
+- Find min_age
+- Jump to the quantity
+- Quantity 9 value is 50
+- Expand to the unit ... Year
+
+# Commands
+
+## Timeline
+
+- python to_timeline_d3.py phuse_eu/CDISC_Pilot_Study_USDM.json
+
+## Visit
+
+- python to_visit.py phuse_eu/CDISC_Pilot_Study_USDM.json "Encounter_1"
+
+## M11
+
+- python to_m11.py phuse_eu/CDISC_Pilot_Study_USDM.json
+- python to_m11.py phuse_eu/CDISC_Pilot_Study_M11_USDM.json
