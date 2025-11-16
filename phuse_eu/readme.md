@@ -13,10 +13,21 @@ Three "study definitions" of the same study, the CDISC Pilot Study, LZZT
 - M11 Word document with an SoA in a table
 - Excel version. Hand built to reflect the protocol but as a result it has USDM structure
 
+## Look at sources
+
+- Add to chat
+- Word
+- Excel
+
 ## JSON Viewer
 
 - Look at JSON viewer for M11 doc
 - Search for "EligibilityCriterion_1"
+
+## ToDiagram.com
+
+- Load Excel JSON file
+- You have to pay due to size of USDM files
 
 ## JSON Explorer
 
@@ -32,15 +43,14 @@ Three "study definitions" of the same study, the CDISC Pilot Study, LZZT
 
 # M11 Export
 
-- Export from the Word "USDM" and the "Excel" USDM
 - Export USDM v4 for the Word version
 - Export the Excel version
 - In the usdm_utility project:
-    - python to_m11.py phuse_eu/CDISC_Pilot_Study_M11_USDM.json- 
-    - python to_m11.py phuse_eu/CDISC_Pilot_Study_USDM.json
+    - python to_m11.py phuse_eu/M11_USDM.json
+    - python to_m11.py phuse_eu/Excel_USDM.json
 - From finder click on:
-    - phuse_eu/CDISC_Pilot_Study_USDM_criterion.html
-    - phuse_eu/CDISC_Pilot_Study_M11_USDM_criterion.html
+    - phuse_eu/Excel_USDM_criterion.html
+    - phuse_eu/M11_USDM_criterion.html
 - Note the underline italics on the excel version
     - Why is it there?
     - It is the structured data 
@@ -48,10 +58,10 @@ Three "study definitions" of the same study, the CDISC Pilot Study, LZZT
 ## Other Export / Reuse
 
 - In the usdm_utility project:
-    - python to_visit.py phuse_eu/CDISC_Pilot_Study_USDM.json "Encounter_1"
+    - python to_visit.py phuse_eu/Excel_USDM.json "Encounter_1"
     - The "Encounter_1" is a short cut, would not normally do this
 - From finder slick on:
-    - phuse_eu/CDISC_Pilot_Study_USDM_visit.html
+    - phuse_eu/Excel_USDM_visit.html
 - Again, note the underline italics
 
 ## FHIR Export
@@ -65,20 +75,33 @@ Three "study definitions" of the same study, the CDISC Pilot Study, LZZT
 
 ## To Another Application
 
-- Using d4k tech demonstrator
-...
-
-# Commands
+- Edit the word document:
+    - phuse_eu/M11SoAn.docx
+    - amend the identifer (+1)
+- Load into SDW
+- Export as USDM v3 Excel
+- Load into Tech demonstrator
+- Look at the SoA
+- Look at TV
+- IE not included
 
 ## Timeline
 
-- python to_timeline_d3.py phuse_eu/CDISC_Pilot_Study_USDM.json
+- If time
+- Show the example phuse_eu/Excel_USDM_timeline.html
+- Further example (not IE related) of using USDM strucured content
 
-## Visit
+# Commands
 
-- python to_visit.py phuse_eu/CDISC_Pilot_Study_USDM.json "Encounter_1"
+## Timeline Export
 
-## M11
+- python to_timeline_d3.py phuse_eu/Excel_USDM.json
 
-- python to_m11.py phuse_eu/CDISC_Pilot_Study_USDM.json
-- python to_m11.py phuse_eu/CDISC_Pilot_Study_M11_USDM.json
+## Visit Export
+
+- python to_visit.py phuse_eu/Excel_USDM.json "Encounter_1"
+
+## M11 IE Export
+
+- python to_m11.py phuse_eu/Excel_USDM.json
+- python to_m11.py phuse_eu/M11_USDM.json
