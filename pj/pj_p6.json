@@ -1,0 +1,1159 @@
+{
+    "visits": [
+        {
+            "title": "-35 to -1",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'Fixed Reference Timing Type'  '-35 to -1'  'Start to Start'",
+            "duration": "P35D",
+            "activities": [
+                {
+                    "title": "Informed consent",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Medical history",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Demography",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Weight/height",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "SFEMG/RNS (if needed)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Viral screening",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Serology",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Eligibility check",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MGII",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MG-ADL",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MGFA Clinical Classification",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-S (ocular)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Safety",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examinations",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital sign measurements",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy testing",
+                    "procedures": [
+                        "Highly sensitive serum hCG pregnancy test"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "PHQ-9 for SIB (only item 9)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Blood sampling",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Clinical laboratory testing (hematology, clinical chemistry, and FSH if applicable), including urinalysis",
+                    "procedures": [
+                        "RBC",
+                        "platelet count",
+                        "hemoglobin",
+                        "hematocrit"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "Immunogenicity",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AE",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Health economics",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "D1",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-35 to -1'  'Start to Start'",
+            "duration": "P1D",
+            "activities": [
+                {
+                    "title": "Weight/height",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Eligibility check",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Randomization",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MGII",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MG-ADL",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MGFA Clinical Classification",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "NEI VFQ-25",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MG-QoL15r",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Neuro-QoL Short Form–Fatigue",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-S (ocular)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "TSQM-9",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Safety",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examinations",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital sign measurements",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy testing",
+                    "procedures": [
+                        "Highly sensitive serum hCG pregnancy test"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "PHQ-9 for SIB (only item 9)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Blood sampling",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Clinical laboratory testing (hematology, clinical chemistry, and FSH if applicable), including urinalysis",
+                    "procedures": [
+                        "RBC",
+                        "platelet count",
+                        "hemoglobin",
+                        "hematocrit"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "PK",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PD",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Biomarkers",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Immunogenicity",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "IMP injection",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AE",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Health economics",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "D8 (+1)",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-35 to -1'  'Start to Start'",
+            "duration": "P8D",
+            "activities": [
+                {
+                    "title": "MGII",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MG-ADL",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-S (ocular)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-C (ocular)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Safety",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital sign measurements",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy testing",
+                    "procedures": [
+                        "Highly sensitive serum hCG pregnancy test"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "Blood sampling",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PK",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PD",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "IMP injection",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AE",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Health economics",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "D15 (+1)",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-35 to -1'  'Start to Start'",
+            "duration": "P15D",
+            "activities": [
+                {
+                    "title": "MGII",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MG-ADL",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-S (ocular)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-C (ocular)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Safety",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital sign measurements",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy testing",
+                    "procedures": [
+                        "Highly sensitive serum hCG pregnancy test"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "Blood sampling",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Clinical laboratory testing (hematology, clinical chemistry, and FSH if applicable), including urinalysis",
+                    "procedures": [
+                        "RBC",
+                        "platelet count",
+                        "hemoglobin",
+                        "hematocrit"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "PK",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PD",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Immunogenicity",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "IMP injection",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AE",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Health economics",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "D22 (+1)",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-35 to -1'  'Start to Start'",
+            "duration": "P22D",
+            "activities": [
+                {
+                    "title": "MGII",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MG-ADL",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-S (ocular)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-C (ocular)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Safety",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital sign measurements",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy testing",
+                    "procedures": [
+                        "Highly sensitive serum hCG pregnancy test"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "Blood sampling",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PK",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PD",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "IMP injection",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AE",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Health economics",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "D29 (±2)",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-35 to -1'  'Start to Start'",
+            "duration": "P29D",
+            "activities": [
+                {
+                    "title": "MGII",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MG-ADL",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MGFA Clinical Classification",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "NEI VFQ-25",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MG-QoL15r",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Neuro-QoL Short Form–Fatigue",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-S (ocular)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-C (ocular)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "TSQM-9",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Safety",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital sign measurements",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PHQ-9 for SIB (only item 9)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Blood sampling",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Clinical laboratory testing (hematology, clinical chemistry, and FSH if applicable), including urinalysis",
+                    "procedures": [
+                        "RBC",
+                        "platelet count",
+                        "hemoglobin",
+                        "hematocrit"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "PK",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PD",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Biomarkers",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Immunogenicity",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Exit interview",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AE",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Health economics",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "D36 (±2)",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-35 to -1'  'Start to Start'",
+            "duration": "P36D",
+            "activities": [
+                {
+                    "title": "MGII",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MG-ADL",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Safety",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Blood sampling",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Exit interview",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AE",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Health economics",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "D43 (±2)",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-35 to -1'  'Start to Start'",
+            "duration": "P43D",
+            "activities": [
+                {
+                    "title": "MGII",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MG-ADL",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Safety",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital sign measurements",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Blood sampling",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Clinical laboratory testing (hematology, clinical chemistry, and FSH if applicable), including urinalysis",
+                    "procedures": [
+                        "RBC",
+                        "platelet count",
+                        "hemoglobin",
+                        "hematocrit"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "PD",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AE",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Health economics",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "D50 (±2)",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-35 to -1'  'Start to Start'",
+            "duration": "P50D",
+            "activities": [
+                {
+                    "title": "Weight/height",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MGII",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MG-ADL",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MGFA Clinical Classification",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "NEI VFQ-25",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MG-QoL15r",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Neuro-QoL Short Form–Fatigue",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-S (ocular)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-C (ocular)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Safety",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examinations",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital sign measurements",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy testing",
+                    "procedures": [
+                        "Highly sensitive serum hCG pregnancy test"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "PHQ-9 for SIB (only item 9)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Blood sampling",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Clinical laboratory testing (hematology, clinical chemistry, and FSH if applicable), including urinalysis",
+                    "procedures": [
+                        "RBC",
+                        "platelet count",
+                        "hemoglobin",
+                        "hematocrit"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "PK",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PD",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Biomarkers",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Immunogenicity",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AE",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Health economics",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "NA",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-35 to -1'  'Start to Start'",
+            "duration": "PD",
+            "activities": [
+                {
+                    "title": "MGII",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MG-ADL",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MGFA Clinical Classification",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "NEI VFQ-25",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MG-QoL15r",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Neuro-QoL Short Form–Fatigue",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "TSQM-9",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Safety",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examinations",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital sign measurements",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy testing",
+                    "procedures": [
+                        "Highly sensitive serum hCG pregnancy test"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "PHQ-9 for SIB (only item 9)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Blood sampling",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Clinical laboratory testing (hematology, clinical chemistry, and FSH if applicable), including urinalysis",
+                    "procedures": [
+                        "RBC",
+                        "platelet count",
+                        "hemoglobin",
+                        "hematocrit"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "Immunogenicity",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AE",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Health economics",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "NA",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-35 to -1'  'Start to Start'",
+            "duration": "PD",
+            "activities": [
+                {
+                    "title": "Weight/height",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MGII",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MG-ADL",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MGFA Clinical Classification",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "NEI VFQ-25",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MG-QoL15r",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Neuro-QoL Short Form–Fatigue",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-S (ocular)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-C (ocular)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "TSQM-9",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examinations",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital sign measurements",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy testing",
+                    "procedures": [
+                        "Highly sensitive serum hCG pregnancy test"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "PHQ-9 for SIB (only item 9)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Clinical laboratory testing (hematology, clinical chemistry, and FSH if applicable), including urinalysis",
+                    "procedures": [
+                        "RBC",
+                        "platelet count",
+                        "hemoglobin",
+                        "hematocrit"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "PK",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PD",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Biomarkers",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Immunogenicity",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AE",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Health economics",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        }
+    ]
+}

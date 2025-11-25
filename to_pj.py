@@ -1,0 +1,486 @@
+#!/usr/bin/env python3
+"""
+Generate visit-based timeline visualization from JSON data.
+Creates an HTML page with Bootstrap 5 cards, each containing a D3.js serpentine timeline of activities.
+"""
+
+import json
+import sys
+from pathlib import Path
+
+
+def load_json_data(filepath):
+    """Load JSON data from file."""
+    with open(filepath, 'r') as f:
+        return json.load(f)
+
+
+def generate_html(data, output_path='visit_timeline.html'):
+    """
+    Generate HTML with Bootstrap 5 cards and D3.js serpentine timelines for each visit.
+    
+    Args:
+        data: Dictionary containing 'visits' list
+        output_path: Output HTML file path
+    """
+    
+    # Convert Python dict to JSON string for embedding in JavaScript
+    json_data = json.dumps(data, indent=2)
+    
+    html_template = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Trial Visit Timelines</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <style>
+        body {{
+            background-color: #f8f9fa;
+            padding: 20px 0;
+        }}
+        
+        .visit-card {{
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }}
+        
+        .visit-card:hover {{
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }}
+        
+        .card-header {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }}
+        
+        .visit-info {{
+            background-color: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }}
+        
+        .info-item {{
+            margin-bottom: 5px;
+        }}
+        
+        .info-label {{
+            font-weight: 600;
+            color: #495057;
+            margin-right: 8px;
+        }}
+        
+        .info-value {{
+            color: #6c757d;
+        }}
+        
+        .timeline-container {{
+            min-height: 150px;
+            overflow-x: auto;
+            padding: 20px 0;
+        }}
+        
+        .activity-node {{
+            cursor: pointer;
+        }}
+        
+        .activity-circle {{
+            fill: #667eea;
+            stroke: #764ba2;
+            stroke-width: 2;
+            transition: all 0.3s;
+        }}
+        
+        .activity-circle:hover {{
+            fill: #764ba2;
+            r: 10;
+        }}
+        
+        .activity-label {{
+            fill: #2c3e50;
+            font-size: 11px;
+            font-weight: 500;
+            text-anchor: middle;
+            pointer-events: none;
+        }}
+        
+        .timeline-path {{
+            fill: none;
+            stroke: #cbd5e0;
+            stroke-width: 2.5;
+            stroke-dasharray: 4, 4;
+        }}
+        
+        .no-activities {{
+            text-align: center;
+            color: #6c757d;
+            padding: 40px;
+            font-style: italic;
+        }}
+        
+        .tooltip {{
+            position: absolute;
+            background-color: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 12px 15px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 350px;
+            z-index: 1000;
+        }}
+        
+        .tooltip.visible {{
+            opacity: 1;
+        }}
+        
+        .tooltip-title {{
+            font-weight: 600;
+            font-size: 14px;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 4px;
+        }}
+        
+        .tooltip-content {{
+            font-size: 12px;
+            color: #6c757d;
+        }}
+        
+        .procedure-item {{
+            padding-left: 15px;
+            margin: 3px 0;
+        }}
+        
+        .procedure-item:before {{
+            content: "•";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
+            margin-left: -15px;
+        }}
+        
+        .page-header {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }}
+        
+        .badge-custom {{
+            background-color: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }}
+    </style>
+</head>
+<body>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1 class="display-4 mb-2">Clinical Trial Visit Timeline</h1>
+            <p class="lead mb-0">Detailed view of study visits and activities</p>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="container">
+        <div id="visits-container"></div>
+    </div>
+    
+    <!-- Global Tooltip -->
+    <div class="tooltip" id="tooltip"></div>
+    
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Data from Python
+        const data = {json_data};
+        
+        // Configuration for activity timelines
+        const config = {{
+            nodeRadius: 6,
+            colWidth: 120,
+            nodeSpacing: 70,
+            nodesPerCol: 6,
+            margin: {{ top: 20, right: 30, bottom: 20, left: 30 }}
+        }};
+        
+        // Get visits data
+        const visits = data.visits || [];
+        
+        // Global tooltip
+        const tooltip = d3.select("#tooltip");
+        
+        // Create visit cards
+        function createVisitCards() {{
+            const container = document.getElementById('visits-container');
+            
+            visits.forEach((visit, visitIndex) => {{
+                // Skip visits without titles
+                if (!visit.title || visit.title.trim() === '') {{
+                    return;
+                }}
+                
+                // Create card
+                const card = document.createElement('div');
+                card.className = 'card visit-card';
+                
+                // Card header
+                const header = document.createElement('div');
+                header.className = 'card-header';
+                header.innerHTML = `
+                    <h4 class="mb-0">
+                        <i class="bi bi-calendar-event"></i> Visit: ${{visit.title}}
+                        <span class="badge badge-custom float-end">Visit #${{visitIndex + 1}}</span>
+                    </h4>
+                `;
+                card.appendChild(header);
+                
+                // Card body
+                const body = document.createElement('div');
+                body.className = 'card-body';
+                
+                // Visit information
+                const info = document.createElement('div');
+                info.className = 'visit-info';
+                info.innerHTML = `
+                    ${{visit.type ? `<div class="info-item"><span class="info-label">Type:</span><span class="info-value">${{visit.type}}</span></div>` : ''}}
+                    ${{visit.duration ? `<div class="info-item"><span class="info-label">Duration:</span><span class="info-value">${{visit.duration}}</span></div>` : ''}}
+                    ${{visit.timing ? `<div class="info-item"><span class="info-label">Timing:</span><span class="info-value">${{visit.timing}}</span></div>` : ''}}
+                    ${{visit.notes ? `<div class="info-item"><span class="info-label">Notes:</span><span class="info-value">${{visit.notes}}</span></div>` : ''}}
+                `;
+                body.appendChild(info);
+                
+                // Activities section header
+                const activitiesHeader = document.createElement('h6');
+                activitiesHeader.className = 'mt-3 mb-3';
+                activitiesHeader.innerHTML = '<strong>Activities Timeline</strong>';
+                body.appendChild(activitiesHeader);
+                
+                // Timeline container
+                const timelineContainer = document.createElement('div');
+                timelineContainer.className = 'timeline-container';
+                timelineContainer.id = `timeline-${{visitIndex}}`;
+                body.appendChild(timelineContainer);
+                
+                card.appendChild(body);
+                container.appendChild(card);
+                
+                // Create timeline for this visit's activities
+                createActivityTimeline(visit.activities || [], `timeline-${{visitIndex}}`);
+            }});
+        }}
+        
+        // Create serpentine timeline for activities
+        function createActivityTimeline(activities, containerId) {{
+            const container = d3.select(`#${{containerId}}`);
+            
+            // Filter out activities without titles
+            const validActivities = activities.filter(a => a.title && a.title.trim() !== '');
+            
+            if (validActivities.length === 0) {{
+                container.html('<div class="no-activities">No activities recorded for this visit</div>');
+                return;
+            }}
+            
+            // Calculate positions
+            const positions = calculateSerpentineLayout(validActivities);
+            
+            // Calculate SVG dimensions
+            const maxX = Math.max(...positions.map(p => p.x), 0);
+            const maxY = Math.max(...positions.map(p => p.y), 0);
+            const svgWidth = maxX + config.margin.left + config.margin.right + 100;
+            const svgHeight = maxY + config.margin.top + config.margin.bottom + 50;
+            
+            // Create SVG
+            const svg = container.append("svg")
+                .attr("width", svgWidth)
+                .attr("height", svgHeight);
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${{config.margin.left}},${{config.margin.top}})`);
+            
+            // Draw serpentine path
+            g.append("path")
+                .attr("class", "timeline-path")
+                .attr("d", createSerpentinePath(positions));
+            
+            // Create activity nodes
+            const nodes = g.selectAll(".activity-node")
+                .data(positions)
+                .enter()
+                .append("g")
+                .attr("class", "activity-node")
+                .attr("transform", d => `translate(${{d.x}},${{d.y}})`);
+            
+            // Add circles
+            nodes.append("circle")
+                .attr("class", "activity-circle")
+                .attr("r", config.nodeRadius)
+                .on("mouseover", function(event, d) {{
+                    showTooltip(event, d.activity);
+                }})
+                .on("mouseout", function() {{
+                    hideTooltip();
+                }});
+            
+            // Add labels
+            nodes.append("text")
+                .attr("class", "activity-label")
+                .attr("y", -12)
+                .each(function(d) {{
+                    const text = d3.select(this);
+                    const words = d.activity.title.split(' ');
+                    
+                    // Wrap text if too long
+                    if (words.length > 2) {{
+                        text.append("tspan")
+                            .attr("x", 0)
+                            .text(words.slice(0, 2).join(' '));
+                        text.append("tspan")
+                            .attr("x", 0)
+                            .attr("dy", "1.1em")
+                            .text(words.slice(2).join(' '));
+                    }} else {{
+                        text.text(d.activity.title);
+                    }}
+                }});
+        }}
+        
+        // Calculate serpentine layout (vertical orientation)
+        function calculateSerpentineLayout(activities) {{
+            const positions = [];
+            const nodesPerCol = config.nodesPerCol;
+            
+            activities.forEach((activity, index) => {{
+                const col = Math.floor(index / nodesPerCol);
+                const row = index % nodesPerCol;
+                
+                // Alternate direction for serpentine effect (vertical)
+                const y = col % 2 === 0 
+                    ? row * config.nodeSpacing 
+                    : (nodesPerCol - 1 - row) * config.nodeSpacing;
+                const x = col * config.colWidth;
+                
+                positions.push({{ x, y, activity, index }});
+            }});
+            
+            return positions;
+        }}
+        
+        // Create serpentine path (vertical orientation)
+        function createSerpentinePath(positions) {{
+            if (positions.length === 0) return '';
+            
+            let path = `M ${{positions[0].x}},${{positions[0].y}}`;
+            
+            for (let i = 1; i < positions.length; i++) {{
+                const prev = positions[i - 1];
+                const curr = positions[i];
+                
+                // Check if we're at a column transition
+                const prevCol = Math.floor(prev.index / config.nodesPerCol);
+                const currCol = Math.floor(curr.index / config.nodesPerCol);
+                
+                if (prevCol !== currCol) {{
+                    // Create a curved transition between columns
+                    const midX = (prev.x + curr.x) / 2;
+                    path += ` C ${{midX}},${{prev.y}} ${{midX}},${{curr.y}} ${{curr.x}},${{curr.y}}`;
+                }} else {{
+                    // Straight line within column
+                    path += ` L ${{curr.x}},${{curr.y}}`;
+                }}
+            }}
+            
+            return path;
+        }}
+        
+        // Show tooltip
+        function showTooltip(event, activity) {{
+            let html = `<div class="tooltip-title">${{activity.title}}</div>`;
+            
+            if (activity.procedures && activity.procedures.length > 0) {{
+                html += '<div class="tooltip-content"><strong>Procedures:</strong></div>';
+                activity.procedures.forEach(proc => {{
+                    html += `<div class="procedure-item">${{proc}}</div>`;
+                }});
+            }}
+            
+            if (activity.notes && activity.notes.trim() !== '') {{
+                html += `<div class="tooltip-content mt-2"><strong>Notes:</strong><br>${{activity.notes}}</div>`;
+            }}
+            
+            tooltip.html(html)
+                .style("left", (event.pageX + 15) + "px")
+                .style("top", (event.pageY - 15) + "px")
+                .classed("visible", true);
+        }}
+        
+        // Hide tooltip
+        function hideTooltip() {{
+            tooltip.classed("visible", false);
+        }}
+        
+        // Initialize
+        createVisitCards();
+        
+        console.log(`Created ${{visits.filter(v => v.title && v.title.trim() !== '').length}} visit cards with activity timelines`);
+    </script>
+</body>
+</html>"""
+    
+    # Write HTML to file
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(html_template)
+    
+    print(f"Generated visit timeline visualization: {output_path}")
+    return output_path
+
+
+def main():
+    """Main function to generate timeline from command line."""
+    if len(sys.argv) < 2:
+        print("Usage: python to_pj.py <json_file> [output_file]")
+        print("\nExample:")
+        print("  python to_pj.py pj/pj_p1.json")
+        print("  python to_pj.py pj/pj_p2.json visit_output.html")
+        sys.exit(1)
+    
+    input_file = sys.argv[1]
+    output_file = sys.argv[2] if len(sys.argv) > 2 else 'visit_timeline.html'
+    
+    if not Path(input_file).exists():
+        print(f"Error: File not found: {input_file}")
+        sys.exit(1)
+    
+    try:
+        data = load_json_data(input_file)
+        generate_html(data, output_file)
+        print(f"\nVisualization generated successfully!")
+        print(f"Open {output_file} in a web browser to view the visit timelines.")
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

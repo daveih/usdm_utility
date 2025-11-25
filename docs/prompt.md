@@ -34,3 +34,13 @@ Take the utility program to_visit.py and update the HTML presentation aspects to
 In the text there can be two forms of embedded XML:
 - <usdm:tag name="StudyPopulation"/>
 - <usdm:ref attribute="text" id="StudyTitle_2" klass="StudyTitle"></usdm:ref>
+
+----- + -----
+
+Write a python program to generate an html page that can be viewed in a browser that contains a data vizualization.
+
+- The vizualiation should be a serpentine timeline of the data in a json file
+- Use the D3 graphic library, write a single web page to be included within an exisitng python/jinja2 application
+- There is a simplified schema in the file pj/data_v2.json
+- There are example files called pj_p<n>.json
+- The web page will be provided with a python dict as per the json files

@@ -1,0 +1,679 @@
+{
+    "visits": [
+        {
+            "title": "-28 to -2",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'Fixed Reference Timing Type'  '-28 to -2'  'Start to Start'",
+            "duration": "P28D",
+            "activities": [
+                {
+                    "title": "Informed consent",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Eligibility criteria",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "HBV/HCV/HIV testing",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Medical history",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Demography",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy test/ FSH test",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Drug urine test and alcohol breath test",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "ANA panel",
+                    "procedures": [
+                        "ANA"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examination",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Height, weight, and BMI",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital signs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Urinalysis",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Hematology and clinical chemistry",
+                    "procedures": [
+                        "RBC",
+                        "platelet count",
+                        "hemoglobin",
+                        "hematocrit"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant medication",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Adverse events",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "-1c",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-28 to -2'  'Start to Start'",
+            "duration": "P1D",
+            "activities": [
+                {
+                    "title": "Eligibility criteria",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy test/ FSH test",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Drug urine test and alcohol breath test",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examination",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Height, weight, and BMI",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Urinalysis",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Hematology and clinical chemistry",
+                    "procedures": [
+                        "RBC",
+                        "platelet count",
+                        "hemoglobin",
+                        "hematocrit"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "Confinement",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant medication",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Adverse events",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "1",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-28 to -2'  'Start to Start'",
+            "duration": "P1D",
+            "activities": [
+                {
+                    "title": "Eligibility criteria",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital signs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PK/PD efgartigimod",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PK/PD empasiprubart",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Biomarkers",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Immunogenicity",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "IMP infusions: coadministered efgartigimod and empasiprubart infusions",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Confinement",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant medication",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Adverse events",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "2 to 6d",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-28 to -2'  'Start to Start'",
+            "duration": "P2D",
+            "activities": [
+                {
+                    "title": "Vital signs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PK/PD efgartigimod",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PK/PD empasiprubart",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Confinement",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant medication",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Adverse events",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "8",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-28 to -2'  'Start to Start'",
+            "duration": "P8D",
+            "activities": [
+                {
+                    "title": "Vital signs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Hematology and clinical chemistry",
+                    "procedures": [
+                        "RBC",
+                        "platelet count",
+                        "hemoglobin",
+                        "hematocrit"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "PK/PD efgartigimod",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PK/PD empasiprubart",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Biomarkers",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Immunogenicity",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Confinement",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant medication",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Adverse events",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "15",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-28 to -2'  'Start to Start'",
+            "duration": "P15D",
+            "activities": [
+                {
+                    "title": "Vital signs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PK/PD efgartigimod",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PK/PD empasiprubart",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant medication",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Adverse events",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "22",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-28 to -2'  'Start to Start'",
+            "duration": "P22D",
+            "activities": [
+                {
+                    "title": "PK/PD efgartigimod",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PK/PD empasiprubart",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Biomarkers",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant medication",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Adverse events",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "29",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-28 to -2'  'Start to Start'",
+            "duration": "P29D",
+            "activities": [
+                {
+                    "title": "PK/PD empasiprubart",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Immunogenicity",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant medication",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Adverse events",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "36",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-28 to -2'  'Start to Start'",
+            "duration": "P36D",
+            "activities": [
+                {
+                    "title": "ANA panel",
+                    "procedures": [
+                        "ANA"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "Hematology and clinical chemistry",
+                    "procedures": [
+                        "RBC",
+                        "platelet count",
+                        "hemoglobin",
+                        "hematocrit"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "PK/PD empasiprubart",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Biomarkers",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant medication",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Adverse events",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "50",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-28 to -2'  'Start to Start'",
+            "duration": "P50D",
+            "activities": [
+                {
+                    "title": "PK/PD efgartigimod",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PK/PD empasiprubart",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant medication",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Adverse events",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "64",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-28 to -2'  'Start to Start'",
+            "duration": "P64D",
+            "activities": [
+                {
+                    "title": "Physical examination",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital signs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Urinalysis",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Hematology and clinical chemistry",
+                    "procedures": [
+                        "RBC",
+                        "platelet count",
+                        "hemoglobin",
+                        "hematocrit"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "PK/PD empasiprubart",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Biomarkers",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Immunogenicity",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant medication",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Adverse events",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "Days depend on doseb EoS is 148 or 260",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-28 to -2'  'Start to Start'",
+            "duration": "P148D",
+            "activities": [
+                {
+                    "title": "ANA panel",
+                    "procedures": [
+                        "ANA"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examination",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital signs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Urinalysis",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Hematology and clinical chemistry",
+                    "procedures": [
+                        "RBC",
+                        "platelet count",
+                        "hemoglobin",
+                        "hematocrit"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant medication",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Adverse events",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "EDVa",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  '-28 to -2'  'Start to Start'",
+            "duration": "PD",
+            "activities": [
+                {
+                    "title": "ANA panel",
+                    "procedures": [
+                        "ANA"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examination",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital signs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Urinalysis",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Hematology and clinical chemistry",
+                    "procedures": [
+                        "RBC",
+                        "platelet count",
+                        "hemoglobin",
+                        "hematocrit"
+                    ],
+                    "notes": ""
+                },
+                {
+                    "title": "Biomarkers",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant medication",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Adverse events",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        }
+    ]
+}

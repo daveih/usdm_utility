@@ -1,0 +1,1458 @@
+{
+    "visits": [
+        {
+            "title": "SCNa",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'Fixed Reference Timing Type'  'SCNa'  'Start to Start'",
+            "duration": "PD",
+            "activities": [
+                {
+                    "title": "Informed consent",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Medical history",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Demography",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "FSH",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "CDAS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Eligibility check",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "INCAT",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "I-RODS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MRC-SS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Grip strength",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "TUG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examination (complete)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital signs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "12-lead ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "SIB risk monitoring",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy test",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Clinical laboratory testing, including urinalysis",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for virology screen",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for immunogenicity",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for SLE panel",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for encapsulated bacteria antibody titers",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AEs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "V1/BLc D1",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  'SCNa'  'Start to Start'",
+            "duration": "P1D",
+            "activities": [
+                {
+                    "title": "Eligibility check",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Randomization",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "INCAT",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "I-RODS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MRC-SS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Grip strength",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "TUG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "EQ-5D-5L",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "RT-FSS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "BPI-SF",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-S",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "HRPQ",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "SF-12",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examination (complete)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital signs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "12-lead ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "SIB risk monitoring",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy test",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Clinical laboratory testing, including urinalysis",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for PK",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for PD",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for immunogenicity",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for encapsulated bacteria antibody titers",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for complement factors",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for CH50",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Research sample",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for NfL",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for autoantibodies",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pharmacogenetic sample",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AEs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "EMP/EMP-PBO administration",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "IVIg/IVIg-PBO administration",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "V2 D8",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  'SCNa'  'Start to Start'",
+            "duration": "P8D",
+            "activities": [
+                {
+                    "title": "INCAT",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "I-RODS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MRC-SS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Grip strength",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "TUG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "BPI-SF",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-C",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-S",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examination (brief)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital signs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "12-lead ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "SIB risk monitoring",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy test",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Clinical laboratory testing, including urinalysis",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for PK",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for PD",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Research sample",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AEs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "EMP/EMP-PBO administration",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "IVIg/IVIg-PBO administration",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "V3 D15",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  'SCNa'  'Start to Start'",
+            "duration": "P15D",
+            "activities": [
+                {
+                    "title": "INCAT",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "I-RODS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MRC-SS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Grip strength",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "TUG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "RT-FSS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-C",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-S",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "SF-12",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examination (brief)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital signs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "12-lead ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "SIB risk monitoring",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy test",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Clinical laboratory testing, including urinalysis",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for PK",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for PD",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for immunogenicity",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AEs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "IVIg/IVIg-PBO administration",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "V4 D29",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  'SCNa'  'Start to Start'",
+            "duration": "P29D",
+            "activities": [
+                {
+                    "title": "INCAT",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "I-RODS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MRC-SS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Grip strength",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "TUG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "EQ-5D-5L",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "BPI-SF",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-C",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-S",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examination (brief)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital signs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "12-lead ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "SIB risk monitoring",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy test",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Clinical laboratory testing, including urinalysis",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for PK",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for PD",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for immunogenicity",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for complement factors",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for CH50",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Research sample",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for NfL",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AEs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "EMP/EMP-PBO administration",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "IVIg/IVIg-PBO administration",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "V5 D57",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  'SCNa'  'Start to Start'",
+            "duration": "P57D",
+            "activities": [
+                {
+                    "title": "INCAT",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "I-RODS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MRC-SS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Grip strength",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "TUG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "RT-FSS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-C",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-S",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "SF-12",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examination (brief)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital signs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "12-lead ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "SIB risk monitoring",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy test",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Clinical laboratory testing, including urinalysis",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for immunogenicity",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AEs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "EMP/EMP-PBO administration",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "IVIg/IVIg-PBO administration",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "V6 D85",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  'SCNa'  'Start to Start'",
+            "duration": "P85D",
+            "activities": [
+                {
+                    "title": "INCAT",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "I-RODS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MRC-SS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Grip strength",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "TUG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "EQ-5D-5L",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "BPI-SF",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-C",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-S",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "HRPQ",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examination (brief)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital signs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "12-lead ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "SIB risk monitoring",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy test",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Clinical laboratory testing, including urinalysis",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for PK",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for PD",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for immunogenicity",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for complement factors",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for CH50",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Research sample",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for NfL",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AEs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "EMP/EMP-PBO administration",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "IVIg/IVIg-PBO administration",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "V7 D113",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  'SCNa'  'Start to Start'",
+            "duration": "P113D",
+            "activities": [
+                {
+                    "title": "INCAT",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "I-RODS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MRC-SS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Grip strength",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "TUG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "RT-FSS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-C",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-S",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "SF-12",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examination (brief)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital signs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "12-lead ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "SIB risk monitoring",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy test",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Clinical laboratory testing, including urinalysis",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AEs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "EMP/EMP-PBO administration",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "IVIg/IVIg-PBO administration",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "V8 D141",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  'SCNa'  'Start to Start'",
+            "duration": "P141D",
+            "activities": [
+                {
+                    "title": "INCAT",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "I-RODS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MRC-SS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Grip strength",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "TUG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "EQ-5D-5L",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "BPI-SF",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-C",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-S",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examination (brief)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital signs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "12-lead ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "SIB risk monitoring",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy test",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Clinical laboratory testing, including urinalysis",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AEs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "EMP/EMP-PBO administration",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "IVIg/IVIg-PBO administration",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "V9d/EDVe D169",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  'SCNa'  'Start to Start'",
+            "duration": "P169D",
+            "activities": [
+                {
+                    "title": "INCAT",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "I-RODS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MRC-SS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Grip strength",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "TUG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "EQ-5D-5L",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "RT-FSS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "BPI-SF",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-C",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-S",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "HRPQ",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "SF-12",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examination (complete)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital signs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "12-lead ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "SIB risk monitoring",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy test",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Clinical laboratory testing, including urinalysis",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for PK",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for PD",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for immunogenicity",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for SLE panel",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for encapsulated bacteria antibody titers",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for complement factors",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for CH50",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Research sample",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for NfL",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for autoantibodies",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AEs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        },
+        {
+            "title": "UNSb",
+            "notes": "",
+            "type": "In Person",
+            "timing": "'After Timing Type'  'SCNa'  'Start to Start'",
+            "duration": "PD",
+            "activities": [
+                {
+                    "title": "INCAT",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "I-RODS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "MRC-SS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Grip strength",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "TUG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "EQ-5D-5L",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "RT-FSS",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "BPI-SF",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-C",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "PGI-S",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "HRPQ",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "SF-12",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examination (complete)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Physical examination (brief)",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Vital signs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "12-lead ECG",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "SIB risk monitoring",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pregnancy test",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Clinical laboratory testing, including urinalysis",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for virology screen",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for PK",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for PD",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for immunogenicity",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for encapsulated bacteria antibody titers",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for complement factors",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for CH50",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Research sample",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for NfL",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Samples for autoantibodies",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Pharmacogenetic sample",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "AEs",
+                    "procedures": [],
+                    "notes": ""
+                },
+                {
+                    "title": "Concomitant therapy",
+                    "procedures": [],
+                    "notes": ""
+                }
+            ]
+        }
+    ]
+}
