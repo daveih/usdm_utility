@@ -89,6 +89,9 @@ def generate_html(data, output_path='visit_timeline.html'):
             min-height: 150px;
             overflow-x: auto;
             padding: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }}
         
         .activity-node {{
@@ -221,7 +224,7 @@ def generate_html(data, output_path='visit_timeline.html'):
             colWidth: 120,
             nodeSpacing: 70,
             nodesPerCol: 6,
-            margin: {{ top: 20, right: 30, bottom: 20, left: 30 }}
+            margin: {{ top: 20, right: 30, bottom: 20, left: 80 }}
         }};
         
         // Get visits data

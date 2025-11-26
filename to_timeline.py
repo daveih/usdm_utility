@@ -1,156 +1,1189 @@
 import os
 import argparse
+import json
 from uuid import uuid4
-from yattag import Doc
-from bs4 import BeautifulSoup
 from usdm4.api.scheduled_instance import (
     ScheduledActivityInstance,
     ScheduledDecisionInstance,
-    ScheduledInstance,
 )
 from usdm4.api.wrapper import Wrapper
 from usdm4.api.study_design import StudyDesign
-from usdm4.api.schedule_timeline_exit import ScheduleTimelineExit
 from usdm4 import USDM4
 from usdm4.builder.builder import Builder
 from simple_error_log.errors import Errors
 
 
 class Timeline:
-    FULL = "full"
-    BODY = "body"
-
     def __init__(self, file_path: str, errors: Errors):
         self._errors = errors
         self._usdm = USDM4()
         self._file_path = file_path
         self._builder: Builder = self._usdm.builder(errors)
 
-    def to_html(self, level=FULL):
+    def to_html(self):
+        """Generate HTML with D3 visualization for all timelines."""
         self._builder.seed(self._file_path)
         wrapper_dict: dict = self._builder._data_store.data
         wrapper_dict["study"]["id"] = uuid4()
         wrapper = Wrapper.model_validate(wrapper_dict)
+
         try:
-            doc = Doc()
             study_design = wrapper.study.versions[0].studyDesigns[0]
-            if level == self.BODY:
-                self._body(doc, study_design)
-            else:
-                self._full(doc, study_design)
-            return doc.getvalue()
+            return self._generate_html(study_design)
         except Exception as e:
-            self._errors.exception(f"Failed generating HTML page at level '{level}'", e)
+            self._errors.exception(f"Failed generating HTML page", e)
             return ""
 
-    def _full(self, doc, study_design: StudyDesign):
-        doc.asis("<!DOCTYPE html>")
-        with doc.tag("html"):
-            with doc.tag("head"):
-                doc.asis(
-                    '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">'
-                )
-                doc.asis(
-                    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">'
-                )
+    def _generate_html(self, study_design: StudyDesign):
+        """Generate complete HTML with embedded D3 visualization."""
 
-            with doc.tag("body"):
-                self._body(doc, study_design)
-
-    def _body(self, doc, study_design: StudyDesign):
+        # Collect all timeline data
+        timelines_data = []
         for timeline in study_design.scheduleTimelines:
-            timings = timeline.timings
-            with doc.tag(f"main", klass="container"):
-                with doc.tag(f"h1", klass="mt-5"):
-                    doc.asis(f"{timeline.label}")
-                with doc.tag(f"p", klass="lead"):
-                    doc.asis(f"Condition: {timeline.entryCondition}")
-                with doc.tag("pre", klass="mermaid"):
-                    # doc.asis("\ngraph LR\n")
-                    doc.asis("\ngraph TD\n")
-                    # doc.asis(f"{timeline.id}([\"{timeline.entryCondition}\"])\n")
-                    doc.asis(f"{timeline.id}([{timeline.label}])\n")
-                    instance = self._get_cross_reference(timeline.entryId)
-                    if instance["instanceType"] == ScheduledActivityInstance.__name__:
-                        doc.asis(f"{instance['id']}(ScheduledActivityInstance)\n")
-                    else:
-                        doc.asis(f"{instance['id']}{{{{ScheduledDecisionInstance}}}}\n")
-                    doc.asis(f"{timeline.id} -->|first| {instance['id']}\n")
-                    prev_instance = instance
-                    instance = self._get_cross_reference(instance["defaultConditionId"])
-                    while instance:
+            timeline_data = self._process_timeline(timeline)
+            if timeline_data:
+                timelines_data.append(timeline_data)
+
+        # Generate HTML
+        html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USDM Timeline Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }}
+        .timeline-container {{
+            background-color: white;
+            margin-bottom: 40px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }}
+        .timeline-title {{
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }}
+        .timeline-condition {{
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+            font-style: italic;
+        }}
+        .node {{
+            cursor: pointer;
+        }}
+        .node rect {{
+            stroke-width: 2;
+        }}
+        .node-activity circle {{
+            fill: #C0C0C0;
+            stroke: #000000;
+            stroke-width: 2;
+        }}
+        .node-decision path {{
+            fill: #C0C0C0;
+            stroke: #000000;
+            stroke-width: 2;
+        }}
+        .node-exit rect {{
+            fill: #D3D3D3;
+            stroke: #000000;
+            rx: 15;
+            ry: 15;
+        }}
+        .node-entry rect {{
+            fill: #D3D3D3;
+            stroke: #000000;
+            rx: 15;
+            ry: 15;
+        }}
+        .node-timing circle {{
+            fill: #FFFFFF;
+            stroke: #003366;
+            stroke-width: 2;
+        }}
+        .node text {{
+            fill: #333;
+            font-size: 12px;
+            pointer-events: none;
+        }}
+        .link {{
+            fill: none;
+            stroke: #999;
+            stroke-width: 2;
+        }}
+        .link-timing {{
+            fill: none;
+            stroke: #003366;
+            stroke-width: 2;
+        }}
+        .link-conditional {{
+            fill: none;
+            stroke: #000000;
+            stroke-width: 2;
+        }}
+        .link-label {{
+            font-size: 10px;
+            fill: #666;
+        }}
+        .conditional-label {{
+            font-size: 10px;
+            fill: #000000;
+            font-weight: bold;
+        }}
+        .tooltip {{
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }}
+    </style>
+</head>
+<body>
+    <h1>USDM Timeline Visualization</h1>
+    <div id="timelines"></div>
+    <div class="tooltip" id="tooltip"></div>
+    
+    <script>
+        const timelinesData = {self._format_timelines_data(timelines_data)};
+        
+        // Tooltip
+        const tooltip = d3.select("#tooltip");
+        
+        function showTooltip(event, text) {{
+            tooltip
+                .style("display", "block")
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px")
+                .html(text);
+        }}
+        
+        function hideTooltip() {{
+            tooltip.style("display", "none");
+        }}
+        
+        // Create visualization for each timeline
+        timelinesData.forEach((timelineData, index) => {{
+            const container = d3.select("#timelines")
+                .append("div")
+                .attr("class", "timeline-container")
+                .attr("id", `timeline-${{index}}`);
+            
+            container.append("div")
+                .attr("class", "timeline-title")
+                .text(timelineData.label);
+            
+            container.append("div")
+                .attr("class", "timeline-condition")
+                .text("Entry Condition: " + timelineData.entryCondition);
+            
+            const svgContainer = container.append("div")
+                .style("overflow-x", "auto");
+            
+            renderTimeline(svgContainer, timelineData);
+        }});
+        
+        function renderTimeline(container, data) {{
+            const activityNodeRadius = 40;
+            const nodeWidth = activityNodeRadius * 2;
+            const nodeHeight = activityNodeRadius * 2;
+            const timingNodeRadius = 40;
+            const horizontalSpacing = 250;
+            const verticalSpacing = 150;
+            const marginLeft = 50;
+            const marginTop = 50;
+            const marginRight = 50;
+            const marginBottom = 200;
+            
+            // Calculate space needed for orphan nodes at the very top (above conditional links)
+            const orphanHeight = (data.orphanNodes && data.orphanNodes.length > 0) ? nodeHeight + 60 : 0;
+            
+            // Calculate space needed for conditional links above timeline
+            let maxConditionalHeight = 0;
+            if (data.conditionalLinks && data.conditionalLinks.length > 0) {{
+                // Calculate the maximum height needed for conditional links
+                const sourceNodeLinkCount = new Map();
+                data.conditionalLinks.forEach(link => {{
+                    const count = sourceNodeLinkCount.get(link.sourceId) || 0;
+                    sourceNodeLinkCount.set(link.sourceId, count + 1);
+                }});
+                const maxLinksFromSingleSource = Math.max(...Array.from(sourceNodeLinkCount.values()));
+                const baseHeight = 60;
+                const heightIncrement = 40;
+                maxConditionalHeight = baseHeight + ((maxLinksFromSingleSource - 1) * heightIncrement) + 30; // +30 for label space
+            }}
+            
+            // Calculate positions for nodes in a straight horizontal line
+            // Shift nodes down by orphanHeight AND maxConditionalHeight to make space above
+            const nodes = data.nodes.map((node, i) => {{
+                // Entry and exit nodes should be half height
+                const isEntryOrExit = node.type === 'entry' || node.type === 'exit';
+                const height = isEntryOrExit ? nodeHeight / 2 : nodeHeight;
+                const yPos = isEntryOrExit ? orphanHeight + maxConditionalHeight + marginTop + nodeHeight / 4 : orphanHeight + maxConditionalHeight + marginTop;
+                
+                return {{
+                    ...node,
+                    x: marginLeft + i * horizontalSpacing,
+                    y: yPos,
+                    width: nodeWidth,
+                    height: height
+                }};
+            }});
+            
+            // Create a map of node IDs to their positions for timing lookups
+            const nodeMap = {{}};
+            nodes.forEach(node => {{
+                nodeMap[node.id] = node;
+            }});
+            
+            // Process timing nodes and position them below the main timeline
+            const timingNodes = [];
+            if (data.timings) {{
+                data.timings.forEach((timing, idx) => {{
+                    const fromNode = nodeMap[timing.relativeFromScheduledInstanceId];
+                    const toNode = nodeMap[timing.relativeToScheduledInstanceId];
+                    
+                    if (fromNode && toNode) {{
+                        // Position timing node directly under the from node
+                        // Account for orphan nodes AND conditional links space above
+                        const timingX = fromNode.x + fromNode.width/2;
+                        const timingY = orphanHeight + maxConditionalHeight + marginTop + nodeHeight + verticalSpacing;
+                        
+                        timingNodes.push({{
+                            ...timing,
+                            x: timingX,
+                            y: timingY,
+                            radius: timingNodeRadius,
+                            fromNode: fromNode,
+                            toNode: toNode
+                        }});
+                    }}
+                }});
+            }}
+            
+            // Position orphan nodes at the very top, above everything else
+            const orphanRowY = 20; // Small margin from top edge
+            const orphanNodes = [];
+            if (data.orphanNodes && data.orphanNodes.length > 0) {{
+                // Create maps to track orphan sources
+                const orphanToSource = new Map();
+                
+                // Map conditional link targets to their source decision nodes
+                data.conditionalLinks.forEach(link => {{
+                    if (data.orphanNodes.some(orphan => orphan.id === link.targetId)) {{
+                        orphanToSource.set(link.targetId, link.sourceId);
+                    }}
+                }});
+                
+                // Map orphan-to-orphan links
+                if (data.orphanLinks) {{
+                    data.orphanLinks.forEach(link => {{
+                        orphanToSource.set(link.targetId, link.sourceId);
+                    }});
+                }}
+                
+                // Position orphans in order, ensuring each is to the right of its source
+                data.orphanNodes.forEach((orphan, i) => {{
+                    // Find the source node for this orphan (could be a decision node or another orphan)
+                    const sourceId = orphanToSource.get(orphan.id);
+                    let sourceNode = nodeMap[sourceId];
+                    
+                    // If source not found yet in nodeMap, it might be an orphan we haven't positioned yet
+                    // In that case, skip for now and we'll handle it in a second pass
+                    if (!sourceNode && sourceId) {{
+                        // Check if source is in orphanNodes (not yet positioned)
+                        const sourceOrphan = data.orphanNodes.find(o => o.id === sourceId);
+                        if (sourceOrphan) {{
+                            // We'll handle this in order - for now just note we need proper ordering
+                            // This shouldn't happen if orphanNodes are in chain order
+                        }}
+                    }}
+                    
+                    // Position to the right of the source node with additional offset
+                    // Only add orphan if we have a valid source
+                    if (sourceNode) {{
+                        const xPos = sourceNode.x + horizontalSpacing + (horizontalSpacing / 2);
+                        
+                        const orphanNode = {{
+                            ...orphan,
+                            x: xPos,
+                            y: orphanRowY,
+                            width: nodeWidth,
+                            height: nodeHeight
+                        }};
+                        orphanNodes.push(orphanNode);
+                        nodeMap[orphan.id] = orphanNode;
+                    }}
+                }});
+            }}
+            
+            // Calculate SVG dimensions - add space for orphan nodes at top
+            const svgWidth = Math.max(nodes.length, orphanNodes.length) * horizontalSpacing + marginLeft + marginRight;
+            const svgHeight = orphanHeight + maxConditionalHeight + marginTop + nodeHeight + verticalSpacing + timingNodeRadius * 2 + marginBottom;
+            
+            const svg = container.append("svg")
+                .attr("width", svgWidth)
+                .attr("height", svgHeight);
+            
+            // Define arrowhead markers
+            const defs = svg.append("defs");
+            
+            // Black arrowhead for regular links
+            defs.append("marker")
+                .attr("id", `arrowhead-${{data.id}}`)
+                .attr("viewBox", "0 -5 10 10")
+                .attr("refX", 8)
+                .attr("refY", 0)
+                .attr("markerWidth", 6)
+                .attr("markerHeight", 6)
+                .attr("orient", "auto")
+                .append("path")
+                .attr("d", "M0,-5L10,0L0,5")
+                .attr("fill", "#000000");
+            
+            // Blue arrowhead for timing links
+            defs.append("marker")
+                .attr("id", `arrowhead-timing-${{data.id}}`)
+                .attr("viewBox", "0 -5 10 10")
+                .attr("refX", 8)
+                .attr("refY", 0)
+                .attr("markerWidth", 6)
+                .attr("markerHeight", 6)
+                .attr("orient", "auto")
+                .append("path")
+                .attr("d", "M0,-5L10,0L0,5")
+                .attr("fill", "#003366");
+            
+            // Black arrowhead for conditional links
+            defs.append("marker")
+                .attr("id", `arrowhead-conditional-${{data.id}}`)
+                .attr("viewBox", "0 -5 10 10")
+                .attr("refX", 8)
+                .attr("refY", 0)
+                .attr("markerWidth", 6)
+                .attr("markerHeight", 6)
+                .attr("orient", "auto")
+                .append("path")
+                .attr("d", "M0,-5L10,0L0,5")
+                .attr("fill", "#000000");
+            
+            // Create links
+            const links = [];
+            nodes.forEach((node, i) => {{
+                if (i < nodes.length - 1) {{
+                    links.push({{
+                        source: node,
+                        target: nodes[i + 1],
+                        label: node.linkLabel || ""
+                    }});
+                }}
+            }});
+            
+            // Draw links
+            const linkGroup = svg.append("g").attr("class", "links");
+            
+            linkGroup.selectAll("path")
+                .data(links)
+                .join("path")
+                .attr("class", "link")
+                .attr("d", d => {{
+                    // Calculate connection points based on node type
+                    let sourceX, sourceY, targetX, targetY;
+                    
+                    // Source node
+                    if (d.source.type === 'activity') {{
+                        // For circles, connect from the right edge
+                        const radius = Math.min(d.source.width, d.source.height) / 2;
+                        sourceX = d.source.x + d.source.width / 2 + radius;
+                        sourceY = d.source.y + d.source.height / 2;
+                    }} else if (d.source.type === 'decision') {{
+                        // For diamonds, connect from the right point
+                        sourceX = d.source.x + d.source.width;
+                        sourceY = d.source.y + d.source.height / 2;
+                    }} else {{
+                        // For rectangles (entry/exit), connect from the right edge
+                        sourceX = d.source.x + d.source.width;
+                        sourceY = d.source.y + d.source.height / 2;
+                    }}
+                    
+                    // Target node
+                    if (d.target.type === 'activity') {{
+                        // For circles, connect to the left edge
+                        const radius = Math.min(d.target.width, d.target.height) / 2;
+                        targetX = d.target.x + d.target.width / 2 - radius;
+                        targetY = d.target.y + d.target.height / 2;
+                    }} else if (d.target.type === 'decision') {{
+                        // For diamonds, connect to the left point
+                        targetX = d.target.x;
+                        targetY = d.target.y + d.target.height / 2;
+                    }} else {{
+                        // For rectangles (entry/exit), connect to the left edge
+                        targetX = d.target.x;
+                        targetY = d.target.y + d.target.height / 2;
+                    }}
+                    
+                    return `M${{sourceX}},${{sourceY}} L${{targetX}},${{targetY}}`;
+                }})
+                .attr("marker-end", `url(#arrowhead-${{data.id}})`);
+            
+            // Draw link labels
+            linkGroup.selectAll("text")
+                .data(links)
+                .join("text")
+                .attr("class", "link-label")
+                .attr("x", d => (d.source.x + d.source.width + d.target.x) / 2)
+                .attr("y", d => (d.source.y + d.target.y) / 2 - 5)
+                .attr("text-anchor", "middle")
+                .text(d => d.label);
+            
+            // Draw nodes
+            const nodeGroup = svg.append("g").attr("class", "nodes");
+            
+            const nodeElements = nodeGroup.selectAll("g")
+                .data(nodes)
+                .join("g")
+                .attr("class", d => `node node-${{d.type}}`)
+                .attr("transform", d => `translate(${{d.x}},${{d.y}})`)
+                .on("mouseover", (event, d) => {{
+                    const tooltipText = `
+                        <strong>${{d.label}}</strong><br/>
+                        Type: ${{d.type}}<br/>
+                        ${{d.description ? 'Description: ' + d.description : ''}}
+                    `;
+                    showTooltip(event, tooltipText);
+                }})
+                .on("mouseout", hideTooltip);
+            
+            // Add shapes based on node type
+            nodeElements.each(function(d) {{
+                const node = d3.select(this);
+                
+                if (d.type === 'activity') {{
+                    // Activity nodes are circles
+                    const radius = Math.min(d.width, d.height) / 2;
+                    node.append("circle")
+                        .attr("cx", d.width / 2)
+                        .attr("cy", d.height / 2)
+                        .attr("r", radius);
+                }} else if (d.type === 'decision') {{
+                    // Decision nodes are diamonds
+                    const centerX = d.width / 2;
+                    const centerY = d.height / 2;
+                    const diamondPath = `M ${{centerX}},${{0}} L ${{d.width}},${{centerY}} L ${{centerX}},${{d.height}} L ${{0}},${{centerY}} Z`;
+                    node.append("path")
+                        .attr("d", diamondPath);
+                }} else {{
+                    // Entry and exit nodes are rectangles
+                    node.append("rect")
+                        .attr("width", d.width)
+                        .attr("height", d.height);
+                }}
+            }});
+            
+            // Add text labels (with wrapping)
+            nodeElements.each(function(d) {{
+                const node = d3.select(this);
+                const words = d.label.split(/\\s+/);
+                const lineHeight = 14;
+                const maxWidth = d.width - 10;
+                
+                let line = [];
+                let lineNumber = 0;
+                const text = node.append("text")
+                    .attr("x", d.width / 2)
+                    .attr("y", d.height / 2)
+                    .attr("text-anchor", "middle")
+                    .attr("dominant-baseline", "central");
+                
+                let tspan = text.append("tspan")
+                    .attr("x", d.width / 2)
+                    .attr("dy", 0);
+                
+                words.forEach((word, i) => {{
+                    line.push(word);
+                    const testLine = line.join(" ");
+                    tspan.text(testLine);
+                    
+                    if (tspan.node().getComputedTextLength() > maxWidth && line.length > 1) {{
+                        line.pop();
+                        tspan.text(line.join(" "));
+                        line = [word];
+                        tspan = text.append("tspan")
+                            .attr("x", d.width / 2)
+                            .attr("dy", lineHeight)
+                            .text(word);
+                    }}
+                }});
+                
+                // Center the text vertically
+                const bbox = text.node().getBBox();
+                const offset = (d.height - bbox.height) / 2 - bbox.y;
+                text.attr("transform", `translate(0, ${{offset}})`);
+            }});
+            
+            // Draw timing links with arrows and labels
+            const timingLinkGroup = svg.append("g").attr("class", "timing-links");
+            
+            timingNodes.forEach(timing => {{
+                // Line from "from" node to timing node (with arrow pointing UP at activity node)
+                const fromX = timing.fromNode.x + timing.fromNode.width / 2;
+                const fromY = timing.fromNode.y + timing.fromNode.height;
+                const fromPath = timingLinkGroup.append("path")
+                    .attr("class", "link-timing")
+                    .attr("d", `M${{timing.x}},${{timing.y}} L${{fromX}},${{fromY}}`)
+                    .attr("marker-end", `url(#arrowhead-timing-${{data.id}})`);
+                
+                // Label for "from" link
+                const fromMidX = (timing.x + fromX) / 2;
+                const fromMidY = (timing.y + fromY) / 2;
+                timingLinkGroup.append("text")
+                    .attr("class", "link-label")
+                    .attr("x", fromMidX - 10)
+                    .attr("y", fromMidY)
+                    .attr("text-anchor", "end")
+                    .style("fill", "#003366")
+                    .style("font-size", "10px")
+                    .style("font-weight", "bold")
+                    .text("from");
+                
+                // Line from timing node to "to" node (with arrow pointing UP at activity node)
+                const toX = timing.toNode.x + timing.toNode.width / 2;
+                const toY = timing.toNode.y + timing.toNode.height;
+                const toPath = timingLinkGroup.append("path")
+                    .attr("class", "link-timing")
+                    .attr("d", `M${{timing.x}},${{timing.y}} L${{toX}},${{toY}}`)
+                    .attr("marker-end", `url(#arrowhead-timing-${{data.id}})`);
+                
+                // Label for "to" link
+                const toMidX = (timing.x + toX) / 2;
+                const toMidY = (timing.y + toY) / 2;
+                timingLinkGroup.append("text")
+                    .attr("class", "link-label")
+                    .attr("x", toMidX + 10)
+                    .attr("y", toMidY)
+                    .attr("text-anchor", "start")
+                    .style("fill", "#003366")
+                    .style("font-size", "10px")
+                    .style("font-weight", "bold")
+                    .text("to");
+            }});
+            
+            // Draw timing nodes
+            const timingNodeGroup = svg.append("g").attr("class", "timing-nodes");
+            
+            const timingElements = timingNodeGroup.selectAll("g")
+                .data(timingNodes)
+                .join("g")
+                .attr("class", "node node-timing")
+                .attr("transform", d => `translate(${{d.x}},${{d.y}})`)
+                .on("mouseover", (event, d) => {{
+                    const tooltipText = `
+                        <strong>${{d.label}}</strong><br/>
+                        Type: ${{d.type}}<br/>
+                        Value: ${{d.valueLabel}}<br/>
+                        ${{d.windowLabel ? 'Window: ' + d.windowLabel : ''}}
+                    `;
+                    showTooltip(event, tooltipText);
+                }})
+                .on("mouseout", hideTooltip);
+            
+            // Add circles for timing nodes
+            timingElements.append("circle")
+                .attr("r", d => d.radius);
+            
+            // Add text labels or anchor icon for timing nodes
+            timingElements.each(function(d) {{
+                const node = d3.select(this);
+                
+                if (d.isAnchor) {{
+                    // Draw ship's anchor icon matching the reference design
+                    const anchorGroup = node.append("g")
+                        .attr("transform", "scale(1.4)");
+                    
+                    // Ring at top
+                    anchorGroup.append("circle")
+                        .attr("cx", 0)
+                        .attr("cy", -18)
+                        .attr("r", 5)
+                        .attr("fill", "none")
+                        .attr("stroke", "#003366")
+                        .attr("stroke-width", 3);
+                    
+                    // Vertical shaft
+                    anchorGroup.append("line")
+                        .attr("x1", 0)
+                        .attr("y1", -13)
+                        .attr("x2", 0)
+                        .attr("y2", 18)
+                        .attr("stroke", "#003366")
+                        .attr("stroke-width", 3)
+                        .attr("stroke-linecap", "round");
+                    
+                    // Horizontal crossbar (stock)
+                    anchorGroup.append("rect")
+                        .attr("x", -12)
+                        .attr("y", -3)
+                        .attr("width", 24)
+                        .attr("height", 5)
+                        .attr("rx", 2.5)
+                        .attr("ry", 2.5)
+                        .attr("fill", "#003366");
+                    
+                    // Left fluke
+                    const leftFlukePath = "M 0,18 Q -8,18 -15,12 Q -18,9 -16,5 L -12,8 Q -10,10 -8,11 L 0,18";
+                    anchorGroup.append("path")
+                        .attr("d", leftFlukePath)
+                        .attr("fill", "#003366");
+                    
+                    // Right fluke
+                    const rightFlukePath = "M 0,18 Q 8,18 15,12 Q 18,9 16,5 L 12,8 Q 10,10 8,11 L 0,18";
+                    anchorGroup.append("path")
+                        .attr("d", rightFlukePath)
+                        .attr("fill", "#003366");
+                }} else {{
+                    // Draw text for non-anchor nodes
+                    const text = node.append("text")
+                        .attr("text-anchor", "middle")
+                        .attr("dominant-baseline", "central")
+                        .style("font-size", "10px");
+                    
+                    // Create multi-line text
+                    const lines = [d.label, d.type, d.valueLabel];
+                    if (d.windowLabel) {{
+                        lines.push(d.windowLabel);
+                    }}
+                    
+                    lines.forEach((line, i) => {{
+                        text.append("tspan")
+                            .attr("x", 0)
+                            .attr("dy", i === 0 ? 0 : 12)
+                            .text(line);
+                    }});
+                    
+                    // Center the text vertically
+                    const bbox = text.node().getBBox();
+                    const offset = -bbox.height / 2 - bbox.y;
+                    text.attr("transform", `translate(0, ${{offset}})`);
+                }}
+            }});
+            
+            // Draw conditional links above the timeline
+            if (data.conditionalLinks && data.conditionalLinks.length > 0) {{
+                const conditionalLinkGroup = svg.append("g").attr("class", "conditional-links");
+                
+                // Calculate height levels for each link to avoid overlaps
+                // Group links by source node and assign heights
+                const baseHeight = 60; // Base height above timeline
+                const heightIncrement = 40; // Additional height per level
+                
+                // Create a map to track which nodes are involved and at what level
+                const linkHeights = new Map();
+                const sourceNodeLinkCount = new Map();
+                
+                // Count links per source node
+                data.conditionalLinks.forEach(link => {{
+                    const count = sourceNodeLinkCount.get(link.sourceId) || 0;
+                    sourceNodeLinkCount.set(link.sourceId, count + 1);
+                }});
+                
+                // Assign heights based on source node position and link index
+                let currentSourceId = null;
+                let linkIndexForSource = 0;
+                data.conditionalLinks.forEach((link, idx) => {{
+                    if (link.sourceId !== currentSourceId) {{
+                        currentSourceId = link.sourceId;
+                        linkIndexForSource = 0;
+                    }}
+                    
+                    // Calculate height level: use link index within source to stagger heights
+                    const heightLevel = linkIndexForSource;
+                    const height = baseHeight + (heightLevel * heightIncrement);
+                    linkHeights.set(idx, height);
+                    linkIndexForSource++;
+                }});
+                
+                data.conditionalLinks.forEach((link, idx) => {{
+                    const sourceNode = nodeMap[link.sourceId];
+                    const targetNode = nodeMap[link.targetId];
+                    
+                    if (sourceNode && targetNode) {{
+                        // Calculate start and end points
+                        // From top of diamond (decision node)
+                        const startX = sourceNode.x + sourceNode.width / 2;
+                        const startY = sourceNode.y;
+                        
+                        // Check if target is an orphan node (has Y position near top)
+                        const isOrphanTarget = targetNode.y < 100; // Orphan nodes are positioned at Y=20
+                        
+                        // To center of target node (left side for orphans, top for regular nodes)
+                        let endX, endY;
+                        if (isOrphanTarget) {{
+                            // For orphan nodes, connect to the left center
+                            if (targetNode.type === 'activity') {{
+                                const radius = Math.min(targetNode.width, targetNode.height) / 2;
+                                endX = targetNode.x + targetNode.width / 2 - radius;
+                                endY = targetNode.y + targetNode.height / 2;
+                            }} else {{
+                                endX = targetNode.x;
+                                endY = targetNode.y + targetNode.height / 2;
+                            }}
+                        }} else {{
+                            // For regular nodes, connect to the top
+                            if (targetNode.type === 'activity') {{
+                                endX = targetNode.x + targetNode.width / 2;
+                                endY = targetNode.y + targetNode.height / 2 - Math.min(targetNode.width, targetNode.height) / 2;
+                            }} else if (targetNode.type === 'decision') {{
+                                endX = targetNode.x + targetNode.width / 2;
+                                endY = targetNode.y;
+                            }} else {{
+                                endX = targetNode.x + targetNode.width / 2;
+                                endY = targetNode.y;
+                            }}
+                        }}
+                        
+                        // Get assigned height for this link
+                        // For orphan targets, use the orphan's Y position for horizontal segment
+                        const linkHeight = linkHeights.get(idx);
+                        const horizontalY = isOrphanTarget ? endY : startY - linkHeight;
+                        
+                        // Create orthogonal path: up, across, down
+                        // Note: Must use separate segments to ensure all lines render
+                        const pathD = `M ${{startX}} ${{startY}} L ${{startX}} ${{horizontalY}} L ${{endX}} ${{horizontalY}} L ${{endX}} ${{endY}}`;
+                        
+                        conditionalLinkGroup.append("path")
+                            .attr("class", "link-conditional")
+                            .attr("d", pathD)
+                            .attr("marker-end", `url(#arrowhead-conditional-${{data.id}})`);
+                        
+                        // Add condition label at the midpoint of the horizontal segment
+                        const midX = (startX + endX) / 2;
+                        conditionalLinkGroup.append("text")
+                            .attr("class", "conditional-label")
+                            .attr("x", midX)
+                            .attr("y", horizontalY - 5)
+                            .attr("text-anchor", "middle")
+                            .text(link.condition);
+                    }}
+                }});
+            }}
+            
+            // Draw orphan nodes
+            if (orphanNodes.length > 0) {{
+                const orphanNodeGroup = svg.append("g").attr("class", "orphan-nodes");
+                
+                const orphanNodeElements = orphanNodeGroup.selectAll("g")
+                    .data(orphanNodes)
+                    .join("g")
+                    .attr("class", d => `node node-${{d.type}}`)
+                    .attr("transform", d => `translate(${{d.x}},${{d.y}})`)
+                    .on("mouseover", (event, d) => {{
+                        const tooltipText = `
+                            <strong>${{d.label}}</strong><br/>
+                            Type: ${{d.type}}<br/>
+                            ${{d.description ? 'Description: ' + d.description : ''}}
+                        `;
+                        showTooltip(event, tooltipText);
+                    }})
+                    .on("mouseout", hideTooltip);
+                
+                // Add shapes for orphan nodes
+                orphanNodeElements.each(function(d) {{
+                    const node = d3.select(this);
+                    
+                    if (d.type === 'activity') {{
+                        const radius = Math.min(d.width, d.height) / 2;
+                        node.append("circle")
+                            .attr("cx", d.width / 2)
+                            .attr("cy", d.height / 2)
+                            .attr("r", radius);
+                    }} else if (d.type === 'decision') {{
+                        const centerX = d.width / 2;
+                        const centerY = d.height / 2;
+                        const diamondPath = `M ${{centerX}},${{0}} L ${{d.width}},${{centerY}} L ${{centerX}},${{d.height}} L ${{0}},${{centerY}} Z`;
+                        node.append("path")
+                            .attr("d", diamondPath);
+                    }} else {{
+                        node.append("rect")
+                            .attr("width", d.width)
+                            .attr("height", d.height);
+                    }}
+                }});
+                
+                // Add text labels for orphan nodes
+                orphanNodeElements.each(function(d) {{
+                    const node = d3.select(this);
+                    const words = d.label.split(/\\s+/);
+                    const lineHeight = 14;
+                    const maxWidth = d.width - 10;
+                    
+                    let line = [];
+                    const text = node.append("text")
+                        .attr("x", d.width / 2)
+                        .attr("y", d.height / 2)
+                        .attr("text-anchor", "middle")
+                        .attr("dominant-baseline", "central");
+                    
+                    let tspan = text.append("tspan")
+                        .attr("x", d.width / 2)
+                        .attr("dy", 0);
+                    
+                    words.forEach((word, i) => {{
+                        line.push(word);
+                        const testLine = line.join(" ");
+                        tspan.text(testLine);
+                        
+                        if (tspan.node().getComputedTextLength() > maxWidth && line.length > 1) {{
+                            line.pop();
+                            tspan.text(line.join(" "));
+                            line = [word];
+                            tspan = text.append("tspan")
+                                .attr("x", d.width / 2)
+                                .attr("dy", lineHeight)
+                                .text(word);
+                        }}
+                    }});
+                    
+                    const bbox = text.node().getBBox();
+                    const offset = (d.height - bbox.height) / 2 - bbox.y;
+                    text.attr("transform", `translate(0, ${{offset}})`);
+                }});
+                
+                // Draw links between orphan nodes
+                if (data.orphanLinks && data.orphanLinks.length > 0) {{
+                    const orphanLinkGroup = svg.append("g").attr("class", "orphan-links");
+                    
+                    data.orphanLinks.forEach(link => {{
+                        const sourceNode = nodeMap[link.sourceId];
+                        const targetNode = nodeMap[link.targetId];
+                        
+                        if (sourceNode && targetNode) {{
+                            let sourceX, sourceY, targetX, targetY;
+                            
+                            if (sourceNode.type === 'activity') {{
+                                const radius = Math.min(sourceNode.width, sourceNode.height) / 2;
+                                sourceX = sourceNode.x + sourceNode.width / 2 + radius;
+                                sourceY = sourceNode.y + sourceNode.height / 2;
+                            }} else if (sourceNode.type === 'decision') {{
+                                sourceX = sourceNode.x + sourceNode.width;
+                                sourceY = sourceNode.y + sourceNode.height / 2;
+                            }} else {{
+                                sourceX = sourceNode.x + sourceNode.width;
+                                sourceY = sourceNode.y + sourceNode.height / 2;
+                            }}
+                            
+                            if (targetNode.type === 'activity') {{
+                                const radius = Math.min(targetNode.width, targetNode.height) / 2;
+                                targetX = targetNode.x + targetNode.width / 2 - radius;
+                                targetY = targetNode.y + targetNode.height / 2;
+                            }} else if (targetNode.type === 'decision') {{
+                                targetX = targetNode.x;
+                                targetY = targetNode.y + targetNode.height / 2;
+                            }} else {{
+                                targetX = targetNode.x;
+                                targetY = targetNode.y + targetNode.height / 2;
+                            }}
+                            
+                            orphanLinkGroup.append("path")
+                                .attr("class", "link")
+                                .attr("d", `M${{sourceX}},${{sourceY}} L${{targetX}},${{targetY}}`)
+                                .attr("marker-end", `url(#arrowhead-${{data.id}})`);
+                        }}
+                    }});
+                }}
+                
+                // Draw links from orphan nodes back to main timeline
+                if (data.orphanToMainLinks && data.orphanToMainLinks.length > 0) {{
+                    const orphanToMainLinkGroup = svg.append("g").attr("class", "orphan-to-main-links");
+                    
+                    data.orphanToMainLinks.forEach(link => {{
+                        const sourceNode = nodeMap[link.sourceId];
+                        const targetNode = nodeMap[link.targetId];
+                        
+                        if (sourceNode && targetNode) {{
+                            // Start from bottom of orphan node
+                            let startX, startY;
+                            if (sourceNode.type === 'activity') {{
+                                const radius = Math.min(sourceNode.width, sourceNode.height) / 2;
+                                startX = sourceNode.x + sourceNode.width / 2;
+                                startY = sourceNode.y + sourceNode.height / 2 + radius;
+                            }} else if (sourceNode.type === 'decision') {{
+                                startX = sourceNode.x + sourceNode.width / 2;
+                                startY = sourceNode.y + sourceNode.height;
+                            }} else {{
+                                startX = sourceNode.x + sourceNode.width / 2;
+                                startY = sourceNode.y + sourceNode.height;
+                            }}
+                            
+                            // End at top of target node on main timeline
+                            let endX, endY;
+                            if (targetNode.type === 'activity') {{
+                                const radius = Math.min(targetNode.width, targetNode.height) / 2;
+                                endX = targetNode.x + targetNode.width / 2;
+                                endY = targetNode.y + targetNode.height / 2 - radius;
+                            }} else if (targetNode.type === 'decision') {{
+                                endX = targetNode.x + targetNode.width / 2;
+                                endY = targetNode.y;
+                            }} else {{
+                                endX = targetNode.x + targetNode.width / 2;
+                                endY = targetNode.y;
+                            }}
+                            
+                            // Calculate intermediate Y for horizontal segment (midpoint between source and target)
+                            const midY = (startY + endY) / 2;
+                            
+                            // Create orthogonal path: down, across, down
+                            const pathD = `M ${{startX}} ${{startY}} L ${{startX}} ${{midY}} L ${{endX}} ${{midY}} L ${{endX}} ${{endY}}`;
+                            
+                            orphanToMainLinkGroup.append("path")
+                                .attr("class", "link")
+                                .attr("d", pathD)
+                                .attr("marker-end", `url(#arrowhead-${{data.id}})`);
+                        }}
+                    }});
+                }}
+            }}
+            
+        }}
+    </script>
+</body>
+</html>"""
+        return html
+
+    def _process_timeline(self, timeline):
+        """Process a timeline and extract node data."""
+        try:
+            nodes = []
+
+            # Get the entry instance
+            instance = self._get_cross_reference(timeline.entryId)
+            if not instance:
+                return None
+
+            # Collect all instances in order - first pass for main timeline
+            conditional_links = []
+            main_timeline_node_ids = set()
+
+            while instance:
+                # Determine the node type
+                if instance["instanceType"] == ScheduledActivityInstance.__name__:
+                    node_type = "activity"
+                elif instance["instanceType"] == ScheduledDecisionInstance.__name__:
+                    node_type = "decision"
+                else:
+                    node_type = "unknown"
+
+                # Override type for entry node (first node)
+                if len(nodes) == 0:
+                    node_type = "entry"
+
+                node_data = {
+                    "id": instance["id"],
+                    "label": instance.get("label", instance.get("name", "Unknown")),
+                    "description": instance.get("description", ""),
+                    "type": node_type,
+                }
+
+                # Extract condition assignments for decision nodes
+                if node_type == "decision" and "conditionAssignments" in instance:
+                    for assignment in instance["conditionAssignments"]:
+                        conditional_links.append(
+                            {
+                                "sourceId": instance["id"],
+                                "targetId": assignment.get("conditionTargetId"),
+                                "condition": assignment.get("condition", "Condition"),
+                            }
+                        )
+
+                nodes.append(node_data)
+                main_timeline_node_ids.add(instance["id"])
+
+                # Get next instance
+                next_id = instance.get("defaultConditionId")
+                if next_id:
+                    instance = self._get_cross_reference(next_id)
+                else:
+                    # This is the last instance, check for exit
+                    exit_id = instance.get("timelineExitId")
+                    if exit_id:
+                        exit_obj = self._get_cross_reference(exit_id)
+                        if exit_obj:
+                            nodes.append(
+                                {
+                                    "id": exit_obj["id"],
+                                    "label": "Exit",
+                                    "description": "Timeline Exit",
+                                    "type": "exit",
+                                }
+                            )
+                    instance = None
+
+            # Second pass: collect orphan nodes (nodes referenced by conditional links but not in main timeline)
+            orphan_nodes = []
+            orphan_links = []
+            orphan_to_main_links = []
+            processed_orphan_ids = set()
+
+            for cond_link in conditional_links:
+                target_id = cond_link["targetId"]
+                if (
+                    target_id not in main_timeline_node_ids
+                    and target_id not in processed_orphan_ids
+                ):
+                    # This is an orphan node - follow its chain
+                    orphan_instance = self._get_cross_reference(target_id)
+                    while (
+                        orphan_instance
+                        and orphan_instance["id"] not in main_timeline_node_ids
+                    ):
+                        if orphan_instance["id"] in processed_orphan_ids:
+                            break
+
+                        # Determine node type
                         if (
-                            instance["instanceType"]
+                            orphan_instance["instanceType"]
                             == ScheduledActivityInstance.__name__
                         ):
-                            doc.asis(f"{instance['id']}(ScheduledActivityInstance)\n")
+                            orphan_type = "activity"
+                        elif (
+                            orphan_instance["instanceType"]
+                            == ScheduledDecisionInstance.__name__
+                        ):
+                            orphan_type = "decision"
                         else:
-                            doc.asis(
-                                f"{instance['id']}{{{{ScheduledDecisionInstance}}}}\n"
-                            )
-                            for condition in instance["conditionAssignments"]:
-                                doc.asis(
-                                    f"{instance['id']} -->|{condition['condition']}| {condition['conditionTargetId']}\n"
+                            orphan_type = "unknown"
+
+                        orphan_node_data = {
+                            "id": orphan_instance["id"],
+                            "label": orphan_instance.get(
+                                "label", orphan_instance.get("name", "Unknown")
+                            ),
+                            "description": orphan_instance.get("description", ""),
+                            "type": orphan_type,
+                        }
+                        orphan_nodes.append(orphan_node_data)
+                        processed_orphan_ids.add(orphan_instance["id"])
+
+                        # Check if this orphan links to another node
+                        next_id = orphan_instance.get("defaultConditionId")
+                        if next_id:
+                            if next_id not in main_timeline_node_ids:
+                                # Link to another orphan
+                                orphan_links.append(
+                                    {
+                                        "sourceId": orphan_instance["id"],
+                                        "targetId": next_id,
+                                    }
                                 )
-                        doc.asis(
-                            f"{prev_instance['id']} -->|default| {instance['id']}\n"
-                        )
-                        prev_instance = instance
-                        instance = self._get_cross_reference(
-                            prev_instance["defaultConditionId"]
-                        )
-                    exit = self._get_cross_reference(prev_instance["timelineExitId"])
-                    doc.asis(f"{exit['id']}([Exit])\n")
-                    doc.asis(f"{prev_instance['id']} -->|exit| {exit['id']}\n")
-                    for timing in timings:
-                        doc.asis(
-                            f"{timing.id}(({timing.label}\n{timing.type.decode}\n{timing.value}\n{timing.windowLower}..{timing.windowUpper}))\n"
-                        )
-                        doc.asis(
-                            f"{timing.relativeFromScheduledInstanceId} -->|from| {timing.id}\n"
-                        )
-                        doc.asis(
-                            f"{timing.id} -->|to| {timing.relativeToScheduledInstanceId}\n"
-                        )
-        with doc.tag("script", type="module"):
-            doc.asis(
-                "import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';\n"
-            )
-            doc.asis("mermaid.initialize({ startOnLoad: true });\n")
+                                orphan_instance = self._get_cross_reference(next_id)
+                            else:
+                                # Link back to main timeline
+                                orphan_to_main_links.append(
+                                    {
+                                        "sourceId": orphan_instance["id"],
+                                        "targetId": next_id,
+                                    }
+                                )
+                                break
+                        else:
+                            break
+
+            # Process timings
+            timings = []
+            for timing in timeline.timings:
+                # Check if this is an anchor node (Fixed Reference type)
+                is_anchor = timing.type and timing.type.code == "C201358"
+
+                timing_data = {
+                    "id": timing.id,
+                    "label": timing.label,
+                    "type": timing.type.decode if timing.type else "Unknown",
+                    "typeCode": timing.type.code if timing.type else "",
+                    "isAnchor": is_anchor,
+                    "value": timing.value,
+                    "valueLabel": timing.valueLabel
+                    if timing.valueLabel
+                    else timing.value,
+                    "windowLower": timing.windowLower if timing.windowLower else "",
+                    "windowUpper": timing.windowUpper if timing.windowUpper else "",
+                    "windowLabel": timing.windowLabel if timing.windowLabel else "",
+                    "relativeFromScheduledInstanceId": timing.relativeFromScheduledInstanceId,
+                    "relativeToScheduledInstanceId": timing.relativeToScheduledInstanceId,
+                }
+                timings.append(timing_data)
+
+            return {
+                "id": timeline.id,
+                "label": timeline.label,
+                "entryCondition": timeline.entryCondition,
+                "nodes": nodes,
+                "timings": timings,
+                "conditionalLinks": conditional_links,
+                "orphanNodes": orphan_nodes,
+                "orphanLinks": orphan_links,
+                "orphanToMainLinks": orphan_to_main_links,
+            }
+        except Exception as e:
+            self._errors.exception(f"Failed processing timeline {timeline.label}", e)
+            return None
+
+    def _format_timelines_data(self, timelines_data):
+        """Format timeline data as JSON for embedding in HTML."""
+        return json.dumps(timelines_data)
 
     def _get_cross_reference(self, id):
+        """Get cross reference by ID."""
         return self._builder._data_store.instance_by_id(id)
 
 
 def save_html(file_path, result):
-    soup = BeautifulSoup(result, "html.parser")
-    data = soup.prettify()
+    """Save HTML content to file."""
     with open(file_path, "w") as f:
-        f.write(data)
+        f.write(result)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        prog="USDM Simple Timeline Program",
-        description="Will display USDM timelines using Mermaid",
-        epilog="Note: Not that sophisticated! :)",
+        prog="USDM D3 Timeline Program",
+        description="Display USDM timelines using D3 in a horizontal layout",
+        epilog="Creates a single HTML file with all timelines",
     )
-    parser.add_argument("filename", help="The name of the USDM file.")
+    parser.add_argument("filename", help="The name of the USDM JSON file.")
     args = parser.parse_args()
     filename = args.filename
 
     input_path, tail = os.path.split(filename)
     root_filename = tail.replace(".json", "")
     full_filename = filename
-    output_path = input_path
-    full_output_filename = os.path.join(output_path, f"{root_filename}.html")
+    output_path = input_path if input_path else "."
+    full_output_filename = os.path.join(output_path, f"{root_filename}_timeline.html")
 
     print("")
-    print(f"Output path is: {output_path}")
-    print(f"Output file is: {full_output_filename}")
+    print(f"Input file: {full_filename}")
+    print(f"Output path: {output_path}")
+    print(f"Output file: {full_output_filename}")
     print("")
+
     errors = Errors()
     timeline = Timeline(full_filename, errors)
     html = timeline.to_html()
-    print(f"Errors: {errors.dump(0)}")
-    save_html(full_output_filename, html)
+
+    if errors.error_count() > 0:
+        print(f"Errors: {errors.dump(0)}")
+    else:
+        save_html(full_output_filename, html)
+        print(f"Successfully created: {full_output_filename}")
+        print("")
+        print("Open this file in your browser to view the timeline visualization.")

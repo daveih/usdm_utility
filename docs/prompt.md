@@ -44,3 +44,16 @@ Write a python program to generate an html page that can be viewed in a browser 
 - There is a simplified schema in the file pj/data_v2.json
 - There are example files called pj_p<n>.json
 - The web page will be provided with a python dict as per the json files
+
+----- + -----
+
+Now write an equivalent program to display each visit as a separate diagram withn an html page that can be viewed in a browser that contains a data vizualization.
+
+- Use the D3 graphic library
+- Style with bootstrap 5
+- The vizualiation should be a serpentine timeline of each visit and the activities as per the data data in a json file
+- Display every visit down the html page as a bootstrap card
+- There is a simplified schema in the file pj/data_v2.json
+- There are example files called pj_p<n>.json
+- The web page will be provided with a python dict as per the json files
+- Put the code into a file called to_pj.py
