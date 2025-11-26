@@ -2,9 +2,11 @@
 
 A set of USDM and other utilities
 
+- Excel to USDM JSON Converter (from_excel.py)
 - USDM to M11 Inclusion/Exclusion Criteria Converter (to_m11.py)
 - Visit-Based Timeline Visualization (to_pj.py)
 - D3 Timeline Visualization (to_timeline.py)
+- OCR Text Extraction from Images (to_text.py)
 
 
 # USDM to M11 Inclusion/Exclusion Criteria Converter (to_m11.py)
@@ -1102,3 +1104,929 @@ For issues or questions, please refer to the project repository or contact the d
 - **to_visit.py**: Complementary visit details tool
 - **to_pj.py**: Activity timeline visualization tool
 - **to_m11.py**: Regulatory criteria extraction tool
+
+
+
+
+# OCR Text Extraction from Images (to_text.py)
+
+A lightweight Python program that extracts text from images using Tesseract OCR (Optical Character Recognition) technology. This utility converts images containing text into plain text files.
+
+## Overview
+
+This tool uses the Tesseract OCR engine through the pytesseract Python wrapper to extract text from image files. It's designed to be simple and straightforward - provide an image file and get a text file with the extracted content. Useful for digitizing scanned documents, extracting text from screenshots, or processing image-based data.
+
+## Features
+
+- **Simple Command-Line Interface**: Single command execution with minimal arguments
+- **Automatic File Naming**: Output text file automatically named based on input filename
+- **Tesseract OCR**: Leverages powerful open-source OCR engine
+- **Multiple Format Support**: Works with common image formats (PNG, JPEG, TIFF, BMP, etc.)
+- **Preserves Directory Structure**: Outputs text file to same directory as input image
+- **Status Reporting**: Displays input and output filenames for confirmation
+
+## Prerequisites
+
+### Required Software
+
+**Tesseract OCR Engine:**
+
+The Tesseract OCR engine must be installed on your system:
+
+**macOS (using Homebrew):**
+```bash
+brew install tesseract
+```
+
+**Linux (Ubuntu/Debian):**
+```bash
+sudo apt-get install tesseract-ocr
+```
+
+**Linux (Fedora/RHEL):**
+```bash
+sudo yum install tesseract
+```
+
+**Windows:**
+- Download installer from: https://github.com/UB-Mannheim/tesseract/wiki
+- Follow installation wizard
+- Add Tesseract to system PATH
+
+### Required Python Packages
+
+```bash
+pip install Pillow
+pip install pytesseract
+```
+
+### Dependencies
+
+- **Pillow (PIL)**: Python Imaging Library for image file handling
+- **pytesseract**: Python wrapper for Tesseract OCR engine
+- **Tesseract**: The actual OCR engine (system-level dependency)
+
+## Usage
+
+### Command Line
+
+Basic usage:
+
+```bash
+python3 to_text.py <image_file>
+```
+
+### Examples
+
+```bash
+# Extract text from a screenshot
+python3 to_text.py screenshot.png
+
+# Process a scanned document
+python3 to_text.py /path/to/scanned_document.jpg
+
+# Extract text from image in current directory
+python3 to_text.py meeting_notes.jpeg
+
+# The output will be automatically created with .txt extension
+# Input:  screenshot.png
+# Output: screenshot.txt
+```
+
+### Program Output
+
+When you run the program, it displays the file paths:
+
+```
+Input filename:  /path/to/image.png
+Output filename: /path/to/image.txt
+```
+
+## Input Format
+
+### Supported Image Formats
+
+The program supports all image formats that PIL/Pillow can open:
+
+- **PNG** (.png) - Recommended for screenshots and digital images
+- **JPEG** (.jpg, .jpeg) - Common photograph format
+- **TIFF** (.tif, .tiff) - Often used for scanned documents
+- **BMP** (.bmp) - Windows bitmap format
+- **GIF** (.gif) - Graphics interchange format
+- **WebP** (.webp) - Modern web image format
+
+### Image Quality Recommendations
+
+For best OCR results:
+- **Resolution**: Minimum 300 DPI for scanned documents
+- **Contrast**: High contrast between text and background
+- **Clarity**: Clear, non-blurry text
+- **Orientation**: Text should be right-side up and not rotated
+- **Language**: Tesseract defaults to English (additional languages can be configured)
+
+## Output Format
+
+The program creates a plain text file containing the extracted text:
+
+### File Naming
+
+```
+Input:  document.png
+Output: document.txt
+
+Input:  /path/to/scan.jpg
+Output: /path/to/scan.txt
+```
+
+### Output Content
+
+The text file contains:
+- All text extracted from the image
+- Original line breaks and spacing (as detected by OCR)
+- No formatting (plain text only)
+- UTF-8 encoding
+
+### Example
+
+**Input Image** (screenshot.png):
+```
+Meeting Notes
+Date: November 26, 2025
+Attendees: John, Sarah, Mike
+```
+
+**Output Text** (screenshot.txt):
+```
+Meeting Notes
+Date: November 26, 2025
+Attendees: John, Sarah, Mike
+```
+
+## Technical Details
+
+### Program Structure
+
+```python
+def save_text(file_path, data):
+    # Saves extracted text to file
+
+if __name__ == "__main__":
+    # 1. Parse command-line arguments
+    # 2. Determine input/output file paths
+    # 3. Open image using PIL
+    # 4. Extract text using pytesseract
+    # 5. Save text to output file
+```
+
+### Processing Flow
+
+1. **Parse Arguments**: Extract filename from command line
+2. **Path Processing**: 
+   - Split path into directory and filename
+   - Extract root filename and extension
+   - Construct output filename with .txt extension
+3. **Image Loading**: Use PIL to open and load image
+4. **OCR Processing**: Call Tesseract via pytesseract to extract text
+5. **Save Output**: Write extracted text to .txt file
+
+### File Path Handling
+
+The program intelligently handles file paths:
+- Preserves original directory structure
+- Works with relative and absolute paths
+- Uses current working directory if no path specified
+- Automatically creates appropriate .txt filename
+
+## Configuration
+
+### Tesseract Language
+
+To extract text in languages other than English, you can modify the code:
+
+```python
+# English (default)
+extracted_text = pytesseract.image_to_string(image)
+
+# Spanish
+extracted_text = pytesseract.image_to_string(image, lang='spa')
+
+# French
+extracted_text = pytesseract.image_to_string(image, lang='fra')
+
+# German
+extracted_text = pytesseract.image_to_string(image, lang='deu')
+
+# Multiple languages
+extracted_text = pytesseract.image_to_string(image, lang='eng+fra')
+```
+
+**Note**: Additional language packs must be installed for Tesseract.
+
+### Tesseract Path (Windows)
+
+If Tesseract is not in your system PATH on Windows, specify the path:
+
+```python
+# Add this line before calling image_to_string
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+```
+
+## Limitations
+
+1. **OCR Accuracy**: 
+   - Not 100% accurate, especially with poor image quality
+   - May misread similar characters (e.g., '0' vs 'O', '1' vs 'l')
+   
+2. **Formatting**: 
+   - Does not preserve complex formatting (tables, columns, etc.)
+   - No font, color, or style information retained
+   
+3. **Language Support**: 
+   - Defaults to English only
+   - Additional languages require language pack installation
+   
+4. **Handwriting**: 
+   - Not optimized for handwritten text
+   - Best results with printed or digital text
+   
+5. **Single Image**: 
+   - Processes one image at a time
+   - No batch processing capability
+
+6. **Simple Output**: 
+   - Plain text only (no PDF, Word, or formatted output)
+
+## Troubleshooting
+
+### Common Issues
+
+**Issue**: "pytesseract.pytesseract.TesseractNotFoundError"
+- **Cause**: Tesseract OCR is not installed or not in PATH
+- **Solution**: 
+  ```bash
+  # macOS
+  brew install tesseract
+  
+  # Verify installation
+  tesseract --version
+  ```
+
+**Issue**: Poor OCR accuracy
+- **Solution**: 
+  - Improve image resolution (use 300+ DPI)
+  - Increase image contrast
+  - Ensure text is not rotated or skewed
+  - Clean up image (remove noise, enhance clarity)
+  - Try image preprocessing before OCR
+
+**Issue**: "No such file or directory"
+- **Cause**: Image file path is incorrect
+- **Solution**: 
+  - Verify file exists
+  - Use absolute path or ensure correct relative path
+  - Check filename spelling and extension
+
+**Issue**: No text extracted (empty output file)
+- **Cause**: Image doesn't contain recognizable text
+- **Solution**:
+  - Check image actually contains text
+  - Verify image is not corrupted
+  - Try preprocessing image (brightness, contrast, rotation)
+  - Check if text language matches Tesseract configuration
+
+**Issue**: ImportError for PIL or pytesseract
+- **Solution**: 
+  ```bash
+  pip install Pillow pytesseract
+  ```
+
+### Image Preprocessing Tips
+
+For better results, preprocess images before OCR:
+
+```python
+from PIL import Image, ImageEnhance
+
+# Increase contrast
+image = Image.open('input.png')
+enhancer = ImageEnhance.Contrast(image)
+image = enhancer.enhance(2.0)
+
+# Convert to grayscale
+image = image.convert('L')
+
+# Increase sharpness
+enhancer = ImageEnhance.Sharpness(image)
+image = enhancer.enhance(2.0)
+
+# Then perform OCR
+extracted_text = pytesseract.image_to_string(image)
+```
+
+## Use Cases
+
+### Document Digitization
+```bash
+# Scan paper document to image, then extract text
+python3 to_text.py scanned_contract.pdf.png
+```
+
+### Screenshot Text Extraction
+```bash
+# Extract text from application screenshot
+python3 to_text.py app_error_message.png
+```
+
+### Data Entry Automation
+```bash
+# Extract text from form images
+python3 to_text.py filled_form.jpg
+```
+
+### Archive Processing
+```bash
+# Convert old image-based documents to searchable text
+python3 to_text.py archive_1985_report.tiff
+```
+
+## Comparison with Other Tools
+
+| Feature | to_text.py | Adobe Acrobat OCR | Google Cloud Vision | ABBYY FineReader |
+|---------|-----------|-------------------|---------------------|------------------|
+| Cost | Free | Paid | Paid (after quota) | Paid |
+| Offline | Yes | Yes | No | Yes |
+| Simplicity | Very Simple | Complex | Complex | Complex |
+| Accuracy | Good | Excellent | Excellent | Excellent |
+| Format Support | Images | PDF, Images | Images | PDF, Images, Docs |
+| Batch Processing | No | Yes | Yes | Yes |
+
+## Best Practices
+
+1. **Use High-Quality Images**: Start with clear, high-resolution images (300+ DPI)
+2. **Preprocess When Needed**: Adjust contrast, brightness, or orientation before OCR
+3. **Verify Output**: Always review extracted text for accuracy
+4. **Batch Multiple Files**: For multiple images, create a shell script to process them
+5. **Choose Right Format**: PNG is generally better than JPEG for OCR
+6. **Language Configuration**: Configure correct language if text is not in English
+7. **Test First**: Try with a small sample before processing large batches
+
+## Batch Processing Example
+
+For processing multiple images, create a shell script:
+
+```bash
+#!/bin/bash
+# batch_ocr.sh
+
+for img in *.png; do
+    echo "Processing $img..."
+    python3 to_text.py "$img"
+done
+
+echo "Batch processing complete!"
+```
+
+Usage:
+```bash
+chmod +x batch_ocr.sh
+./batch_ocr.sh
+```
+
+## Integration with Workflows
+
+This tool can be integrated into larger workflows:
+
+```
+Image Source → to_text.py → Text File → Further Processing
+                                ↓
+                          (Text Analysis)
+                          (Data Extraction)
+                          (Translation)
+                          (Keyword Search)
+```
+
+## Related Tools
+
+- **to_m11.py**: For processing structured clinical trial documents
+- **to_timeline.py**: For visualizing trial timelines
+- **to_pj.py**: For visit-based visualizations
+
+## External Resources
+
+- **Tesseract OCR**: https://github.com/tesseract-ocr/tesseract
+- **Pytesseract Documentation**: https://pypi.org/project/pytesseract/
+- **Pillow Documentation**: https://pillow.readthedocs.io/
+- **OCR Best Practices**: https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html
+
+## License
+
+See LICENSE file for details.
+
+## Support
+
+For issues or questions, please refer to the project repository or contact the development team.
+
+## Version History
+
+- **Current**: Initial release
+  - Basic OCR text extraction from images
+  - Support for common image formats
+  - Simple command-line interface
+  - Automatic output file naming
+
+
+
+
+# Excel to USDM JSON Converter (from_excel.py)
+
+A Python program that converts USDM-conformant Excel workbooks into USDM JSON format. This utility bridges the gap between Excel-based study definitions and the USDM (Unified Study Definitions Model) standard, enabling transformation of tabular data into structured JSON documents.
+
+## Overview
+
+This tool reads specially formatted Excel workbooks containing clinical study definitions and transforms them into valid USDM JSON files. It leverages the USDM database package to parse Excel sheets, validate data structure, and generate conformant JSON output. The program also produces a CSV file containing any validation errors or warnings encountered during the conversion process.
+
+## Features
+
+- **Excel to JSON Transformation**: Converts USDM-conformant Excel workbooks to USDM JSON
+- **USDM Compliance**: Uses official USDM database package for proper data handling
+- **Error Tracking**: Generates detailed CSV error report with sheet, row, and column references
+- **Version Information**: Displays USDM package version and supported model version
+- **Automatic Output Naming**: Creates output files based on input filename
+- **Validation**: Built-in validation during conversion process
+- **Simple Interface**: Single command execution with minimal configuration
+
+## Prerequisites
+
+### Required Python Packages
+
+```bash
+pip install usdm-db
+pip install usdm-info
+```
+
+### Dependencies
+
+- **usdm_db (USDMDb)**: Core USDM database package for Excel parsing and JSON generation
+- **usdm_info**: Provides package and model version information
+- **Python 3.7+**: Required for modern Python features
+
+## Usage
+
+### Command Line
+
+Basic usage:
+
+```bash
+python3 from_excel.py <excel_file>
+```
+
+### Examples
+
+```bash
+# Convert Excel workbook to USDM JSON
+python3 from_excel.py study_definition.xlsx
+
+# Process file in specific directory
+python3 from_excel.py phuse_eu/Excel.xlsx
+
+# The program creates two output files:
+# Input:  Excel.xlsx
+# Output: Excel.json (USDM JSON data)
+# Output: Excel.csv (validation errors/warnings)
+```
+
+### Program Output
+
+When you run the program, it displays:
+
+```
+Test Utility, using USDM Python Package v1.2.3 supporting USDM version v3.0.0
+Output path is: /path/to/directory
+
+JSON: /path/to/directory/Excel.json
+CSV: /path/to/directory/Excel.csv
+```
+
+## Input Format
+
+### Excel Workbook Structure
+
+The Excel workbook must be USDM-conformant with specific sheet structures. The exact sheet requirements depend on the USDM database package specifications, but typically include:
+
+**Common Sheets:**
+- **Study**: Basic study information
+- **StudyVersion**: Version details
+- **StudyDesign**: Design elements
+- **ScheduleTimeline**: Timeline definitions
+- **Activities**: Activity definitions
+- **Visits**: Visit schedules
+- **Eligibility**: Inclusion/exclusion criteria
+- **And other USDM entities**
+
+### Excel Format Requirements
+
+- **File Extension**: Must be `.xlsx` (Excel 2007+)
+- **Sheet Names**: Must match USDM entity names exactly
+- **Column Headers**: Must match USDM attribute names
+- **Data Types**: Must conform to USDM specifications
+- **References**: Must use valid cross-references between entities
+
+### Example Excel Structure
+
+```
+Sheet: Study
+-----------------------------------------
+| id       | name              | type  |
+-----------------------------------------
+| study_1  | Phase III Trial   | ...   |
+
+Sheet: StudyDesign
+-----------------------------------------
+| id       | studyId  | name           |
+-----------------------------------------
+| design_1 | study_1  | Primary Design |
+```
+
+## Output Format
+
+### JSON Output
+
+The program generates a complete USDM JSON file:
+
+```json
+{
+  "study": {
+    "id": "study_1",
+    "name": "Phase III Clinical Trial",
+    "versions": [
+      {
+        "id": "version_1",
+        "studyDesigns": [
+          {
+            "id": "design_1",
+            "scheduleTimelines": [...]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Characteristics:**
+- Properly indented (2 spaces)
+- Valid JSON structure
+- Complete USDM schema compliance
+- UTF-8 encoding
+- All cross-references resolved
+
+### CSV Error Report
+
+The program generates a CSV file containing validation issues:
+
+```csv
+sheet,row,column,message,level
+Study,2,name,"Required field missing",ERROR
+Activities,5,description,"Value exceeds maximum length",WARNING
+```
+
+**CSV Columns:**
+- **sheet**: Excel sheet name where issue occurred
+- **row**: Row number (1-indexed)
+- **column**: Column name/identifier
+- **message**: Description of the issue
+- **level**: Severity level (ERROR, WARNING, INFO)
+
+### File Naming Convention
+
+```
+Input:  study_definition.xlsx
+Output: study_definition.json
+Output: study_definition.csv
+
+Input:  phuse_eu/Excel.xlsx
+Output: phuse_eu/Excel.json
+Output: phuse_eu/Excel.csv
+```
+
+## Technical Details
+
+### Program Structure
+
+```python
+def save_as_csv_file(errors, output_path, filename):
+    # Saves validation errors to CSV file
+
+def save_as_json_file(raw_json, output_path, filename):
+    # Saves formatted JSON to file
+
+if __name__ == "__main__":
+    # 1. Parse command-line arguments
+    # 2. Display version information
+    # 3. Load Excel using USDMDb
+    # 4. Convert to JSON
+    # 5. Save JSON and error files
+```
+
+### Processing Flow
+
+1. **Parse Arguments**: Extract Excel filename from command line
+2. **Path Processing**: 
+   - Split path into directory and filename components
+   - Remove .xlsx extension for output naming
+   - Determine output directory
+3. **Version Display**: Show USDM package and model versions
+4. **Excel Loading**: Initialize USDMDb and load Excel workbook
+5. **Conversion**: Transform Excel data to USDM JSON structure
+6. **Error Collection**: Gather validation errors during conversion
+7. **Output Generation**: 
+   - Save formatted JSON file
+   - Save error report CSV file
+
+### USDMDb Integration
+
+The program relies on the `USDMDb` class from the usdm_db package:
+
+```python
+usdm = USDMDb()
+errors = usdm.from_excel(full_filename)  # Returns list of errors
+raw_json = usdm.to_json()                # Returns JSON string
+```
+
+**Key Methods:**
+- **from_excel()**: Parses Excel and returns validation errors
+- **to_json()**: Generates USDM JSON representation
+
+## Error Handling
+
+### Validation Errors
+
+The program tracks various types of issues:
+
+**ERROR Level:**
+- Required fields missing
+- Invalid data types
+- Constraint violations
+- Invalid cross-references
+
+**WARNING Level:**
+- Optional fields missing
+- Data quality concerns
+- Deprecated attributes
+- Format inconsistencies
+
+**INFO Level:**
+- Informational messages
+- Processing notes
+- Conversion details
+
+### Error Report Example
+
+```csv
+sheet,row,column,message,level
+Study,1,id,"Duplicate ID found",ERROR
+StudyDesign,3,studyId,"Referenced study not found",ERROR
+Activities,10,duration,"Invalid ISO 8601 duration format",WARNING
+Visits,5,notes,"Field is empty",INFO
+```
+
+## Limitations
+
+1. **Excel Format**: Only supports .xlsx files (Excel 2007+), not .xls
+2. **Schema Compliance**: Excel structure must strictly conform to USDM schema
+3. **Single File**: Processes one workbook at a time (no batch processing)
+4. **Memory**: Large Excel files may consume significant memory
+5. **Validation Only**: Does not fix errors automatically, only reports them
+6. **Package Dependency**: Functionality depends on usdm_db package capabilities
+7. **Version Compatibility**: Excel structure must match supported USDM model version
+
+## Troubleshooting
+
+### Common Issues
+
+**Issue**: "No module named 'usdm_db'"
+- **Cause**: USDM database package not installed
+- **Solution**: 
+  ```bash
+  pip install usdm-db usdm-info
+  ```
+
+**Issue**: Many validation errors in CSV
+- **Cause**: Excel structure doesn't match USDM schema
+- **Solution**:
+  - Review CSV error report carefully
+  - Check sheet names match USDM entities
+  - Verify column headers match USDM attributes
+  - Ensure data types are correct
+  - Validate cross-references are complete
+
+**Issue**: Empty JSON output
+- **Cause**: Critical errors prevented JSON generation
+- **Solution**:
+  - Review error CSV file
+  - Fix all ERROR-level issues
+  - Rerun conversion
+
+**Issue**: "File not found" error
+- **Cause**: Incorrect file path or missing .xlsx extension
+- **Solution**:
+  - Verify file exists and path is correct
+  - Ensure filename includes .xlsx extension
+  - Use absolute path if needed
+
+**Issue**: Invalid JSON structure
+- **Cause**: Conversion errors or data inconsistencies
+- **Solution**:
+  - Check error CSV for structural issues
+  - Validate Excel data completeness
+  - Ensure all required entities are present
+
+### Debug Tips
+
+1. **Check Versions**: Ensure USDM package version matches your Excel structure
+2. **Review CSV First**: Always examine error CSV before using JSON
+3. **Incremental Testing**: Start with minimal Excel structure and add complexity
+4. **Validate References**: Ensure all ID cross-references are valid
+5. **Check Data Types**: Verify dates, durations, and numbers are properly formatted
+
+## Excel Template
+
+### Recommended Approach
+
+1. **Start with Example**: Use provided example workbooks as templates
+2. **Add Data Incrementally**: Build up study definition gradually
+3. **Validate Frequently**: Run conversion after each major change
+4. **Document Structure**: Keep track of entity relationships
+5. **Review Errors**: Address validation errors as they appear
+
+### Example Workbooks
+
+The program is designed to work with example files in the repository:
+
+- **phuse_eu/Excel.xlsx**: Comprehensive example workbook
+- **test_data/**: Additional test cases
+
+## Use Cases
+
+### Study Protocol Definition
+```bash
+# Convert protocol definition from Excel to USDM JSON
+python3 from_excel.py protocol_definition.xlsx
+```
+
+### Data Migration
+```bash
+# Migrate legacy Excel studies to USDM format
+python3 from_excel.py legacy_study.xlsx
+```
+
+### Regulatory Submission
+```bash
+# Prepare USDM JSON for regulatory submission
+python3 from_excel.py submission_study.xlsx
+```
+
+### System Integration
+```bash
+# Generate USDM JSON for integration with clinical systems
+python3 from_excel.py integrated_study.xlsx
+```
+
+## Integration with Other Tools
+
+This tool serves as the starting point for the USDM utility workflow:
+
+```
+Excel Workbook → from_excel.py → USDM JSON → Other Tools
+                                      ↓
+                                 to_m11.py → Criteria HTML
+                                      ↓
+                              to_timeline.py → Timeline HTML
+                                      ↓
+                                 to_visit.py → Visit Tables
+                                      ↓
+                                   to_pj.py → Visit Cards
+```
+
+**Workflow Benefits:**
+- Single source Excel workbook
+- Multiple output formats
+- Consistent study definition
+- Automated generation of visualizations
+
+## Comparison with Other Approaches
+
+| Feature | from_excel.py | Manual JSON | Direct Database |
+|---------|--------------|-------------|-----------------|
+| Ease of Use | High | Low | Medium |
+| Error Prevention | High (validation) | Low | Medium |
+| Collaboration | Excellent (Excel) | Poor | Good |
+| Version Control | Good | Excellent | Good |
+| Learning Curve | Low | High | Medium |
+| Data Entry Speed | Fast | Slow | Medium |
+
+## Best Practices
+
+1. **Validate Early**: Run conversion frequently during Excel development
+2. **Address Errors**: Fix ERROR-level issues immediately
+3. **Review Warnings**: Consider WARNING-level issues for data quality
+4. **Backup Files**: Keep copies of Excel files before major changes
+5. **Document Structure**: Maintain documentation of your Excel structure
+6. **Use Templates**: Start with validated example workbooks
+7. **Test Iterations**: Test conversion with small changes incrementally
+8. **Version Management**: Track both Excel and generated JSON versions
+
+## Batch Processing Example
+
+For processing multiple Excel files:
+
+```bash
+#!/bin/bash
+# batch_convert.sh
+
+for excel in *.xlsx; do
+    echo "Converting $excel..."
+    python3 from_excel.py "$excel"
+    echo "---"
+done
+
+echo "Batch conversion complete!"
+```
+
+Usage:
+```bash
+chmod +x batch_convert.sh
+./batch_convert.sh
+```
+
+## Python Integration Example
+
+Using from_excel.py functionality in Python scripts:
+
+```python
+from usdm_db import USDMDb
+import json
+
+# Load Excel file
+usdm = USDMDb()
+errors = usdm.from_excel('study.xlsx')
+
+# Check for critical errors
+critical_errors = [e for e in errors if e['level'] == 'ERROR']
+if critical_errors:
+    print(f"Found {len(critical_errors)} critical errors!")
+    for error in critical_errors:
+        print(f"  {error['sheet']}, row {error['row']}: {error['message']}")
+else:
+    # Generate JSON
+    raw_json = usdm.to_json()
+    json_obj = json.loads(raw_json)
+    
+    # Process JSON as needed
+    print(f"Study: {json_obj['study']['name']}")
+```
+
+## Version Compatibility
+
+The program displays version information at runtime:
+
+```
+Test Utility, using USDM Python Package v1.2.3 supporting USDM version v3.0.0
+```
+
+**Important Notes:**
+- Excel structure must match the supported USDM model version
+- Package updates may change supported features
+- Always check compatibility before conversion
+- Refer to usdm_db package documentation for version details
+
+## Related Tools
+
+- **to_m11.py**: Converts USDM JSON to M11 criteria HTML
+- **to_timeline.py**: Generates timeline visualizations from USDM JSON
+- **to_visit.py**: Creates visit detail tables from USDM JSON
+- **to_pj.py**: Produces visit activity card visualizations
+
+## External Resources
+
+- **USDM Specification**: https://www.cdisc.org/standards/usdm
+- **CDISC Standards**: https://www.cdisc.org/
+- **Python Package Index**: https://pypi.org/ (search for usdm-db)
+- **Excel USDM Templates**: Check repository examples in phuse_eu/
+
+## License
+
+See LICENSE file for details.
+
+## Support
+
+For issues or questions, please refer to the project repository or contact the development team.
+
+## Version History
+
+- **Current**: Initial release
+  - Excel to USDM JSON conversion
+  - Validation error reporting (CSV format)
+  - Support for USDM-conformant Excel workbooks
+  - Version information display
+  - Automatic output file naming

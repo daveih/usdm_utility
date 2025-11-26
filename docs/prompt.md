@@ -57,3 +57,7 @@ Now write an equivalent program to display each visit as a separate diagram with
 - There are example files called pj_p<n>.json
 - The web page will be provided with a python dict as per the json files
 - Put the code into a file called to_pj.py
+
+----- + -----
+
+Update the readme.md file with details for the to_text.py program. Add the readme to the exisitng readme.md file. There is a level 1 section listing the utility programs and then add a new level 1 section at the end containing the details fro the program
