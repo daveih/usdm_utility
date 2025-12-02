@@ -7,7 +7,7 @@ A set of USDM and other utilities
 - Visit-Based Timeline Visualization (to_pj.py)
 - D3 Timeline Visualization (to_timeline.py)
 - OCR Text Extraction from Images (to_text.py)
-
+- Image Renamer that renames image files based on their metadata timestamps (rename_images.py)
 
 # USDM to M11 Inclusion/Exclusion Criteria Converter (to_m11.py)
 
@@ -2030,3 +2030,128 @@ For issues or questions, please refer to the project repository or contact the d
   - Support for USDM-conformant Excel workbooks
   - Version information display
   - Automatic output file naming
+
+# Image Renamer
+
+A Python utility that renames image files based on their metadata timestamps.
+
+## Overview
+
+This script renames JPG and PNG image files in a directory to a standardized format: `YYYY-MM-DD_<index>.<ext>`, where `<index>` is the chronological order of images taken on the same day.
+
+## Features
+
+- Reads EXIF metadata from images (DateTimeOriginal or DateTime fields)
+- Falls back to file modification time if no EXIF data is available
+- Groups images by date and assigns chronological indices
+- Supports both JPG and PNG formats (case-insensitive)
+- Includes dry-run mode to preview changes before applying
+- Handles duplicate filenames and edge cases gracefully
+
+## Requirements
+
+- Python 3.6+
+- Pillow library
+
+Install Pillow if not already installed:
+```bash
+pip install Pillow
+```
+
+## Usage
+
+### Basic Usage
+
+Rename all images in a directory:
+```bash
+python rename_images.py /path/to/images
+```
+
+### Dry Run Mode
+
+Preview what changes would be made without actually renaming files:
+```bash
+python rename_images.py /path/to/images --dry-run
+```
+
+### Current Directory
+
+Rename images in the current directory:
+```bash
+python rename_images.py .
+```
+
+## Examples
+
+### Input
+```
+vacation/
+├── IMG_1234.jpg  (taken 2024-07-15 10:30:00)
+├── IMG_1235.jpg  (taken 2024-07-15 14:20:00)
+├── IMG_1236.jpg  (taken 2024-07-16 09:15:00)
+└── photo.png     (taken 2024-07-16 16:45:00)
+```
+
+### Output
+```
+vacation/
+├── 2024-07-15_1.jpg
+├── 2024-07-15_2.jpg
+├── 2024-07-16_1.jpg
+└── 2024-07-16_2.png
+```
+
+## How It Works
+
+1. **Scans Directory**: Finds all `.jpg`, `.jpeg`, and `.png` files (case-insensitive)
+2. **Extracts Timestamps**: Reads EXIF metadata (DateTimeOriginal or DateTime)
+3. **Fallback**: Uses file modification time if no EXIF data exists
+4. **Groups by Date**: Organizes images by the date they were taken
+5. **Assigns Indices**: Numbers images chronologically within each day
+6. **Renames Files**: Updates filenames to `YYYY-MM-DD_<index>.<ext>` format
+
+## Edge Cases Handled
+
+- **No EXIF Data**: Falls back to file modification timestamp
+- **Duplicate Names**: Skips renaming if target filename already exists
+- **Already Correct**: Skips files that already have the correct name
+- **Missing Timestamps**: Warns and skips files with no available timestamp
+- **Mixed Case Extensions**: Handles `.jpg`, `.JPG`, `.jpeg`, `.JPEG`, `.png`, `.PNG`
+
+## Command Line Options
+
+```
+usage: rename_images.py [-h] [--dry-run] directory
+
+Rename image files based on metadata timestamps
+
+positional arguments:
+  directory   Directory containing image files to rename
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dry-run   Show what would be renamed without actually renaming files
+```
+
+## Output Messages
+
+The script provides detailed feedback:
+- Shows total number of images found
+- Reports each rename operation or reason for skipping
+- Displays final summary of renamed and skipped files
+- Warns about any errors or issues encountered
+
+## Notes
+
+- The script only processes files in the specified directory (non-recursive)
+- Original file extensions are preserved
+- The script will not overwrite existing files
+- Always use `--dry-run` first to preview changes
+- EXIF data is preferred over file modification time for accuracy
+
+## Safety
+
+- Use `--dry-run` to preview changes before committing
+- The script will never overwrite an existing file
+- Files are renamed, not copied, so no disk space is wasted
+- Original files are not modified, only renamed
