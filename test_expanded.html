@@ -1,0 +1,2659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expanded Timeline Visualization</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px 0;
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .timeline-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .timeline-svg {
+            width: 100%;
+            overflow: visible;
+        }
+        
+        .timeline-line {
+            stroke: #3498db;
+            stroke-width: 4;
+            fill: none;
+        }
+        
+        .timeline-node {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .timeline-node:hover .node-circle {
+            transform: scale(1.3);
+        }
+        
+        .node-circle {
+            fill: #3498db;
+            stroke: #2c3e50;
+            stroke-width: 2;
+            transition: all 0.3s ease;
+        }
+        
+        .node-circle.has-encounter {
+            fill: #e74c3c;
+        }
+        
+        .node-label {
+            font-size: 13px;
+            font-weight: 600;
+            fill: #2c3e50;
+        }
+        
+        .node-time {
+            font-size: 11px;
+            fill: #7f8c8d;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .tooltip {
+            position: fixed;
+            background-color: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px 18px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            max-width: 400px;
+            z-index: 1000;
+        }
+        
+        .tooltip.visible {
+            opacity: 1;
+        }
+        
+        .tooltip-title {
+            font-weight: 700;
+            font-size: 15px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 6px;
+        }
+        
+        .tooltip-time {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .tooltip-encounter {
+            font-size: 13px;
+            color: #e74c3c;
+            font-weight: 600;
+            margin-bottom: 10px;
+            padding: 6px 10px;
+            background-color: #fdf2f2;
+            border-radius: 4px;
+        }
+        
+        .tooltip-section {
+            font-size: 12px;
+            color: #34495e;
+            margin-top: 8px;
+        }
+        
+        .tooltip-section-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .activity-item {
+            padding: 4px 0 4px 15px;
+            border-left: 2px solid #3498db;
+            margin: 4px 0;
+            font-size: 11px;
+        }
+        
+        .activity-parent {
+            font-size: 10px;
+            color: #95a5a6;
+            font-style: italic;
+        }
+        
+        .procedure-item {
+            font-size: 10px;
+            color: #7f8c8d;
+            padding-left: 10px;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #2c3e50;
+        }
+        
+        .legend-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid #2c3e50;
+        }
+        
+        .legend-dot.regular {
+            background-color: #3498db;
+        }
+        
+        .legend-dot.encounter {
+            background-color: #e74c3c;
+        }
+        
+        .scroll-indicator {
+            text-align: center;
+            color: #95a5a6;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1 class="display-4 mb-2">Expanded Timeline</h1>
+            <p class="lead mb-0">Vertical timeline visualization of study events</p>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-dot regular"></div>
+                <span>Standard Node</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot encounter"></div>
+                <span>Encounter Node</span>
+            </div>
+        </div>
+        
+        <div class="scroll-indicator">Hover over nodes to see details</div>
+        
+        <!-- Timeline Container -->
+        <div class="timeline-container" id="timeline-container">
+            <svg class="timeline-svg" id="timeline-svg"></svg>
+        </div>
+    </div>
+    
+    <!-- Global Tooltip -->
+    <div class="tooltip" id="tooltip"></div>
+    
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Data from Python
+        const data = {
+  "nodes": [
+    {
+      "id": "TP_1",
+      "tick": -1209600,
+      "time": "-2 weeks",
+      "label": "Screen One",
+      "encounter": "Screening 1",
+      "activities": {
+        "items": [
+          {
+            "label": "Informed consent",
+            "parent": "Screening",
+            "procedures": []
+          },
+          {
+            "label": "Inclusion and exclusion criteria",
+            "parent": "Screening",
+            "procedures": []
+          },
+          {
+            "label": "Patient number assigned",
+            "parent": "Screening",
+            "procedures": []
+          },
+          {
+            "label": "Demographics",
+            "parent": "Screening",
+            "procedures": []
+          },
+          {
+            "label": "Hachinski Ischemic Scale",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "MMSE",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Physical examination",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Medical history",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Habits",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Chest X-ray",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Placebo TTS test",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "CT scan",
+            "parent": "Safety",
+            "procedures": [
+              "CT Scan"
+            ]
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Uninalysis",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Hemoglobin A1C",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "ADAS-Cog",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "CIBIC+",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "DAD",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_2"
+      ]
+    },
+    {
+      "id": "TP_2",
+      "tick": -1209600,
+      "time": "-2 weeks",
+      "label": "5 minute supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject supine",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_3"
+      ]
+    },
+    {
+      "id": "TP_3",
+      "tick": -1209300,
+      "time": "-2 weeks, 5 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_4"
+      ]
+    },
+    {
+      "id": "TP_4",
+      "tick": -1209000,
+      "time": "-2 weeks, 10 minutes",
+      "label": "1 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_5"
+      ]
+    },
+    {
+      "id": "TP_5",
+      "tick": -1208640,
+      "time": "-2 weeks, 16 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_6"
+      ]
+    },
+    {
+      "id": "TP_6",
+      "tick": -1208280,
+      "time": "-2 weeks, 22 minutes",
+      "label": "2 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_7"
+      ]
+    },
+    {
+      "id": "TP_7",
+      "tick": -1207800,
+      "time": "-2 weeks, 30 minutes",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_8"
+      ]
+    },
+    {
+      "id": "TP_8",
+      "tick": -1380600,
+      "time": "-3 weeks, 5 days, 30 minutes",
+      "label": "Screen Two",
+      "encounter": "Screening 2",
+      "activities": {
+        "items": [
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Ambulatory ECG placed",
+            "parent": "Safety",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_9"
+      ]
+    },
+    {
+      "id": "TP_9",
+      "tick": -1380600,
+      "time": "-3 weeks, 5 days, 30 minutes",
+      "label": "5 minute supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject supine",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_10"
+      ]
+    },
+    {
+      "id": "TP_10",
+      "tick": -1380300,
+      "time": "-3 weeks, 5 days, 35 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_11"
+      ]
+    },
+    {
+      "id": "TP_11",
+      "tick": -1380000,
+      "time": "-3 weeks, 5 days, 40 minutes",
+      "label": "1 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_12"
+      ]
+    },
+    {
+      "id": "TP_12",
+      "tick": -1379640,
+      "time": "-3 weeks, 5 days, 46 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_13"
+      ]
+    },
+    {
+      "id": "TP_13",
+      "tick": -1379280,
+      "time": "-3 weeks, 5 days, 52 minutes",
+      "label": "2 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_14"
+      ]
+    },
+    {
+      "id": "TP_14",
+      "tick": -1378800,
+      "time": "-3 weeks, 5 days, 1 hour",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_15"
+      ]
+    },
+    {
+      "id": "TP_15",
+      "tick": -1292400,
+      "time": "-3 weeks, 6 days, 1 hour",
+      "label": "Dose",
+      "encounter": "Baseline",
+      "activities": {
+        "items": [
+          {
+            "label": "Patient randomised",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Ambulatory ECG removed",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Plasma Specimen (Xanomeline)",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "ADAS-Cog",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "CIBIC+",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "DAD",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_16"
+      ]
+    },
+    {
+      "id": "TP_16",
+      "tick": -1292400,
+      "time": "-3 weeks, 6 days, 1 hour",
+      "label": "Anchor",
+      "encounter": null,
+      "activities": {
+        "items": []
+      },
+      "edges": [
+        "TP_17"
+      ]
+    },
+    {
+      "id": "TP_17",
+      "tick": -1292400,
+      "time": "-3 weeks, 6 days, 1 hour",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "SOG Diary",
+            "parent": null,
+            "procedures": [
+              "SOG Diary"
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_18"
+      ]
+    },
+    {
+      "id": "TP_18",
+      "tick": -1206000,
+      "time": "-2 weeks, 1 hour",
+      "label": "Wait a day",
+      "encounter": null,
+      "activities": {
+        "items": []
+      },
+      "edges": [
+        "TP_19"
+      ]
+    },
+    {
+      "id": "TP_19",
+      "tick": -1119600,
+      "time": "-2 weeks, 1 day, 1 hour",
+      "label": "Exit",
+      "encounter": null,
+      "activities": {
+        "items": []
+      },
+      "edges": [
+        "TP_20"
+      ]
+    },
+    {
+      "id": "TP_20",
+      "tick": 90000,
+      "time": "1 day, 1 hour",
+      "label": "Week 2",
+      "encounter": "Week 2",
+      "activities": {
+        "items": [
+          {
+            "label": "Apo E genotyping",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Uninalysis",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Plasma Specimen (Xanomeline)",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_21"
+      ]
+    },
+    {
+      "id": "TP_21",
+      "tick": 90000,
+      "time": "1 day, 1 hour",
+      "label": "5 minute supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject supine",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_22"
+      ]
+    },
+    {
+      "id": "TP_22",
+      "tick": 90300,
+      "time": "1 day, 1 hour, 5 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_23"
+      ]
+    },
+    {
+      "id": "TP_23",
+      "tick": 90600,
+      "time": "1 day, 1 hour, 10 minutes",
+      "label": "1 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_24"
+      ]
+    },
+    {
+      "id": "TP_24",
+      "tick": 90960,
+      "time": "1 day, 1 hour, 16 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_25"
+      ]
+    },
+    {
+      "id": "TP_25",
+      "tick": 91320,
+      "time": "1 day, 1 hour, 22 minutes",
+      "label": "2 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_26"
+      ]
+    },
+    {
+      "id": "TP_26",
+      "tick": 91800,
+      "time": "1 day, 1 hour, 30 minutes",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_27"
+      ]
+    },
+    {
+      "id": "TP_27",
+      "tick": 2511000,
+      "time": "4 weeks, 1 day, 1 hour, 30 minutes",
+      "label": "Week 4",
+      "encounter": "Week 4",
+      "activities": {
+        "items": [
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Plasma Specimen (Xanomeline)",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_28"
+      ]
+    },
+    {
+      "id": "TP_28",
+      "tick": 2511000,
+      "time": "4 weeks, 1 day, 1 hour, 30 minutes",
+      "label": "Anchor",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_29"
+      ]
+    },
+    {
+      "id": "TP_29",
+      "tick": 2514600,
+      "time": "4 weeks, 1 day, 2 hours, 30 minutes",
+      "label": "1 Hour",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_30"
+      ]
+    },
+    {
+      "id": "TP_30",
+      "tick": 2521800,
+      "time": "4 weeks, 1 day, 4 hours, 30 minutes",
+      "label": "2 Hour",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_31"
+      ]
+    },
+    {
+      "id": "TP_31",
+      "tick": 6150600,
+      "time": "10 weeks, 1 day, 4 hours, 30 minutes",
+      "label": "Week 6",
+      "encounter": "Week 6",
+      "activities": {
+        "items": [
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Plasma Specimen (Xanomeline)",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_32"
+      ]
+    },
+    {
+      "id": "TP_32",
+      "tick": 6150600,
+      "time": "10 weeks, 1 day, 4 hours, 30 minutes",
+      "label": "5 minute supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject supine",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_33"
+      ]
+    },
+    {
+      "id": "TP_33",
+      "tick": 6150900,
+      "time": "10 weeks, 1 day, 4 hours, 35 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_34"
+      ]
+    },
+    {
+      "id": "TP_34",
+      "tick": 6151200,
+      "time": "10 weeks, 1 day, 4 hours, 40 minutes",
+      "label": "1 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_35"
+      ]
+    },
+    {
+      "id": "TP_35",
+      "tick": 6151560,
+      "time": "10 weeks, 1 day, 4 hours, 46 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_36"
+      ]
+    },
+    {
+      "id": "TP_36",
+      "tick": 6151920,
+      "time": "10 weeks, 1 day, 4 hours, 52 minutes",
+      "label": "2 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_37"
+      ]
+    },
+    {
+      "id": "TP_37",
+      "tick": 6152400,
+      "time": "10 weeks, 1 day, 5 hours",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_38"
+      ]
+    },
+    {
+      "id": "TP_38",
+      "tick": 10990800,
+      "time": "18 weeks, 1 day, 5 hours",
+      "label": "Week 8",
+      "encounter": "Week 8",
+      "activities": {
+        "items": [
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "ADAS-Cog",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "CIBIC+",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "DAD",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_39"
+      ]
+    },
+    {
+      "id": "TP_39",
+      "tick": 10990800,
+      "time": "18 weeks, 1 day, 5 hours",
+      "label": "5 minute supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject supine",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_40"
+      ]
+    },
+    {
+      "id": "TP_40",
+      "tick": 10991100,
+      "time": "18 weeks, 1 day, 5 hours, 5 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_41"
+      ]
+    },
+    {
+      "id": "TP_41",
+      "tick": 10991400,
+      "time": "18 weeks, 1 day, 5 hours, 10 minutes",
+      "label": "1 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_42"
+      ]
+    },
+    {
+      "id": "TP_42",
+      "tick": 10991760,
+      "time": "18 weeks, 1 day, 5 hours, 16 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_43"
+      ]
+    },
+    {
+      "id": "TP_43",
+      "tick": 10992120,
+      "time": "18 weeks, 1 day, 5 hours, 22 minutes",
+      "label": "2 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_44"
+      ]
+    },
+    {
+      "id": "TP_44",
+      "tick": 10992600,
+      "time": "18 weeks, 1 day, 5 hours, 30 minutes",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_45"
+      ]
+    },
+    {
+      "id": "TP_45",
+      "tick": 17040600,
+      "time": "28 weeks, 1 day, 5 hours, 30 minutes",
+      "label": "Week NPI",
+      "encounter": "Week 8",
+      "activities": {
+        "items": [
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_46"
+      ]
+    },
+    {
+      "id": "TP_46",
+      "tick": 24298200,
+      "time": "40 weeks, 1 day, 5 hours, 30 minutes",
+      "label": "Week 12",
+      "encounter": "Week 12",
+      "activities": {
+        "items": [
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Uninalysis",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Plasma Specimen (Xanomeline)",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_47"
+      ]
+    },
+    {
+      "id": "TP_47",
+      "tick": 24298200,
+      "time": "40 weeks, 1 day, 5 hours, 30 minutes",
+      "label": "5 minute supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject supine",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_48"
+      ]
+    },
+    {
+      "id": "TP_48",
+      "tick": 24298500,
+      "time": "40 weeks, 1 day, 5 hours, 35 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_49"
+      ]
+    },
+    {
+      "id": "TP_49",
+      "tick": 24298800,
+      "time": "40 weeks, 1 day, 5 hours, 40 minutes",
+      "label": "1 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_50"
+      ]
+    },
+    {
+      "id": "TP_50",
+      "tick": 24299160,
+      "time": "40 weeks, 1 day, 5 hours, 46 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_51"
+      ]
+    },
+    {
+      "id": "TP_51",
+      "tick": 24299520,
+      "time": "40 weeks, 1 day, 5 hours, 52 minutes",
+      "label": "2 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_52"
+      ]
+    },
+    {
+      "id": "TP_52",
+      "tick": 24300000,
+      "time": "40 weeks, 1 day, 6 hours",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_53"
+      ]
+    },
+    {
+      "id": "TP_53",
+      "tick": 32767200,
+      "time": "54 weeks, 1 day, 6 hours",
+      "label": "Week 12 NPI",
+      "encounter": "Week 12",
+      "activities": {
+        "items": [
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_54"
+      ]
+    },
+    {
+      "id": "TP_54",
+      "tick": 42444000,
+      "time": "70 weeks, 1 day, 6 hours",
+      "label": "Week 16",
+      "encounter": "Week 16",
+      "activities": {
+        "items": [
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "ADAS-Cog",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "CIBIC+",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "DAD",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_55"
+      ]
+    },
+    {
+      "id": "TP_55",
+      "tick": 42444000,
+      "time": "70 weeks, 1 day, 6 hours",
+      "label": "5 minute supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject supine",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_56"
+      ]
+    },
+    {
+      "id": "TP_56",
+      "tick": 42444300,
+      "time": "70 weeks, 1 day, 6 hours, 5 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_57"
+      ]
+    },
+    {
+      "id": "TP_57",
+      "tick": 42444600,
+      "time": "70 weeks, 1 day, 6 hours, 10 minutes",
+      "label": "1 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_58"
+      ]
+    },
+    {
+      "id": "TP_58",
+      "tick": 42444960,
+      "time": "70 weeks, 1 day, 6 hours, 16 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_59"
+      ]
+    },
+    {
+      "id": "TP_59",
+      "tick": 42445320,
+      "time": "70 weeks, 1 day, 6 hours, 22 minutes",
+      "label": "2 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_60"
+      ]
+    },
+    {
+      "id": "TP_60",
+      "tick": 42445800,
+      "time": "70 weeks, 1 day, 6 hours, 30 minutes",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_61"
+      ]
+    },
+    {
+      "id": "TP_61",
+      "tick": 53332200,
+      "time": "88 weeks, 1 day, 6 hours, 30 minutes",
+      "label": "Week 16 NPI",
+      "encounter": "Week 16",
+      "activities": {
+        "items": [
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_62"
+      ]
+    },
+    {
+      "id": "TP_62",
+      "tick": 65428200,
+      "time": "108 weeks, 1 day, 6 hours, 30 minutes",
+      "label": "Week 20",
+      "encounter": "Week 20",
+      "activities": {
+        "items": [
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Plasma Specimen (Xanomeline)",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_63"
+      ]
+    },
+    {
+      "id": "TP_63",
+      "tick": 65428200,
+      "time": "108 weeks, 1 day, 6 hours, 30 minutes",
+      "label": "5 minute supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject supine",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_64"
+      ]
+    },
+    {
+      "id": "TP_64",
+      "tick": 65428500,
+      "time": "108 weeks, 1 day, 6 hours, 35 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_65"
+      ]
+    },
+    {
+      "id": "TP_65",
+      "tick": 65428800,
+      "time": "108 weeks, 1 day, 6 hours, 40 minutes",
+      "label": "1 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_66"
+      ]
+    },
+    {
+      "id": "TP_66",
+      "tick": 65429160,
+      "time": "108 weeks, 1 day, 6 hours, 46 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_67"
+      ]
+    },
+    {
+      "id": "TP_67",
+      "tick": 65429520,
+      "time": "108 weeks, 1 day, 6 hours, 52 minutes",
+      "label": "2 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_68"
+      ]
+    },
+    {
+      "id": "TP_68",
+      "tick": 65430000,
+      "time": "108 weeks, 1 day, 7 hours",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_69"
+      ]
+    },
+    {
+      "id": "TP_69",
+      "tick": 78735600,
+      "time": "130 weeks, 1 day, 7 hours",
+      "label": "Week 20 NPI",
+      "encounter": "Week 20",
+      "activities": {
+        "items": [
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_70"
+      ]
+    },
+    {
+      "id": "TP_70",
+      "tick": 93250800,
+      "time": "154 weeks, 1 day, 7 hours",
+      "label": "Week 24",
+      "encounter": "Week 24",
+      "activities": {
+        "items": [
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Uninalysis",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "ADAS-Cog",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "CIBIC+",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "DAD",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_71"
+      ]
+    },
+    {
+      "id": "TP_71",
+      "tick": 93250800,
+      "time": "154 weeks, 1 day, 7 hours",
+      "label": "5 minute supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject supine",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_72"
+      ]
+    },
+    {
+      "id": "TP_72",
+      "tick": 93251100,
+      "time": "154 weeks, 1 day, 7 hours, 5 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_73"
+      ]
+    },
+    {
+      "id": "TP_73",
+      "tick": 93251400,
+      "time": "154 weeks, 1 day, 7 hours, 10 minutes",
+      "label": "1 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_74"
+      ]
+    },
+    {
+      "id": "TP_74",
+      "tick": 93251760,
+      "time": "154 weeks, 1 day, 7 hours, 16 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_75"
+      ]
+    },
+    {
+      "id": "TP_75",
+      "tick": 93252120,
+      "time": "154 weeks, 1 day, 7 hours, 22 minutes",
+      "label": "2 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_76"
+      ]
+    },
+    {
+      "id": "TP_76",
+      "tick": 93252600,
+      "time": "154 weeks, 1 day, 7 hours, 30 minutes",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_77"
+      ]
+    },
+    {
+      "id": "TP_77",
+      "tick": 108977400,
+      "time": "180 weeks, 1 day, 7 hours, 30 minutes",
+      "label": "Week 26",
+      "encounter": "Week 26",
+      "activities": {
+        "items": [
+          {
+            "label": "Physical examination",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "TTS Acceptability Survey",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_78"
+      ]
+    },
+    {
+      "id": "TP_78",
+      "tick": 108977400,
+      "time": "180 weeks, 1 day, 7 hours, 30 minutes",
+      "label": "5 minute supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject supine",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_79"
+      ]
+    },
+    {
+      "id": "TP_79",
+      "tick": 108977700,
+      "time": "180 weeks, 1 day, 7 hours, 35 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_80"
+      ]
+    },
+    {
+      "id": "TP_80",
+      "tick": 108978000,
+      "time": "180 weeks, 1 day, 7 hours, 40 minutes",
+      "label": "1 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_81"
+      ]
+    },
+    {
+      "id": "TP_81",
+      "tick": 108978360,
+      "time": "180 weeks, 1 day, 7 hours, 46 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": [
+        "TP_82"
+      ]
+    },
+    {
+      "id": "TP_82",
+      "tick": 108978720,
+      "time": "180 weeks, 1 day, 7 hours, 52 minutes",
+      "label": "2 minute standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Subject Standing",
+            "parent": null,
+            "procedures": [
+              ""
+            ]
+          }
+        ]
+      },
+      "edges": [
+        "TP_83"
+      ]
+    },
+    {
+      "id": "TP_83",
+      "tick": 108979200,
+      "time": "180 weeks, 1 day, 8 hours",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": []
+          }
+        ]
+      },
+      "edges": []
+    }
+  ]
+};
+        
+        // Configuration
+        const config = {
+            nodeRadius: 10,
+            nodeSpacingY: 80,
+            lineX: 120,
+            labelOffsetX: 25,
+            timeOffsetX: -20,
+            margin: { top: 40, right: 40, bottom: 40, left: 40 }
+        };
+        
+        // Get nodes data
+        const nodes = data.nodes || [];
+        
+        // Global tooltip
+        const tooltip = d3.select("#tooltip");
+        
+        // Create vertical timeline
+        function createTimeline() {
+            const container = d3.select("#timeline-container");
+            const svg = d3.select("#timeline-svg");
+            
+            if (nodes.length === 0) {
+                container.html('<div class="text-center text-muted p-5">No nodes to display</div>');
+                return;
+            }
+            
+            // Calculate SVG dimensions
+            const svgHeight = config.margin.top + (nodes.length * config.nodeSpacingY) + config.margin.bottom;
+            const svgWidth = 800;
+            
+            svg.attr("viewBox", `0 0 ${svgWidth} ${svgHeight}`)
+               .attr("height", svgHeight);
+            
+            const g = svg.append("g")
+                .attr("transform", `translate(${config.margin.left},${config.margin.top})`);
+            
+            // Create node positions
+            const nodePositions = nodes.map((node, index) => ({
+                ...node,
+                x: config.lineX,
+                y: index * config.nodeSpacingY,
+                index: index
+            }));
+            
+            // Draw the timeline line
+            const lineGenerator = d3.line()
+                .x(d => d.x)
+                .y(d => d.y)
+                .curve(d3.curveMonotoneY);
+            
+            g.append("path")
+                .datum(nodePositions)
+                .attr("class", "timeline-line")
+                .attr("d", lineGenerator);
+            
+            // Create node groups
+            const nodeGroups = g.selectAll(".timeline-node")
+                .data(nodePositions)
+                .enter()
+                .append("g")
+                .attr("class", "timeline-node")
+                .attr("transform", d => `translate(${d.x},${d.y})`)
+                .on("mouseover", function(event, d) {
+                    showTooltip(event, d);
+                })
+                .on("mousemove", function(event, d) {
+                    moveTooltip(event);
+                })
+                .on("mouseout", function() {
+                    hideTooltip();
+                });
+            
+            // Add circles
+            nodeGroups.append("circle")
+                .attr("class", d => `node-circle ${d.encounter ? 'has-encounter' : ''}`)
+                .attr("r", config.nodeRadius)
+                .attr("cx", 0)
+                .attr("cy", 0);
+            
+            // Add labels (right side)
+            nodeGroups.append("text")
+                .attr("class", "node-label")
+                .attr("x", config.labelOffsetX)
+                .attr("y", 0)
+                .attr("dy", "0.35em")
+                .text(d => d.label || 'Unnamed');
+            
+            // Add time (left side)
+            nodeGroups.append("text")
+                .attr("class", "node-time")
+                .attr("x", config.timeOffsetX)
+                .attr("y", 0)
+                .attr("dy", "0.35em")
+                .attr("text-anchor", "end")
+                .text(d => d.time || '');
+        }
+        
+        // Show tooltip
+        function showTooltip(event, node) {
+            let html = `<div class="tooltip-title">${node.label || 'Unnamed'}</div>`;
+            html += `<div class="tooltip-time">Time: ${node.time || 'N/A'}</div>`;
+            
+            // Encounter info
+            if (node.encounter) {
+                html += `<div class="tooltip-encounter">Encounter: ${node.encounter}</div>`;
+            }
+            
+            // Activities info
+            const activities = node.activities?.items || [];
+            if (activities.length > 0) {
+                html += '<div class="tooltip-section">';
+                html += `<div class="tooltip-section-title">Activities (${activities.length}):</div>`;
+                
+                // Group activities by parent
+                const groupedActivities = {};
+                activities.forEach(activity => {
+                    const parent = activity.parent || 'Other';
+                    if (!groupedActivities[parent]) {
+                        groupedActivities[parent] = [];
+                    }
+                    groupedActivities[parent].push(activity);
+                });
+                
+                // Display grouped activities
+                Object.keys(groupedActivities).forEach(parent => {
+                    if (parent !== 'Other') {
+                        html += `<div class="activity-parent">${parent}</div>`;
+                    }
+                    groupedActivities[parent].forEach(activity => {
+                        html += `<div class="activity-item">${activity.label || 'Unnamed activity'}`;
+                        
+                        // Show procedures if any
+                        const procedures = activity.procedures?.filter(p => p && p.trim() !== '') || [];
+                        if (procedures.length > 0) {
+                            procedures.forEach(proc => {
+                                html += `<div class="procedure-item">→ ${proc}</div>`;
+                            });
+                        }
+                        html += '</div>';
+                    });
+                });
+                
+                html += '</div>';
+            } else {
+                html += '<div class="tooltip-section"><em>No activities</em></div>';
+            }
+            
+            tooltip.html(html)
+                .classed("visible", true);
+            
+            moveTooltip(event);
+        }
+        
+        // Move tooltip with mouse
+        function moveTooltip(event) {
+            const tooltipNode = tooltip.node();
+            const tooltipRect = tooltipNode.getBoundingClientRect();
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            
+            let left = event.clientX + 15;
+            let top = event.clientY - 15;
+            
+            // Prevent tooltip from going off screen right
+            if (left + tooltipRect.width > windowWidth - 10) {
+                left = event.clientX - tooltipRect.width - 15;
+            }
+            
+            // Prevent tooltip from going off screen bottom
+            if (top + tooltipRect.height > windowHeight - 10) {
+                top = windowHeight - tooltipRect.height - 10;
+            }
+            
+            // Prevent tooltip from going off screen top
+            if (top < 10) {
+                top = 10;
+            }
+            
+            tooltip
+                .style("left", left + "px")
+                .style("top", top + "px");
+        }
+        
+        // Hide tooltip
+        function hideTooltip() {
+            tooltip.classed("visible", false);
+        }
+        
+        // Initialize
+        createTimeline();
+        
+        console.log(`Created vertical timeline with ${nodes.length} nodes`);
+    </script>
+</body>
+</html>

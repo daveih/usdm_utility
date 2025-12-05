@@ -61,3 +61,18 @@ Now write an equivalent program to display each visit as a separate diagram with
 ----- + -----
 
 Update the readme.md file with details for the to_text.py program. Add the readme to the exisitng readme.md file. There is a level 1 section listing the utility programs and then add a new level 1 section at the end containing the details fro the program
+
+----- + -----
+
+Write a python program to generate an html page that can be viewed in a browser that contains a data vizualization.
+
+- The vizualiation should be a vertical timeline of the data in a json file
+- Use the D3 graphic library, write a single web page to be included within an exisitng python/jinja2 application
+- The source data in a JSON file here /Users/daveih/Documents/github/usdm4/tests/usdm4/test_files/expander/expander.json
+- In the data there is a single key "nodes" which is an array of entries
+- The web page will be provided with a python dict as per the json files
+- Display the nodes in the order they appear in the array
+- Display the "time" and "label" attributes
+- Make the "encounter" and "activities" attributes a hover over feature
+- There is a similar program in to_pj.py
+- Call the new program to_expanded.py
