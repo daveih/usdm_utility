@@ -1,0 +1,3009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Trial Timeline Player</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .page-header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .page-header h1 {
+            color: #2d3748;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .page-header p {
+            color: #718096;
+            margin-bottom: 0;
+        }
+        
+        .player-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .visualization-area {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            min-height: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .timeline-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+        }
+        
+        .current-event {
+            text-align: center;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .event-number {
+            font-size: 14px;
+            color: #718096;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .event-id {
+            font-size: 18px;
+            color: #4a5568;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 15px;
+        }
+        
+        .event-label {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+        
+        .event-time {
+            font-size: 20px;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .event-tick {
+            font-size: 14px;
+            color: #a0aec0;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 20px;
+        }
+        
+        .event-encounter {
+            display: inline-block;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+        }
+        
+        .event-activities {
+            max-width: 800px;
+            margin: 20px auto 0;
+            text-align: left;
+        }
+        
+        .activities-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .activity-group {
+            margin-bottom: 15px;
+        }
+        
+        .activity-parent {
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        
+        .activity-item {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 3px solid #667eea;
+            font-size: 14px;
+            color: #4a5568;
+        }
+        
+        .procedure-item {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 5px;
+            padding-left: 15px;
+        }
+        
+        .controls-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+        }
+        
+        .progress-section {
+            margin-bottom: 20px;
+        }
+        
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .timeline-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+        
+        .timeline-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        .timeline-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        .playback-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 20px;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .control-btn.primary {
+            width: 60px;
+            height: 60px;
+            background: white;
+            color: #667eea;
+            font-size: 24px;
+        }
+        
+        .control-btn.primary:hover {
+            background: #f7fafc;
+        }
+        
+        .speed-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .speed-label {
+            font-size: 13px;
+            opacity: 0.9;
+            min-width: 60px;
+        }
+        
+        .speed-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .speed-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .speed-btn.active {
+            background: white;
+            color: #667eea;
+        }
+        
+        .no-events {
+            text-align: center;
+            color: #a0aec0;
+            padding: 60px 20px;
+            font-size: 18px;
+        }
+        
+        .timeline-markers {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 11px;
+            opacity: 0.7;
+        }
+        
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1><i class="bi bi-play-circle-fill"></i> Clinical Trial Timeline Player</h1>
+            <p>Interactive visualization with video-player controls</p>
+        </div>
+        
+        <!-- Player Container -->
+        <div class="player-container">
+            <!-- Visualization Area -->
+            <div class="visualization-area">
+                <div class="timeline-display" id="timeline-display">
+                    <div class="no-events">Load timeline to begin</div>
+                </div>
+            </div>
+            
+            <!-- Controls Panel -->
+            <div class="controls-panel">
+                <!-- Progress Section -->
+                <div class="progress-section">
+                    <div class="progress-info">
+                        <span id="current-time">Event 0 of 0</span>
+                        <span id="duration-time">Duration: --</span>
+                    </div>
+                    <input type="range" class="timeline-slider" id="timeline-slider" 
+                           min="0" max="100" value="0" step="1">
+                    <div class="timeline-markers">
+                        <span>Start</span>
+                        <span id="middle-marker">--</span>
+                        <span>End</span>
+                    </div>
+                </div>
+                
+                <!-- Playback Controls -->
+                <div class="playback-controls">
+                    <button class="control-btn" id="first-btn" title="First Event">
+                        <i class="bi bi-skip-start-fill"></i>
+                    </button>
+                    <button class="control-btn" id="prev-btn" title="Previous Event">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button class="control-btn primary" id="play-btn" title="Play/Pause">
+                        <i class="bi bi-play-fill"></i>
+                    </button>
+                    <button class="control-btn" id="next-btn" title="Next Event">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                    <button class="control-btn" id="last-btn" title="Last Event">
+                        <i class="bi bi-skip-end-fill"></i>
+                    </button>
+                </div>
+                
+                <!-- Speed Controls -->
+                <div class="speed-controls">
+                    <span class="speed-label">Speed:</span>
+                    <button class="speed-btn" data-speed="0.5">0.5x</button>
+                    <button class="speed-btn active" data-speed="1">1x</button>
+                    <button class="speed-btn" data-speed="2">2x</button>
+                    <button class="speed-btn" data-speed="5">5x</button>
+                    <button class="speed-btn" data-speed="10">10x</button>
+                </div>
+                
+                <!-- Stats Row -->
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <div class="stat-value" id="total-events">0</div>
+                        <div class="stat-label">Total Events</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="total-encounters">0</div>
+                        <div class="stat-label">Encounters</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="current-speed">1x</div>
+                        <div class="stat-label">Playback Speed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Data from Python
+        const data = {
+  "nodes": [
+    {
+      "id": "TP_1",
+      "tick": -1209600,
+      "time": "-2 weeks",
+      "label": "Screen One",
+      "encounter": "Screening 1",
+      "activities": {
+        "items": [
+          {
+            "label": "Informed consent",
+            "parent": "Screening",
+            "procedures": []
+          },
+          {
+            "label": "Inclusion and exclusion criteria",
+            "parent": "Screening",
+            "procedures": []
+          },
+          {
+            "label": "Patient number assigned",
+            "parent": "Screening",
+            "procedures": []
+          },
+          {
+            "label": "Demographics",
+            "parent": "Screening",
+            "procedures": []
+          },
+          {
+            "label": "Hachinski Ischemic Scale",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "MMSE",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Physical examination",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Medical history",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Habits",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Chest X-ray",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Placebo TTS test",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "CT scan",
+            "parent": "Safety",
+            "procedures": [
+              "CT Scan"
+            ]
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Uninalysis",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Hemoglobin A1C",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "ADAS-Cog",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "CIBIC+",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "DAD",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_3",
+      "tick": -1209300,
+      "time": "-2 weeks, 5 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_5",
+      "tick": -1208640,
+      "time": "-2 weeks, 16 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_7",
+      "tick": -1207800,
+      "time": "-2 weeks, 30 minutes",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_8",
+      "tick": -172800,
+      "time": "-1 weeks, 5 days",
+      "label": "Screen Two",
+      "encounter": "Screening 2",
+      "activities": {
+        "items": [
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Ambulatory ECG placed",
+            "parent": "Safety",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_10",
+      "tick": -172500,
+      "time": "-1 weeks, 5 days, 5 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_12",
+      "tick": -171840,
+      "time": "-1 weeks, 5 days, 16 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_14",
+      "tick": -171000,
+      "time": "-1 weeks, 5 days, 30 minutes",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_15",
+      "tick": 86400,
+      "time": "1 day",
+      "label": "Dose",
+      "encounter": "Baseline",
+      "activities": {
+        "items": [
+          {
+            "label": "Patient randomised",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Ambulatory ECG removed",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Plasma Specimen (Xanomeline)",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "ADAS-Cog",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "CIBIC+",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "DAD",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_17",
+      "tick": 86400,
+      "time": "1 day",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_77",
+      "tick": 86700,
+      "time": "1 day, 5 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_79",
+      "tick": 87360,
+      "time": "1 day, 16 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_81",
+      "tick": 88200,
+      "time": "1 day, 30 minutes",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_19",
+      "tick": 172800,
+      "time": "2 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_21",
+      "tick": 259200,
+      "time": "3 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_23",
+      "tick": 345600,
+      "time": "4 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_25",
+      "tick": 432000,
+      "time": "5 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_27",
+      "tick": 518400,
+      "time": "6 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_29",
+      "tick": 604800,
+      "time": "1 week",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_31",
+      "tick": 691200,
+      "time": "1 week, 1 day",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_33",
+      "tick": 777600,
+      "time": "1 week, 2 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_35",
+      "tick": 864000,
+      "time": "1 week, 3 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_37",
+      "tick": 950400,
+      "time": "1 week, 4 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_39",
+      "tick": 1036800,
+      "time": "1 week, 5 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_41",
+      "tick": 1123200,
+      "time": "1 week, 6 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_43",
+      "tick": 1209600,
+      "time": "2 weeks",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_82",
+      "tick": 1209600,
+      "time": "2 weeks",
+      "label": "Week 2",
+      "encounter": "Week 2",
+      "activities": {
+        "items": [
+          {
+            "label": "Apo E genotyping",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Uninalysis",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Plasma Specimen (Xanomeline)",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_84",
+      "tick": 1209900,
+      "time": "2 weeks, 5 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_86",
+      "tick": 1210560,
+      "time": "2 weeks, 16 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_88",
+      "tick": 1211400,
+      "time": "2 weeks, 30 minutes",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_45",
+      "tick": 1296000,
+      "time": "2 weeks, 1 day",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_47",
+      "tick": 1382400,
+      "time": "2 weeks, 2 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_49",
+      "tick": 1468800,
+      "time": "2 weeks, 3 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_51",
+      "tick": 1555200,
+      "time": "2 weeks, 4 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_53",
+      "tick": 1641600,
+      "time": "2 weeks, 5 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_55",
+      "tick": 1728000,
+      "time": "2 weeks, 6 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_57",
+      "tick": 1814400,
+      "time": "3 weeks",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_59",
+      "tick": 1900800,
+      "time": "3 weeks, 1 day",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_61",
+      "tick": 1987200,
+      "time": "3 weeks, 2 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_63",
+      "tick": 2073600,
+      "time": "3 weeks, 3 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_65",
+      "tick": 2160000,
+      "time": "3 weeks, 4 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_67",
+      "tick": 2246400,
+      "time": "3 weeks, 5 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_69",
+      "tick": 2332800,
+      "time": "3 weeks, 6 days",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_71",
+      "tick": 2419200,
+      "time": "4 weeks",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_89",
+      "tick": 2419200,
+      "time": "4 weeks",
+      "label": "Week 4",
+      "encounter": "Week 4",
+      "activities": {
+        "items": [
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Plasma Specimen (Xanomeline)",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_90",
+      "tick": 2419200,
+      "time": "4 weeks",
+      "label": "Extra VS",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Extra VS procedures",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_94",
+      "tick": 2419500,
+      "time": "4 weeks, 5 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_96",
+      "tick": 2420160,
+      "time": "4 weeks, 16 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_98",
+      "tick": 2421000,
+      "time": "4 weeks, 30 minutes",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_91",
+      "tick": 2422800,
+      "time": "4 weeks, 1 hour",
+      "label": "1 Hour Extra VS",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Extra VS procedures",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_92",
+      "tick": 2430000,
+      "time": "4 weeks, 3 hours",
+      "label": "2 Hour Extra VS",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Extra VS procedures",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_73",
+      "tick": 2505600,
+      "time": "4 weeks, 1 day",
+      "label": "Diary",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Patient Recorded Outcomes",
+            "parent": null,
+            "procedures": [
+              "Patient-Reported Outcomes Measurement Information System",
+              "EUROQOL EQ-5D-5L"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_99",
+      "tick": 3628800,
+      "time": "6 weeks",
+      "label": "Week 6",
+      "encounter": "Week 6",
+      "activities": {
+        "items": [
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Plasma Specimen (Xanomeline)",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_101",
+      "tick": 3629100,
+      "time": "6 weeks, 5 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_103",
+      "tick": 3629760,
+      "time": "6 weeks, 16 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_105",
+      "tick": 3630600,
+      "time": "6 weeks, 30 minutes",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_106",
+      "tick": 4838400,
+      "time": "8 weeks",
+      "label": "Week 8",
+      "encounter": "Week 8",
+      "activities": {
+        "items": [
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "ADAS-Cog",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "CIBIC+",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "DAD",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_108",
+      "tick": 4838700,
+      "time": "8 weeks, 5 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_110",
+      "tick": 4839360,
+      "time": "8 weeks, 16 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_112",
+      "tick": 4840200,
+      "time": "8 weeks, 30 minutes",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_113",
+      "tick": 6048000,
+      "time": "10 weeks",
+      "label": "Week 8 NPI",
+      "encounter": "Week 8",
+      "activities": {
+        "items": [
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_114",
+      "tick": 7257600,
+      "time": "12 weeks",
+      "label": "Week 12",
+      "encounter": "Week 12",
+      "activities": {
+        "items": [
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Uninalysis",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Plasma Specimen (Xanomeline)",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_116",
+      "tick": 7257900,
+      "time": "12 weeks, 5 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_118",
+      "tick": 7258560,
+      "time": "12 weeks, 16 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_120",
+      "tick": 7259400,
+      "time": "12 weeks, 30 minutes",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_121",
+      "tick": 8467200,
+      "time": "14 weeks",
+      "label": "Week 12 NPI",
+      "encounter": "Week 12",
+      "activities": {
+        "items": [
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_122",
+      "tick": 9676800,
+      "time": "16 weeks",
+      "label": "Week 16",
+      "encounter": "Week 16",
+      "activities": {
+        "items": [
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "ADAS-Cog",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "CIBIC+",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "DAD",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_124",
+      "tick": 9677100,
+      "time": "16 weeks, 5 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_126",
+      "tick": 9677760,
+      "time": "16 weeks, 16 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_128",
+      "tick": 9678600,
+      "time": "16 weeks, 30 minutes",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_129",
+      "tick": 10886400,
+      "time": "18 weeks",
+      "label": "Week 16 NPI",
+      "encounter": "Week 16",
+      "activities": {
+        "items": [
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_130",
+      "tick": 12096000,
+      "time": "20 weeks",
+      "label": "Week 20",
+      "encounter": "Week 20",
+      "activities": {
+        "items": [
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Plasma Specimen (Xanomeline)",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_132",
+      "tick": 12096300,
+      "time": "20 weeks, 5 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_134",
+      "tick": 12096960,
+      "time": "20 weeks, 16 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_136",
+      "tick": 12097800,
+      "time": "20 weeks, 30 minutes",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_137",
+      "tick": 13305600,
+      "time": "22 weeks",
+      "label": "Week 20 NPI",
+      "encounter": "Week 20",
+      "activities": {
+        "items": [
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_138",
+      "tick": 14515200,
+      "time": "24 weeks",
+      "label": "Week 24",
+      "encounter": "Week 24",
+      "activities": {
+        "items": [
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Uninalysis",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "ADAS-Cog",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "CIBIC+",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "DAD",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_140",
+      "tick": 14515500,
+      "time": "24 weeks, 5 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_142",
+      "tick": 14516160,
+      "time": "24 weeks, 16 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_144",
+      "tick": 14517000,
+      "time": "24 weeks, 30 minutes",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_145",
+      "tick": 15724800,
+      "time": "26 weeks",
+      "label": "Week 26",
+      "encounter": "Week 26",
+      "activities": {
+        "items": [
+          {
+            "label": "Physical examination",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Vital Signs and Temperature",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "ECG",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Concomitant medications",
+            "parent": "Safety",
+            "procedures": []
+          },
+          {
+            "label": "Hematology",
+            "parent": "Laboratory",
+            "procedures": []
+          },
+          {
+            "label": "Chemistry",
+            "parent": "Laboratory",
+            "procedures": [
+              "Alanine Aminotransferase Measurement",
+              "Albumin Measurement",
+              "Alkaline Phosphatase Measurement",
+              "Aspartate Aminotransferase Measurement",
+              "Creatinine Measurement",
+              "Potassium Measurement",
+              "Sodium Measurement"
+            ]
+          },
+          {
+            "label": "Study drug record , Medications dispensed, Medications returned",
+            "parent": "Exposure",
+            "procedures": []
+          },
+          {
+            "label": "TTS Acceptability Survey",
+            "parent": "Questionaires",
+            "procedures": []
+          },
+          {
+            "label": "NPI-X",
+            "parent": "Questionaires",
+            "procedures": []
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_147",
+      "tick": 15725100,
+      "time": "26 weeks, 5 minutes",
+      "label": "Vital signs supine",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while supine",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_149",
+      "tick": 15725760,
+      "time": "26 weeks, 16 minutes",
+      "label": "Vital signs after 1 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    },
+    {
+      "id": "TP_151",
+      "tick": 15726600,
+      "time": "26 weeks, 30 minutes",
+      "label": "Vital signs after 3 min standing",
+      "encounter": null,
+      "activities": {
+        "items": [
+          {
+            "label": "Vital signs while standing",
+            "parent": null,
+            "procedures": [
+              "Systolic blood pressure",
+              "Diastolic blood pressure",
+              "Heart Rate"
+            ]
+          }
+        ]
+      },
+      "edges": []
+    }
+  ]
+};
+        
+        // Player state
+        let nodes = [];
+        let currentIndex = 0;
+        let isPlaying = false;
+        let playbackSpeed = 1;
+        let playbackInterval = null;
+        
+        // Initialize player
+        function initPlayer() {
+            nodes = data.nodes || [];
+            
+            if (nodes.length === 0) {
+                document.getElementById('timeline-display').innerHTML = 
+                    '<div class="no-events">No events found in data</div>';
+                return;
+            }
+            
+            // Update stats
+            document.getElementById('total-events').textContent = nodes.length;
+            const encounterCount = nodes.filter(n => n.encounter).length;
+            document.getElementById('total-encounters').textContent = encounterCount;
+            
+            // Setup slider
+            const slider = document.getElementById('timeline-slider');
+            slider.max = nodes.length - 1;
+            slider.value = 0;
+            
+            // Update middle marker
+            const middleNode = nodes[Math.floor(nodes.length / 2)];
+            document.getElementById('middle-marker').textContent = 
+                middleNode ? middleNode.time || '--' : '--';
+            
+            // Display first event
+            displayEvent(0);
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            console.log(`Player initialized with ${nodes.length} events`);
+        }
+        
+        // Display event at given index
+        function displayEvent(index) {
+            if (index < 0 || index >= nodes.length) return;
+            
+            currentIndex = index;
+            const node = nodes[index];
+            
+            // Build HTML for event display
+            let html = '<div class="current-event">';
+            
+            // Event number
+            html += `<div class="event-number">Event ${index + 1} of ${nodes.length}</div>`;
+            
+            // Event ID
+            html += `<div class="event-id">${node.id || 'N/A'}</div>`;
+            
+            // Event label
+            html += `<div class="event-label">${node.label || 'Unnamed Event'}</div>`;
+            
+            // Time
+            html += `<div class="event-time">${node.time || 'Time not specified'}</div>`;
+            
+            // Tick
+            html += `<div class="event-tick">Tick: ${node.tick !== undefined ? node.tick : 'N/A'}</div>`;
+            
+            // Encounter
+            if (node.encounter) {
+                html += `<div class="event-encounter"><i class="bi bi-calendar-event"></i> ${node.encounter}</div>`;
+            }
+            
+            // Activities
+            const activities = node.activities?.items || [];
+            if (activities.length > 0) {
+                html += '<div class="event-activities">';
+                html += `<div class="activities-title"><i class="bi bi-list-check"></i> Activities (${activities.length})</div>`;
+                
+                // Group activities by parent
+                const grouped = {};
+                activities.forEach(activity => {
+                    const parent = activity.parent || 'Other';
+                    if (!grouped[parent]) grouped[parent] = [];
+                    grouped[parent].push(activity);
+                });
+                
+                // Display grouped activities
+                Object.keys(grouped).sort().forEach(parent => {
+                    html += '<div class="activity-group">';
+                    if (parent !== 'Other') {
+                        html += `<div class="activity-parent"><i class="bi bi-folder2-open"></i> ${parent}</div>`;
+                    }
+                    grouped[parent].forEach(activity => {
+                        html += `<div class="activity-item">${activity.label || 'Unnamed activity'}`;
+                        
+                        // Procedures
+                        const procedures = activity.procedures?.filter(p => p && p.trim() !== '') || [];
+                        if (procedures.length > 0) {
+                            procedures.forEach(proc => {
+                                html += `<div class="procedure-item"><i class="bi bi-arrow-return-right"></i> ${proc}</div>`;
+                            });
+                        }
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                });
+                
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            
+            // Update display
+            document.getElementById('timeline-display').innerHTML = html;
+            
+            // Update slider
+            document.getElementById('timeline-slider').value = index;
+            
+            // Update progress info
+            document.getElementById('current-time').textContent = `Event ${index + 1} of ${nodes.length}`;
+            
+            // Calculate duration info
+            if (nodes.length > 0) {
+                const firstTick = nodes[0].tick;
+                const lastTick = nodes[nodes.length - 1].tick;
+                const totalSeconds = lastTick - firstTick;
+                const days = Math.floor(Math.abs(totalSeconds) / 86400);
+                const weeks = Math.floor(days / 7);
+                document.getElementById('duration-time').textContent = 
+                    `Duration: ${weeks} weeks (${days} days)`;
+            }
+        }
+        
+        // Play/Pause toggle
+        function togglePlay() {
+            if (isPlaying) {
+                pause();
+            } else {
+                play();
+            }
+        }
+        
+        // Play
+        function play() {
+            if (currentIndex >= nodes.length - 1) {
+                currentIndex = 0;
+            }
+            
+            isPlaying = true;
+            updatePlayButton();
+            
+            const intervalTime = 1000 / playbackSpeed; // Base speed: 1 event per second
+            
+            playbackInterval = setInterval(() => {
+                if (currentIndex < nodes.length - 1) {
+                    displayEvent(currentIndex + 1);
+                } else {
+                    pause();
+                }
+            }, intervalTime);
+        }
+        
+        // Pause
+        function pause() {
+            isPlaying = false;
+            updatePlayButton();
+            
+            if (playbackInterval) {
+                clearInterval(playbackInterval);
+                playbackInterval = null;
+            }
+        }
+        
+        // Update play button icon
+        function updatePlayButton() {
+            const playBtn = document.getElementById('play-btn');
+            const icon = playBtn.querySelector('i');
+            
+            if (isPlaying) {
+                icon.className = 'bi bi-pause-fill';
+                playBtn.title = 'Pause';
+            } else {
+                icon.className = 'bi bi-play-fill';
+                playBtn.title = 'Play';
+            }
+        }
+        
+        // Navigate to specific event
+        function goToEvent(index) {
+            if (isPlaying) {
+                pause();
+                displayEvent(index);
+                play();
+            } else {
+                displayEvent(index);
+            }
+        }
+        
+        // Set playback speed
+        function setSpeed(speed) {
+            playbackSpeed = speed;
+            document.getElementById('current-speed').textContent = speed + 'x';
+            
+            // Update active button
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (parseFloat(btn.dataset.speed) === speed) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Restart playback if playing
+            if (isPlaying) {
+                pause();
+                play();
+            }
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Play/Pause button
+            document.getElementById('play-btn').addEventListener('click', togglePlay);
+            
+            // Previous button
+            document.getElementById('prev-btn').addEventListener('click', () => {
+                if (currentIndex > 0) {
+                    goToEvent(currentIndex - 1);
+                }
+            });
+            
+            // Next button
+            document.getElementById('next-btn').addEventListener('click', () => {
+                if (currentIndex < nodes.length - 1) {
+                    goToEvent(currentIndex + 1);
+                }
+            });
+            
+            // First button
+            document.getElementById('first-btn').addEventListener('click', () => {
+                goToEvent(0);
+            });
+            
+            // Last button
+            document.getElementById('last-btn').addEventListener('click', () => {
+                goToEvent(nodes.length - 1);
+            });
+            
+            // Slider
+            const slider = document.getElementById('timeline-slider');
+            slider.addEventListener('input', (e) => {
+                const index = parseInt(e.target.value);
+                goToEvent(index);
+            });
+            
+            // Speed buttons
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const speed = parseFloat(btn.dataset.speed);
+                    setSpeed(speed);
+                });
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                switch(e.key) {
+                    case ' ':
+                    case 'k':
+                        e.preventDefault();
+                        togglePlay();
+                        break;
+                    case 'ArrowLeft':
+                    case 'j':
+                        e.preventDefault();
+                        if (currentIndex > 0) goToEvent(currentIndex - 1);
+                        break;
+                    case 'ArrowRight':
+                    case 'l':
+                        e.preventDefault();
+                        if (currentIndex < nodes.length - 1) goToEvent(currentIndex + 1);
+                        break;
+                    case 'Home':
+                        e.preventDefault();
+                        goToEvent(0);
+                        break;
+                    case 'End':
+                        e.preventDefault();
+                        goToEvent(nodes.length - 1);
+                        break;
+                }
+            });
+        }
+        
+        // Initialize on load
+        initPlayer();
+    </script>
+</body>
+</html>

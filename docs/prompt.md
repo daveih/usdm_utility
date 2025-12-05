@@ -76,3 +76,30 @@ Write a python program to generate an html page that can be viewed in a browser 
 - Make the "encounter" and "activities" attributes a hover over feature
 - There is a similar program in to_pj.py
 - Call the new program to_expanded.py
+
+----- + -----
+
+Write a python program to generate an html page that can be viewed in a browser that contains a data vizualization.
+
+- The vizualiation should be a vertical timeline of the data in a json file
+- Use the D3 graphic library, write a single web page to be included within an exisitng python/jinja2 application
+- The source data in a JSON file here /Users/daveih/Documents/github/usdm4/tests/usdm4/test_files/expander/expander.json
+- In the data there is a single key "nodes" which is an array of entries
+- The web page will be provided with a python dict as per the json files
+- Display the nodes in the order they appear in the array
+- Display the "time" and "label" attributes
+- Make the "encounter" and "activities" attributes a hover over feature
+- There is a similar program in to_pj.py
+- Call the new program to_expanded.py
+
+----- + -----
+
+Write a python program to generate an html page that can be viewed in a browser that contains a data vizualization.
+
+- The visulization should play a JSOn file
+- The file represents the main events of a clincial trial
+- the file is ordered chronologically
+- I want to be able the play through the trial in high speed, go forward and back like a video player
+- The source data in a JSON file here /Users/daveih/Documents/python/usdm4/tests/usdm4/test_files/expander/expander.json
+- There is an exisitng program that displays the data as a vertical timeline here "to_expanded.py"
+- Call the new program player.py
