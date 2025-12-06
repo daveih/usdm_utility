@@ -56,36 +56,38 @@ def generate_html(data, output_path='timeline_player.html'):
         
         .page-header {{
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         }}
         
         .page-header h1 {{
             color: #2d3748;
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
+            font-size: 28px;
         }}
         
         .page-header p {{
             color: #718096;
             margin-bottom: 0;
+            font-size: 14px;
         }}
         
         .player-container {{
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
+            border-radius: 15px;
+            padding: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         }}
         
         .visualization-area {{
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 15px;
-            padding: 40px;
-            margin-bottom: 30px;
-            min-height: 500px;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            min-height: 400px;
             position: relative;
             overflow: hidden;
         }}
@@ -94,8 +96,8 @@ def generate_html(data, output_path='timeline_player.html'):
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 400px;
+            justify-content: flex-start;
+            min-height: 360px;
         }}
         
         .current-event {{
@@ -109,110 +111,112 @@ def generate_html(data, output_path='timeline_player.html'):
         }}
         
         .event-number {{
-            font-size: 14px;
+            font-size: 12px;
             color: #718096;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }}
         
         .event-id {{
-            font-size: 18px;
+            font-size: 14px;
             color: #4a5568;
             font-family: 'Courier New', monospace;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
         }}
         
         .event-label {{
-            font-size: 32px;
+            font-size: 26px;
             font-weight: 700;
             color: #2d3748;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
         }}
         
         .event-time {{
-            font-size: 20px;
+            font-size: 16px;
             color: #667eea;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }}
         
         .event-tick {{
-            font-size: 14px;
+            font-size: 12px;
             color: #a0aec0;
             font-family: 'Courier New', monospace;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }}
         
         .event-encounter {{
             display: inline-block;
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
-            padding: 10px 25px;
-            border-radius: 25px;
-            font-size: 16px;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 14px;
             font-weight: 600;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
         }}
         
         .event-activities {{
             max-width: 800px;
-            margin: 20px auto 0;
+            margin: 10px auto 0;
             text-align: left;
+            max-height: 180px;
+            overflow-y: auto;
         }}
         
         .activities-title {{
-            font-size: 18px;
+            font-size: 14px;
             font-weight: 600;
             color: #2d3748;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
             text-align: center;
         }}
         
         .activity-group {{
-            margin-bottom: 15px;
+            margin-bottom: 8px;
         }}
         
         .activity-parent {{
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 600;
             color: #667eea;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }}
         
         .activity-item {{
             background: white;
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin-bottom: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin-bottom: 4px;
             border-left: 3px solid #667eea;
-            font-size: 14px;
+            font-size: 12px;
             color: #4a5568;
         }}
         
         .procedure-item {{
-            font-size: 12px;
+            font-size: 11px;
             color: #718096;
-            margin-top: 5px;
-            padding-left: 15px;
+            margin-top: 3px;
+            padding-left: 10px;
         }}
         
         .controls-panel {{
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px;
-            padding: 25px;
+            border-radius: 12px;
+            padding: 15px;
             color: white;
         }}
         
         .progress-section {{
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }}
         
         .progress-info {{
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 13px;
+            margin-bottom: 6px;
+            font-size: 11px;
             opacity: 0.9;
         }}
         
@@ -252,23 +256,23 @@ def generate_html(data, output_path='timeline_player.html'):
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 12px;
         }}
         
         .control-btn {{
             background: rgba(255, 255, 255, 0.2);
             border: 2px solid rgba(255, 255, 255, 0.5);
             color: white;
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 20px;
+            font-size: 16px;
         }}
         
         .control-btn:hover {{
@@ -281,11 +285,11 @@ def generate_html(data, output_path='timeline_player.html'):
         }}
         
         .control-btn.primary {{
-            width: 60px;
-            height: 60px;
+            width: 48px;
+            height: 48px;
             background: white;
             color: #667eea;
-            font-size: 24px;
+            font-size: 20px;
         }}
         
         .control-btn.primary:hover {{
@@ -296,24 +300,24 @@ def generate_html(data, output_path='timeline_player.html'):
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }}
         
         .speed-label {{
-            font-size: 13px;
+            font-size: 11px;
             opacity: 0.9;
-            min-width: 60px;
+            min-width: 45px;
         }}
         
         .speed-btn {{
             background: rgba(255, 255, 255, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
+            padding: 4px 10px;
+            border-radius: 15px;
             cursor: pointer;
             transition: all 0.2s ease;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
         }}
         
@@ -336,32 +340,9 @@ def generate_html(data, output_path='timeline_player.html'):
         .timeline-markers {{
             display: flex;
             justify-content: space-between;
-            margin-top: 5px;
-            font-size: 11px;
+            margin-top: 3px;
+            font-size: 10px;
             opacity: 0.7;
-        }}
-        
-        .stats-row {{
-            display: flex;
-            justify-content: space-around;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-        }}
-        
-        .stat-item {{
-            text-align: center;
-        }}
-        
-        .stat-value {{
-            font-size: 20px;
-            font-weight: 700;
-        }}
-        
-        .stat-label {{
-            font-size: 11px;
-            opacity: 0.8;
-            margin-top: 2px;
         }}
     </style>
 </head>
@@ -428,21 +409,6 @@ def generate_html(data, output_path='timeline_player.html'):
                     <button class="speed-btn" data-speed="10">10x</button>
                 </div>
                 
-                <!-- Stats Row -->
-                <div class="stats-row">
-                    <div class="stat-item">
-                        <div class="stat-value" id="total-events">0</div>
-                        <div class="stat-label">Total Events</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="total-encounters">0</div>
-                        <div class="stat-label">Encounters</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="current-speed">1x</div>
-                        <div class="stat-label">Playback Speed</div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -471,10 +437,6 @@ def generate_html(data, output_path='timeline_player.html'):
                 return;
             }}
             
-            // Update stats
-            document.getElementById('total-events').textContent = nodes.length;
-            const encounterCount = nodes.filter(n => n.encounter).length;
-            document.getElementById('total-encounters').textContent = encounterCount;
             
             // Setup slider
             const slider = document.getElementById('timeline-slider');
@@ -505,20 +467,11 @@ def generate_html(data, output_path='timeline_player.html'):
             // Build HTML for event display
             let html = '<div class="current-event">';
             
-            // Event number
-            html += `<div class="event-number">Event ${{index + 1}} of ${{nodes.length}}</div>`;
-            
-            // Event ID
-            html += `<div class="event-id">${{node.id || 'N/A'}}</div>`;
-            
             // Event label
             html += `<div class="event-label">${{node.label || 'Unnamed Event'}}</div>`;
             
             // Time
             html += `<div class="event-time">${{node.time || 'Time not specified'}}</div>`;
-            
-            // Tick
-            html += `<div class="event-tick">Tick: ${{node.tick !== undefined ? node.tick : 'N/A'}}</div>`;
             
             // Encounter
             if (node.encounter) {{
@@ -654,7 +607,6 @@ def generate_html(data, output_path='timeline_player.html'):
         // Set playback speed
         function setSpeed(speed) {{
             playbackSpeed = speed;
-            document.getElementById('current-speed').textContent = speed + 'x';
             
             // Update active button
             document.querySelectorAll('.speed-btn').forEach(btn => {{
