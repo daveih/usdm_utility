@@ -1,16 +1,20 @@
 """
-FastAPI application to sign into Microsoft 365 and send test emails.
-Supports accounts with Two-Factor Authentication via OAuth2 device code flow.
+FastAPI application that sends login codes via Microsoft 365 email.
+Uses application-level authentication (client credentials flow) so the app
+can send emails without user interaction.
 
 Usage:
-    1. Register an app in Azure Portal (see setup instructions below)
+    1. Register an app in Azure Portal with application permissions
     2. Set environment variables in .env file
     3. Run: uvicorn email_test:app --reload
-    4. Visit http://localhost:8000 and follow the authentication flow
+    4. POST to /request-code with an email address
 """
 
 import os
-import threading
+import random
+import string
+from datetime import datetime, timedelta
+
 import msal
 import requests
 from fastapi import FastAPI, HTTPException, Form
@@ -20,348 +24,334 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = FastAPI(title="Microsoft 365 Email Test", version="1.0.0")
+app = FastAPI(title="Email Login Code Service", version="1.0.0")
 
 # Configuration from environment variables
 CLIENT_ID = os.getenv("MS_CLIENT_ID", "")
-TENANT_ID = os.getenv("MS_TENANT_ID", "common")
-SCOPES = ["Mail.Send", "User.Read"]
+CLIENT_SECRET = os.getenv("MS_CLIENT_SECRET", "")
+TENANT_ID = os.getenv("MS_TENANT_ID", "")  # Required for app-only auth
+SENDER_EMAIL = os.getenv("MS_SENDER_EMAIL", "")  # The mailbox to send from
 
-# Token and flow cache (in production, use a persistent cache)
-app_state = {
-    "access_token": None,
-    "account": None,
-    "pending_flow": None,
-    "auth_status": "idle",  # idle, pending, success, error
-    "auth_error": None,
-}
+# Allowed emails (in production, use a database)
+ALLOWED_EMAILS = set(
+    email.strip().lower()
+    for email in os.getenv("ALLOWED_EMAILS", "").split(",")
+    if email.strip()
+)
+
+# Code storage (in production, use Redis or a database with TTL)
+pending_codes: dict[str, dict] = {}
+
+# Token cache
+app_token_cache = {"access_token": None, "expires_at": None}
 
 
-class EmailReq(BaseModel):
-    to_email: EmailStr
-    subject: str = "Test Email from FastAPI"
-    body: str = "This is a test email sent via Microsoft Graph API."
+class CodeRequest(BaseModel):
+    email: EmailStr
 
 
-def get_msal_app():
-    """Create MSAL public client application."""
-    if not CLIENT_ID:
-        raise ValueError("MS_CLIENT_ID environment variable not set")
+class CodeVerify(BaseModel):
+    email: EmailStr
+    code: str
 
-    return msal.PublicClientApplication(
+
+def get_app_token() -> str:
+    """Get an application access token using client credentials flow."""
+    if not all([CLIENT_ID, CLIENT_SECRET, TENANT_ID]):
+        raise ValueError(
+            "Missing configuration. Set MS_CLIENT_ID, MS_CLIENT_SECRET, and MS_TENANT_ID"
+        )
+
+    # Check cached token
+    if (
+        app_token_cache["access_token"]
+        and app_token_cache["expires_at"]
+        and datetime.now() < app_token_cache["expires_at"]
+    ):
+        return app_token_cache["access_token"]
+
+    # Get new token
+    msal_app = msal.ConfidentialClientApplication(
         CLIENT_ID,
         authority=f"https://login.microsoftonline.com/{TENANT_ID}",
+        client_credential=CLIENT_SECRET,
     )
 
+    result = msal_app.acquire_token_for_client(
+        scopes=["https://graph.microsoft.com/.default"]
+    )
 
-def acquire_token_background(flow: dict):
-    """Background task to wait for device code authentication."""
-    try:
-        msal_app = get_msal_app()
-        result = msal_app.acquire_token_by_device_flow(flow)
+    if "access_token" not in result:
+        error = result.get("error_description", result.get("error", "Unknown error"))
+        raise ValueError(f"Failed to get token: {error}")
 
-        if "access_token" in result:
-            app_state["access_token"] = result["access_token"]
-            app_state["account"] = result.get("id_token_claims", {}).get("preferred_username", "Unknown")
-            app_state["auth_status"] = "success"
-        else:
-            app_state["auth_status"] = "error"
-            app_state["auth_error"] = result.get("error_description", result.get("error", "Unknown error"))
-    except Exception as e:
-        app_state["auth_status"] = "error"
-        app_state["auth_error"] = str(e)
-    finally:
-        app_state["pending_flow"] = None
+    app_token_cache["access_token"] = result["access_token"]
+    app_token_cache["expires_at"] = datetime.now() + timedelta(
+        seconds=result.get("expires_in", 3600) - 60
+    )
+
+    return result["access_token"]
+
+
+def generate_code(length: int = 6) -> str:
+    """Generate a random numeric code."""
+    return "".join(random.choices(string.digits, k=length))
+
+
+def send_email(to_email: str, subject: str, body: str) -> bool:
+    """Send an email using Microsoft Graph API."""
+    if not SENDER_EMAIL:
+        raise ValueError("MS_SENDER_EMAIL not configured")
+
+    token = get_app_token()
+
+    message = {
+        "message": {
+            "subject": subject,
+            "body": {"contentType": "Text", "content": body},
+            "toRecipients": [{"emailAddress": {"address": to_email}}],
+        },
+        "saveToSentItems": "false",
+    }
+
+    # Use the specific user's sendMail endpoint
+    response = requests.post(
+        f"https://graph.microsoft.com/v1.0/users/{SENDER_EMAIL}/sendMail",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        },
+        json=message,
+    )
+
+    if response.status_code == 202:
+        return True
+    else:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to send email: {response.status_code} - {response.text}",
+        )
 
 
 @app.get("/", response_class=HTMLResponse)
 async def home():
-    """Home page with status and links."""
-    authenticated = app_state.get("access_token") is not None
-    status = "Authenticated" if authenticated else "Not authenticated"
-    account = app_state.get("account", "")
+    """Home page with login form."""
+    configured = all([CLIENT_ID, CLIENT_SECRET, TENANT_ID, SENDER_EMAIL])
+    has_allowed = len(ALLOWED_EMAILS) > 0
 
     return f"""
     <!DOCTYPE html>
     <html>
     <head>
-        <title>M365 Email Test</title>
+        <title>Login with Email Code</title>
         <style>
-            body {{ font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }}
-            .status {{ padding: 10px; border-radius: 5px; margin-bottom: 20px; }}
-            .authenticated {{ background-color: #d4edda; color: #155724; }}
-            .not-authenticated {{ background-color: #f8d7da; color: #721c24; }}
-            a {{ display: inline-block; margin: 10px 10px 10px 0; padding: 10px 20px;
-                 background-color: #0078d4; color: white; text-decoration: none; border-radius: 5px; }}
-            a:hover {{ background-color: #005a9e; }}
-            form {{ margin-top: 20px; }}
-            label {{ font-weight: bold; }}
-            input, textarea {{ width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }}
-            button {{ background-color: #28a745; color: white; padding: 10px 20px; border: none;
-                     border-radius: 5px; cursor: pointer; }}
-            button:hover {{ background-color: #218838; }}
-            pre {{ background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }}
+            body {{ font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }}
+            .form-group {{ margin-bottom: 20px; }}
+            label {{ display: block; margin-bottom: 5px; font-weight: bold; }}
+            input {{ width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }}
+            button {{ background-color: #0078d4; color: white; padding: 12px 24px; border: none;
+                     border-radius: 4px; cursor: pointer; font-size: 16px; }}
+            button:hover {{ background-color: #005a9e; }}
+            .status {{ padding: 10px; border-radius: 4px; margin-bottom: 20px; }}
+            .ok {{ background-color: #d4edda; color: #155724; }}
+            .error {{ background-color: #f8d7da; color: #721c24; }}
+            pre {{ background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 12px; }}
             code {{ background: #e8e8e8; padding: 2px 6px; border-radius: 3px; }}
-            .warning {{ background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 5px; margin: 15px 0; }}
         </style>
     </head>
     <body>
-        <h1>Microsoft 365 Email Test</h1>
-        <div class="status {'authenticated' if authenticated else 'not-authenticated'}">
-            Status: {status}{f' ({account})' if account else ''}
+        <h1>Login with Email Code</h1>
+
+        <div class="status {'ok' if configured else 'error'}">
+            {'Configuration: OK' if configured else 'Configuration: Missing environment variables'}
         </div>
 
-        <a href="/login">Login with Microsoft</a>
-        <a href="/docs">API Documentation</a>
-        {'<a href="/logout" style="background-color: #dc3545;">Logout</a>' if authenticated else ''}
+        {'<div class="status error">No allowed emails configured. Set ALLOWED_EMAILS in .env</div>' if not has_allowed else ''}
 
-        {'<h2>Send Test Email</h2><form action="/send-email-form" method="post">' +
-         '<label>To:</label><input type="email" name="to_email" required placeholder="recipient@example.com">' +
-         '<label>Subject:</label><input type="text" name="subject" value="Test Email from FastAPI">' +
-         '<label>Body:</label><textarea name="body" rows="4">This is a test email sent via Microsoft Graph API.</textarea>' +
-         '<button type="submit">Send Email</button></form>' if authenticated else ''}
+        <h2>Step 1: Request Code</h2>
+        <form action="/request-code-form" method="post">
+            <div class="form-group">
+                <label>Email Address:</label>
+                <input type="email" name="email" required placeholder="your@email.com">
+            </div>
+            <button type="submit">Send Login Code</button>
+        </form>
+
+        <h2>Step 2: Verify Code</h2>
+        <form action="/verify-code-form" method="post">
+            <div class="form-group">
+                <label>Email Address:</label>
+                <input type="email" name="email" required placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+                <label>6-Digit Code:</label>
+                <input type="text" name="code" required placeholder="123456" pattern="[0-9]{{6}}" maxlength="6">
+            </div>
+            <button type="submit">Verify Code</button>
+        </form>
+
+        <hr style="margin: 40px 0;">
 
         <h2>Setup Instructions</h2>
-
-        <div class="warning">
-            <strong>Important:</strong> The error "client is not supported for this feature" means you need to enable
-            "Allow public client flows" in your Azure app registration (Step 6 below).
-        </div>
-
         <ol>
             <li>Go to <a href="https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade" target="_blank">Azure Portal - App Registrations</a></li>
-            <li>Click <strong>"New registration"</strong></li>
-            <li>Name your app (e.g., "Email Test App")</li>
-            <li>Select <strong>"Accounts in any organizational directory and personal Microsoft accounts"</strong></li>
-            <li>Leave Redirect URI blank for now, click <strong>Register</strong></li>
-            <li><strong>CRITICAL:</strong> Go to <strong>"Authentication"</strong> in the left menu:
-                <ul>
-                    <li>Scroll down to <strong>"Advanced settings"</strong></li>
-                    <li>Set <strong>"Allow public client flows"</strong> to <strong>Yes</strong></li>
-                    <li>Click <strong>Save</strong></li>
-                </ul>
-            </li>
-            <li>Go to <strong>"API Permissions"</strong> in the left menu:
+            <li>Create a new registration (or use existing)</li>
+            <li>Go to <strong>"Certificates &amp; secrets"</strong> → Create a new client secret → Copy the value</li>
+            <li>Go to <strong>"API Permissions"</strong>:
                 <ul>
                     <li>Click "Add a permission"</li>
                     <li>Select "Microsoft Graph"</li>
-                    <li>Select "Delegated permissions"</li>
-                    <li>Search and add: <code>Mail.Send</code> and <code>User.Read</code></li>
-                    <li>Click "Add permissions"</li>
+                    <li>Select <strong>"Application permissions"</strong> (not Delegated!)</li>
+                    <li>Search and add: <code>Mail.Send</code></li>
+                    <li>Click "Grant admin consent" (requires admin)</li>
                 </ul>
             </li>
-            <li>Go to <strong>"Overview"</strong> and copy the <strong>Application (client) ID</strong></li>
+            <li>Note your Tenant ID from "Overview"</li>
         </ol>
 
         <h3>.env file:</h3>
-        <pre>MS_CLIENT_ID=your-application-client-id-here
-MS_TENANT_ID=common</pre>
+        <pre>MS_CLIENT_ID=your-application-client-id
+MS_CLIENT_SECRET=your-client-secret-value
+MS_TENANT_ID=your-tenant-id
+MS_SENDER_EMAIL=noreply@yourcompany.com
+ALLOWED_EMAILS=user1@example.com,user2@example.com</pre>
 
-        <p><small>Note: Use <code>MS_TENANT_ID=common</code> for personal/work accounts, or your specific tenant ID for organization-only access.</small></p>
+        <p><small>Note: The sender email must be a valid mailbox in your Microsoft 365 tenant.</small></p>
     </body>
     </html>
     """
 
 
-@app.get("/login")
-async def login():
-    """Initiate device code flow for authentication (works with 2FA)."""
+@app.post("/request-code")
+async def request_code(request: CodeRequest):
+    """Request a login code to be sent to an email address."""
+    email = request.email.lower()
+
+    # Check if email is allowed
+    if email not in ALLOWED_EMAILS:
+        # Don't reveal whether email exists - just say code sent
+        # (In production, you might want to rate limit this)
+        return {"status": "success", "message": "If this email is registered, a code has been sent."}
+
+    # Generate code
+    code = generate_code()
+    expires_at = datetime.now() + timedelta(minutes=10)
+
+    # Store code
+    pending_codes[email] = {
+        "code": code,
+        "expires_at": expires_at,
+        "attempts": 0,
+    }
+
+    # Send email
     try:
-        msal_app = get_msal_app()
-    except ValueError as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-    # Start device code flow
-    flow = msal_app.initiate_device_flow(scopes=SCOPES)
-
-    if "user_code" not in flow:
-        error_desc = flow.get('error_description', 'Unknown error')
-
-        # Provide helpful guidance for common errors
-        if "not supported" in error_desc.lower() or "public client" in error_desc.lower():
-            error_desc += (
-                "\n\nTo fix this: Go to Azure Portal > App Registrations > Your App > "
-                "Authentication > Advanced settings > Set 'Allow public client flows' to Yes"
-            )
-
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to create device flow: {error_desc}"
+        send_email(
+            to_email=email,
+            subject="Your Login Code",
+            body=f"Your login code is: {code}\n\nThis code expires in 10 minutes.",
         )
+    except Exception as e:
+        # Log error but don't reveal to user
+        print(f"Failed to send email to {email}: {e}")
 
-    # Store the flow for the background token acquisition
-    app_state["pending_flow"] = flow
-    app_state["auth_status"] = "pending"
-    app_state["auth_error"] = None
+    return {"status": "success", "message": "If this email is registered, a code has been sent."}
 
-    # Start background thread to wait for authentication
-    thread = threading.Thread(target=acquire_token_background, args=(flow,))
-    thread.daemon = True
-    thread.start()
 
-    # Return instructions for the user
+@app.post("/verify-code")
+async def verify_code(request: CodeVerify):
+    """Verify a login code."""
+    email = request.email.lower()
+    code = request.code.strip()
+
+    # Check if there's a pending code for this email
+    if email not in pending_codes:
+        raise HTTPException(status_code=401, detail="Invalid or expired code")
+
+    stored = pending_codes[email]
+
+    # Check expiry
+    if datetime.now() > stored["expires_at"]:
+        del pending_codes[email]
+        raise HTTPException(status_code=401, detail="Code has expired")
+
+    # Check attempts (prevent brute force)
+    if stored["attempts"] >= 5:
+        del pending_codes[email]
+        raise HTTPException(status_code=401, detail="Too many attempts. Request a new code.")
+
+    # Verify code
+    if code != stored["code"]:
+        stored["attempts"] += 1
+        raise HTTPException(status_code=401, detail="Invalid code")
+
+    # Success - clear the code
+    del pending_codes[email]
+
+    # In a real app, you would create a session/JWT here
+    return {
+        "status": "success",
+        "message": "Login successful",
+        "email": email,
+    }
+
+
+@app.post("/request-code-form")
+async def request_code_form(email: str = Form(...)):
+    """Handle form submission for requesting a code."""
+    result = await request_code(CodeRequest(email=email))
     return HTMLResponse(f"""
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Login - M365 Email Test</title>
+        <title>Code Sent</title>
         <style>
             body {{ font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; }}
-            .code {{ font-size: 32px; font-weight: bold; background: #f0f0f0; padding: 20px;
-                    border-radius: 10px; margin: 20px 0; letter-spacing: 5px; user-select: all; }}
-            a {{ color: #0078d4; }}
-            a.button {{ display: inline-block; padding: 10px 20px; background-color: #0078d4;
-                       color: white; text-decoration: none; border-radius: 5px; margin: 10px; }}
-            .instructions {{ background: #e7f3ff; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: left; }}
-            .status {{ margin-top: 30px; padding: 15px; border-radius: 5px; }}
-            .pending {{ background: #fff3cd; color: #856404; }}
+            .success {{ background: #d4edda; color: #155724; padding: 20px; border-radius: 10px; }}
+            a {{ display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #0078d4;
+                 color: white; text-decoration: none; border-radius: 5px; }}
         </style>
-        <script>
-            // Poll for authentication status
-            function checkStatus() {{
-                fetch('/auth-status')
-                    .then(r => r.json())
-                    .then(data => {{
-                        if (data.status === 'success') {{
-                            window.location.href = '/?login=success';
-                        }} else if (data.status === 'error') {{
-                            document.getElementById('status').innerHTML =
-                                '<div class="status" style="background:#f8d7da;color:#721c24;">Error: ' + data.error + '</div>';
-                        }} else {{
-                            setTimeout(checkStatus, 2000);
-                        }}
-                    }})
-                    .catch(() => setTimeout(checkStatus, 2000));
-            }}
-            setTimeout(checkStatus, 3000);
-        </script>
     </head>
     <body>
-        <h1>Microsoft Login</h1>
-        <div class="instructions">
-            <p><strong>To sign in (including with 2FA):</strong></p>
-            <ol>
-                <li>Click the link below to open Microsoft login</li>
-                <li>Enter the code shown below</li>
-                <li>Complete sign-in (including any 2FA prompts)</li>
-                <li>This page will automatically redirect when done</li>
-            </ol>
+        <div class="success">
+            <h1>Check Your Email</h1>
+            <p>{result['message']}</p>
         </div>
-
-        <a href="{flow['verification_uri']}" target="_blank" class="button">Open Microsoft Login</a>
-
-        <div class="code">{flow['user_code']}</div>
-
-        <div id="status">
-            <div class="status pending">
-                Waiting for you to complete sign-in...
-            </div>
-        </div>
-
-        <p><small>This code expires in {flow.get('expires_in', 900) // 60} minutes.</small></p>
-        <p><a href="/">Cancel and go back</a></p>
+        <a href="/">Back to Login</a>
     </body>
     </html>
     """)
 
 
-@app.get("/auth-status")
-async def auth_status():
-    """Check authentication status (for polling)."""
-    return {
-        "status": app_state["auth_status"],
-        "error": app_state.get("auth_error"),
-        "account": app_state.get("account"),
-    }
-
-
-@app.post("/send-email")
-async def send_email(email: EmailReq):
-    """Send an email via Microsoft Graph API."""
-    if not app_state.get("access_token"):
-        raise HTTPException(status_code=401, detail="Not authenticated. Please login first.")
-
-    # Prepare email message
-    message = {
-        "message": {
-            "subject": email.subject,
-            "body": {
-                "contentType": "Text",
-                "content": email.body
-            },
-            "toRecipients": [
-                {
-                    "emailAddress": {
-                        "address": email.to_email
-                    }
-                }
-            ]
-        },
-        "saveToSentItems": "true"
-    }
-
-    # Send via Microsoft Graph
-    response = requests.post(
-        "https://graph.microsoft.com/v1.0/me/sendMail",
-        headers={
-            "Authorization": f"Bearer {app_state['access_token']}",
-            "Content-Type": "application/json"
-        },
-        json=message
-    )
-
-    if response.status_code == 202:
-        return {"status": "success", "message": f"Email sent to {email.to_email}"}
-    else:
-        raise HTTPException(
-            status_code=response.status_code,
-            detail=f"Failed to send email: {response.text}"
-        )
-
-
-@app.post("/send-email-form")
-async def send_email_form(
-    to_email: str = Form(...),
-    subject: str = Form("Test Email"),
-    body: str = Form("Test")
-):
-    """Handle form submission for sending email."""
+@app.post("/verify-code-form")
+async def verify_code_form(email: str = Form(...), code: str = Form(...)):
+    """Handle form submission for verifying a code."""
     try:
-        await send_email(EmailReq(to_email=to_email, subject=subject, body=body))
-        success = True
-        error_msg = ""
-    except HTTPException as e:
-        success = False
-        error_msg = e.detail
-
-    if success:
+        result = await verify_code(CodeVerify(email=email, code=code))
         return HTMLResponse(f"""
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Email Sent</title>
+            <title>Login Successful</title>
             <style>
                 body {{ font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; }}
                 .success {{ background: #d4edda; color: #155724; padding: 20px; border-radius: 10px; }}
-                a {{ display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #0078d4;
-                     color: white; text-decoration: none; border-radius: 5px; }}
             </style>
         </head>
         <body>
             <div class="success">
-                <h1>Email Sent!</h1>
-                <p>Successfully sent email to {to_email}</p>
+                <h1>Login Successful!</h1>
+                <p>Welcome, {result['email']}</p>
             </div>
-            <a href="/">Back to Home</a>
         </body>
         </html>
         """)
-    else:
+    except HTTPException as e:
         return HTMLResponse(f"""
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Email Failed</title>
+            <title>Login Failed</title>
             <style>
                 body {{ font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; }}
                 .error {{ background: #f8d7da; color: #721c24; padding: 20px; border-radius: 10px; }}
@@ -371,37 +361,13 @@ async def send_email_form(
         </head>
         <body>
             <div class="error">
-                <h1>Failed to Send Email</h1>
-                <p>{error_msg}</p>
+                <h1>Login Failed</h1>
+                <p>{e.detail}</p>
             </div>
-            <a href="/">Back to Home</a>
+            <a href="/">Try Again</a>
         </body>
         </html>
-        """, status_code=400)
-
-
-@app.get("/logout")
-async def logout():
-    """Clear the authentication token."""
-    app_state["access_token"] = None
-    app_state["account"] = None
-    app_state["auth_status"] = "idle"
-    return HTMLResponse("""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Logged Out</title>
-        <meta http-equiv="refresh" content="2;url=/">
-        <style>
-            body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; }
-        </style>
-    </head>
-    <body>
-        <h1>Logged Out</h1>
-        <p>Redirecting to home...</p>
-    </body>
-    </html>
-    """)
+        """, status_code=401)
 
 
 if __name__ == "__main__":
