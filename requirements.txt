@@ -10,3 +10,8 @@ yattag
 ruff
 pytesseract
 lmstudio
+fastapi
+uvicorn[standard]
+msal
+pydantic[email]
+python-multipart
