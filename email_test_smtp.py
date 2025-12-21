@@ -11,7 +11,7 @@ Usage:
 import os
 import random
 import string
-import smtplib
+import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timedelta
@@ -72,23 +72,31 @@ def send_email(to_email: str, subject: str, body: str) -> bool:
     msg.attach(MIMEText(body, "plain"))
 
     try:
-        if SMTP_USE_TLS:
-            # STARTTLS (port 587)
-            server = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
-            server.starttls()
-        else:
-            # SSL (port 465) or plain (port 25)
-            if SMTP_PORT == 465:
-                server = smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT)
-            else:
-                server = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
-
+        print("Sending ...")
+        cont = ssl.create_default_context()
+        server = smtplib.SMTP(SMTP_HOST, port=SMTP_PORT)
+        server.starttls(context = cont)
         server.login(SMTP_USERNAME, SMTP_PASSWORD)
-        print("A")
-        server.send_message(msg)
-        print("B")
+        server.sendmail(SENDER_EMAIL, to_email, msg.as_string())
         server.quit()
-        print("C")
+        print("Done")
+        # if SMTP_USE_TLS:
+        #     # STARTTLS (port 587)
+        #     server = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
+        #     server.starttls()
+        # else:
+        #     # SSL (port 465) or plain (port 25)
+        #     if SMTP_PORT == 465:
+        #         server = smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT)
+        #     else:
+        #         server = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
+
+        # server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        # print("A")
+        # server.send_message(msg)
+        # print("B")
+        # server.quit()
+        # print("C")
 
         return True
 
