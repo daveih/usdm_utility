@@ -103,3 +103,36 @@ Write a python program to generate an html page that can be viewed in a browser 
 - The source data in a JSON file here /Users/daveih/Documents/python/usdm4/tests/usdm4/test_files/expander/expander.json
 - There is an exisitng program that displays the data as a vertical timeline here "to_expanded.py"
 - Call the new program player.py
+
+----- + -----
+
+Write a python program that will take an exisitng Excel workbook and update it according to the contents of a yaml file. The utility should be called update_excel.py. The program should be able:
+
+- For an exisitng sheet in the existing workbook
+  - Define which sheet
+  - Add rows
+  - Update cells
+- Insert an entirely new sheet into the existing workbook
+  - Specifiy the sheet name
+  - Add rows
+
+When a cell is updated the cell background colour should be set to a light orange color
+When a sheet is updated the sheet tab should be set to the same light orange color
+When a cell in added the cell background should be set to a light green color
+WHen a sheet in added the sheet tab should be set to the same light green color
+
+The update workbook should be written to a new file with the filename based on the filename of the input file (suffix with "amended")
+
+----- + -----
+
+Write a python program to generate an html page that can be viewed in a browser that contains the difference between two excel workbooks
+
+The program should only compare content and not formatting. The workbooks are expected to be similar. So the utility should 
+
+- Compare sheets of the same name. 
+- Display each sheet comparison as a single tab on the web page
+- The tab should contain a grid reflecting the content of the source excel sheet
+- Cells containing different values should be highlighted in a github diff style for changes.
+- Deleted row or columns should be highlighed in red is a github style similar to a deleted line
+- Use bootstrap 5 and this theme to style the web page https://bootswatch.com/cosmo/
+- The program should be called excel_diff.py

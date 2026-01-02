@@ -1,0 +1,56 @@
+# Example YAML configuration for update_excel.py
+#
+# This file demonstrates the structure for updating Excel workbooks.
+# Two main sections are supported:
+#   - existing_sheets: Modify sheets that already exist in the workbook
+#   - new_sheets: Add entirely new sheets to the workbook
+
+existing_sheets:
+  - name: "Sheet1"  # Name of the existing sheet to modify
+
+    # Update individual cells (orange highlighting)
+    updates:
+      - row: 2
+        col: 1
+        value: "Updated Value A"
+      - row: 2
+        col: 2
+        value: "Updated Value B"
+      - row: 5
+        col: 3
+        value: 12345
+
+    # Add new rows of data (green highlighting)
+    # Option 1: Single row with 'data'
+    # Option 2: Multiple rows with 'rows' (starts at specified row)
+    add_rows:
+      - row: 10
+        data: ["Single Row Cell 1", "Cell 2", "Cell 3"]  # Adds one row at row 10
+      - row: 15
+        rows:  # Adds multiple consecutive rows starting at row 15
+          - ["Row 15 Data", "A", "B", "C"]
+          - ["Row 16 Data", "D", "E", "F"]
+          - ["Row 17 Data", "G", "H", "I"]
+
+  - name: "Data"  # Another existing sheet
+    updates:
+      - row: 1
+        col: 1
+        value: "Header Updated"
+    add_rows:
+      - row: 100
+        data: ["Appended data", "at row 100"]
+
+new_sheets:
+  - name: "NewSheet"  # Name for the new sheet (green tab)
+    rows:
+      - ["Header 1", "Header 2", "Header 3", "Header 4"]
+      - ["Data 1", "Data 2", "Data 3", "Data 4"]
+      - ["More Data", 123, 456, 789]
+      - ["Final Row", "with", "various", "values"]
+
+  - name: "Summary"  # Another new sheet
+    rows:
+      - ["Category", "Count", "Total"]
+      - ["Items", 10, 1000]
+      - ["Services", 5, 500]
