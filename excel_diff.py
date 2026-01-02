@@ -402,10 +402,16 @@ def main():
     parser.add_argument("file2", help="The second (new) Excel workbook (.xlsx)")
     parser.add_argument(
         "-o", "--output",
-        help="Output HTML filename (default: diff_report.html)",
-        default="diff_report.html"
+        help="Output HTML filename (default: <new_file>_diff.html)",
+        default=None
     )
     args = parser.parse_args()
+
+    # Generate default output filename from the new (second) file
+    if args.output is None:
+        base_name = os.path.basename(args.file2)
+        name, _ = os.path.splitext(base_name)
+        args.output = f"{name}_diff.html"
 
     # Validate input files
     if not os.path.exists(args.file1):
