@@ -407,11 +407,12 @@ def main():
     )
     args = parser.parse_args()
 
-    # Generate default output filename from the new (second) file
+    # Generate default output filename in the same directory as the source file
     if args.output is None:
+        dir_name = os.path.dirname(os.path.abspath(args.file2))
         base_name = os.path.basename(args.file2)
         name, _ = os.path.splitext(base_name)
-        args.output = f"{name}_diff.html"
+        args.output = os.path.join(dir_name, f"{name}_diff.html")
 
     # Validate input files
     if not os.path.exists(args.file1):
