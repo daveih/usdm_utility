@@ -136,3 +136,9 @@ The program should only compare content and not formatting. The workbooks are ex
 - Deleted row or columns should be highlighed in red is a github style similar to a deleted line
 - Use bootstrap 5 and this theme to style the web page https://bootswatch.com/cosmo/
 - The program should be called excel_diff.py
+
+----- + ------
+
+This yaml file "/Users/daveih/Documents/python/sdw_test/Other/xl_example_amended_expansion.json" details the execution of a clinical study for a subject/participant enrolled in that study. It details each timepoiint at which the subject will undertake some interaction with the study, either in their own home or domestic setting or at a clinical site. I want to visualise this for a subject with a way of summarising the study and what is expected on the subject. For the days where this is only diary interaction the summary should be minimal. For the days where the subject is on site the information should be more detailed giving the subject a flavour of what is to happen. I want a credit card / phone screen output for each main event and more summary information for the daily diary interactions
+
+The output should be very user friendly, colourful and simple to view
