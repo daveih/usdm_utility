@@ -121,16 +121,19 @@ def setup_ct_packages(cache):
     This is required for rules that check controlled terminology dates.
 
     Returns:
-        List of available CT package names, or empty list if failed
+        Tuple of (list of CT package names, CDISCLibraryService or None)
     """
     # Check if already loaded in cache
     cached_packages = cache.get(PUBLISHED_CT_PACKAGES)
     if cached_packages:
-        return cached_packages
+        api_key = os.environ.get("CDISC_LIBRARY_API_KEY")
+        if api_key:
+            return cached_packages, CDISCLibraryService(api_key, cache)
+        return cached_packages, None
 
     api_key = os.environ.get("CDISC_LIBRARY_API_KEY")
     if not api_key:
-        return []
+        return [], None
 
     try:
         library_service = CDISCLibraryService(api_key, cache)
@@ -140,9 +143,55 @@ def setup_ct_packages(cache):
             package.get("href", "").split("/")[-1] for package in packages
         ]
         cache.add(PUBLISHED_CT_PACKAGES, available_packages)
-        return available_packages
+        return available_packages, library_service
     except Exception:
-        return []
+        return [], None
+
+
+def load_ct_package_data(library_service, package_version: str) -> dict:
+    """
+    Load the actual codelist data for a CT package from CDISC Library.
+
+    Args:
+        library_service: CDISCLibraryService instance
+        package_version: Package name like "sdtmct-2025-09-26"
+
+    Returns:
+        Dict with package name and codelists data
+    """
+    if not library_service:
+        return {}
+    try:
+        return library_service.get_codelist_terms_map(package_version)
+    except Exception:
+        return {}
+
+
+def get_ct_versions_from_usdm(usdm_data: dict) -> set:
+    """
+    Extract unique codeSystemVersion values from USDM data.
+    These indicate which CT packages need to be loaded.
+
+    Args:
+        usdm_data: Parsed USDM JSON data
+
+    Returns:
+        Set of version strings (e.g., {"2025-09-26"})
+    """
+    versions = set()
+
+    def extract_versions(obj):
+        if isinstance(obj, dict):
+            if "codeSystemVersion" in obj:
+                versions.add(obj["codeSystemVersion"])
+            for value in obj.values():
+                extract_versions(value)
+        elif isinstance(obj, list):
+            for item in obj:
+                extract_versions(item)
+
+    extract_versions(usdm_data)
+    return versions
 
 
 def load_rules_from_library(cache, standard: str, version: str, verbose: bool = False):
@@ -265,7 +314,7 @@ def validate_usdm(
             logging.disable(logging.CRITICAL)
 
 
-def _run_validation(abs_path: str, version: str, verbose: bool) -> list:
+def _run_validation(abs_path: str, version: str, verbose: bool) -> dict:
     """Internal validation logic, separated to allow output suppression."""
     # Setup JSONata resources (download from GitHub if needed)
     setup_jsonata_resources()
@@ -273,10 +322,33 @@ def _run_validation(abs_path: str, version: str, verbose: bool) -> list:
     # Initialize the cache service
     cache = CacheServiceFactory(config).get_cache_service()
 
-    # Setup CT packages list and create library metadata container
-    ct_packages = setup_ct_packages(cache)
+    # Setup CT packages list and get library service for loading CT data
+    ct_packages, library_service = setup_ct_packages(cache)
+
+    # Load USDM data to determine which CT package versions are needed
+    with open(abs_path, "r", encoding="utf-8") as f:
+        usdm_data = json.load(f)
+
+    # Extract CT versions from the USDM data
+    ct_versions_needed = get_ct_versions_from_usdm(usdm_data)
+
+    # For USDM, load sdtmct and ddfct packages for each version found
+    ct_package_metadata = {}
+    loaded_packages = []
+    if library_service and ct_versions_needed:
+        for ct_version in ct_versions_needed:
+            for ct_type in ["sdtmct", "ddfct"]:
+                package_name = f"{ct_type}-{ct_version}"
+                if package_name in ct_packages:
+                    ct_data = load_ct_package_data(library_service, package_name)
+                    if ct_data:
+                        ct_package_metadata[package_name] = ct_data
+                        loaded_packages.append(package_name)
+
+    # Create library metadata container with both package list AND package data
     library_metadata = LibraryMetadataContainer(
-        published_ct_packages=ct_packages
+        published_ct_packages=ct_packages,
+        ct_package_metadata=ct_package_metadata,
     )
 
     # Initialize rules engine for USDM
@@ -304,6 +376,7 @@ def _run_validation(abs_path: str, version: str, verbose: bool) -> list:
             "results": [],
             "ct_packages_count": len(ct_packages),
             "ct_packages": ct_packages,
+            "ct_packages_loaded": loaded_packages,
         }
 
     # Run validation for each rule
@@ -338,6 +411,7 @@ def _run_validation(abs_path: str, version: str, verbose: bool) -> list:
         "results": results,
         "ct_packages_count": len(ct_packages),
         "ct_packages": ct_packages,
+        "ct_packages_loaded": loaded_packages,
     }
 
 
@@ -354,6 +428,7 @@ def format_results_text(validation_data: dict, file_path: str) -> str:
     """
     results = validation_data.get("results", [])
     ct_packages_count = validation_data.get("ct_packages_count", 0)
+    ct_packages_loaded = validation_data.get("ct_packages_loaded", [])
 
     output = []
     output.append("=" * 60)
@@ -361,7 +436,8 @@ def format_results_text(validation_data: dict, file_path: str) -> str:
     output.append("=" * 60)
     output.append(f"File: {file_path}")
     output.append(f"Rules executed: {len(results)}")
-    output.append(f"CT packages loaded: {ct_packages_count}")
+    output.append(f"CT packages available: {ct_packages_count}")
+    output.append(f"CT packages loaded: {', '.join(ct_packages_loaded) if ct_packages_loaded else 'None'}")
     output.append("")
 
     if not results:
@@ -435,7 +511,8 @@ def format_results_json(validation_data: dict, file_path: str) -> str:
     output_data = {
         "file": file_path,
         "rules_executed": len(results),
-        "ct_packages_loaded": validation_data.get("ct_packages_count", 0),
+        "ct_packages_available": validation_data.get("ct_packages_count", 0),
+        "ct_packages_loaded": validation_data.get("ct_packages_loaded", []),
         "ct_packages": validation_data.get("ct_packages", []),
         "results": results
     }
