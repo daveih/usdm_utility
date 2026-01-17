@@ -1,5 +1,6 @@
 usdm==0.63.0
 usdm4==0.8.0
+cdisc-rules-engine
 simple_error_log>=0.5.0
 beautifulsoup4==4.12.3
 PyYAML
