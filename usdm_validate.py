@@ -415,6 +415,13 @@ def _run_validation(abs_path: str, version: str, verbose: bool) -> dict:
     }
 
 
+def _is_execution_error(error: dict) -> bool:
+    """Check if an error is a rule execution error vs a validation finding."""
+    if isinstance(error, dict):
+        return error.get("error") == "Column not found in data"
+    return False
+
+
 def format_results_text(validation_data: dict, file_path: str) -> str:
     """
     Format validation results as human-readable text.
@@ -444,22 +451,43 @@ def format_results_text(validation_data: dict, file_path: str) -> str:
         output.append("No validation rules executed.")
         return "\n".join(output)
 
-    # Count issues
-    total_issues = 0
+    # Count issues, separating execution errors from validation findings
+    validation_issues = 0
+    execution_errors = 0
+    execution_error_rules = set()
+
     for result in results:
+        rule_id = result.get("rule_id", "Unknown")
         for r in result.get("results", []):
             if isinstance(r, list):
                 for item in r:
                     if isinstance(item, dict) and item.get("errors"):
-                        total_issues += len(item["errors"])
+                        for error in item["errors"]:
+                            if _is_execution_error(error):
+                                execution_errors += 1
+                                execution_error_rules.add(rule_id)
+                            else:
+                                validation_issues += 1
             elif isinstance(r, dict) and r.get("errors"):
-                total_issues += len(r["errors"])
+                for error in r["errors"]:
+                    if _is_execution_error(error):
+                        execution_errors += 1
+                        execution_error_rules.add(rule_id)
+                    else:
+                        validation_issues += 1
 
-    if total_issues == 0:
+    if validation_issues == 0 and execution_errors == 0:
         output.append("Validation PASSED - No issues found.")
         return "\n".join(output)
 
-    output.append(f"Found {total_issues} validation issue(s):")
+    if validation_issues == 0:
+        output.append("Validation PASSED - No data issues found.")
+        output.append(f"(Note: {execution_errors} rule execution errors from {len(execution_error_rules)} rules - these rules may not apply to all entity types)")
+        return "\n".join(output)
+
+    output.append(f"Found {validation_issues} validation issue(s):")
+    if execution_errors > 0:
+        output.append(f"(Plus {execution_errors} rule execution errors from {len(execution_error_rules)} rules)")
     output.append("-" * 60)
 
     for result in results:
@@ -469,26 +497,30 @@ def format_results_text(validation_data: dict, file_path: str) -> str:
                 for item in r:
                     if isinstance(item, dict):
                         errors = item.get("errors", [])
-                        if errors:
+                        # Filter out execution errors
+                        real_errors = [e for e in errors if not _is_execution_error(e)]
+                        if real_errors:
                             message = item.get("message", "No message")
                             output.append(f"\nRule: {rule_id}")
                             output.append(f"Message: {message}")
-                            output.append(f"Errors ({len(errors)}):")
-                            for error in errors[:10]:
+                            output.append(f"Errors ({len(real_errors)}):")
+                            for error in real_errors[:10]:
                                 output.append(f"  - {error}")
-                            if len(errors) > 10:
-                                output.append(f"  ... and {len(errors) - 10} more")
+                            if len(real_errors) > 10:
+                                output.append(f"  ... and {len(real_errors) - 10} more")
             elif isinstance(r, dict):
                 errors = r.get("errors", [])
-                if errors:
+                # Filter out execution errors
+                real_errors = [e for e in errors if not _is_execution_error(e)]
+                if real_errors:
                     message = r.get("message", "No message")
                     output.append(f"\nRule: {rule_id}")
                     output.append(f"Message: {message}")
-                    output.append(f"Errors ({len(errors)}):")
-                    for error in errors[:10]:
+                    output.append(f"Errors ({len(real_errors)}):")
+                    for error in real_errors[:10]:
                         output.append(f"  - {error}")
-                    if len(errors) > 10:
-                        output.append(f"  ... and {len(errors) - 10} more")
+                    if len(real_errors) > 10:
+                        output.append(f"  ... and {len(real_errors) - 10} more")
 
     output.append("")
     output.append("=" * 60)
