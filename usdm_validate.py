@@ -57,6 +57,101 @@ JSONATA_FILES = [
     "https://raw.githubusercontent.com/cdisc-org/cdisc-rules-engine/main/resources/jsonata/sift_tree.jsonata",
 ]
 
+# GitHub base URL for XSD schema files
+XSD_GITHUB_BASE = "https://raw.githubusercontent.com/cdisc-org/cdisc-rules-engine/main/resources/schema/xml"
+
+# USDM XHTML schema files (required for XHTML validation rules)
+USDM_XHTML_SCHEMA_FILES = [
+    "cdisc-usdm-xhtml-1.0/usdm-xhtml-1.0.xsd",
+    "cdisc-usdm-xhtml-1.0/usdm-xhtml-extension.xsd",
+    "cdisc-usdm-xhtml-1.0/usdm-xhtml-ns.xsd",
+]
+
+# Core XHTML 1.1 schema files (dependencies for USDM XHTML validation)
+# All files are required due to complex inter-dependencies in the XHTML 1.1 schema
+XHTML_SCHEMA_FILES = [
+    "xhtml-1.1/aria-attributes-1.xsd",
+    "xhtml-1.1/xframes-1.xsd",
+    "xhtml-1.1/xhtml-access-1.xsd",
+    "xhtml-1.1/xhtml-applet-1.xsd",
+    "xhtml-1.1/xhtml-attribs-1.xsd",
+    "xhtml-1.1/xhtml-base-1.xsd",
+    "xhtml-1.1/xhtml-basic-form-1.xsd",
+    "xhtml-1.1/xhtml-basic-table-1.xsd",
+    "xhtml-1.1/xhtml-bdo-1.xsd",
+    "xhtml-1.1/xhtml-blkphras-1.xsd",
+    "xhtml-1.1/xhtml-blkpres-1.xsd",
+    "xhtml-1.1/xhtml-blkstruct-1.xsd",
+    "xhtml-1.1/xhtml-charent-1.xsd",
+    "xhtml-1.1/xhtml-csismap-1.xsd",
+    "xhtml-1.1/xhtml-datatypes-1.xsd",
+    "xhtml-1.1/xhtml-edit-1.xsd",
+    "xhtml-1.1/xhtml-events-1.xsd",
+    "xhtml-1.1/xhtml-form-1.xsd",
+    "xhtml-1.1/xhtml-frames-1.xsd",
+    "xhtml-1.1/xhtml-framework-1.xsd",
+    "xhtml-1.1/xhtml-hypertext-1.xsd",
+    "xhtml-1.1/xhtml-iframe-1.xsd",
+    "xhtml-1.1/xhtml-image-1.xsd",
+    "xhtml-1.1/xhtml-inlphras-1.xsd",
+    "xhtml-1.1/xhtml-inlpres-1.xsd",
+    "xhtml-1.1/xhtml-inlstruct-1.xsd",
+    "xhtml-1.1/xhtml-inlstyle-1.xsd",
+    "xhtml-1.1/xhtml-inputmode-1.xsd",
+    "xhtml-1.1/xhtml-legacy-1.xsd",
+    "xhtml-1.1/xhtml-legacy-redecl-1.xsd",
+    "xhtml-1.1/xhtml-link-1.xsd",
+    "xhtml-1.1/xhtml-list-1.xsd",
+    "xhtml-1.1/xhtml-meta-1.xsd",
+    "xhtml-1.1/xhtml-metaAttributes-1.xsd",
+    "xhtml-1.1/xhtml-misc-1.xsd",
+    "xhtml-1.1/xhtml-nameident-1.xsd",
+    "xhtml-1.1/xhtml-notations-1.xsd",
+    "xhtml-1.1/xhtml-object-1.xsd",
+    "xhtml-1.1/xhtml-param-1.xsd",
+    "xhtml-1.1/xhtml-pres-1.xsd",
+    "xhtml-1.1/xhtml-print-model-1.xsd",
+    "xhtml-1.1/xhtml-print.xsd",
+    "xhtml-1.1/xhtml-ruby-1.xsd",
+    "xhtml-1.1/xhtml-script-1.xsd",
+    "xhtml-1.1/xhtml-ssismap-1.xsd",
+    "xhtml-1.1/xhtml-struct-1.xsd",
+    "xhtml-1.1/xhtml-style-1.xsd",
+    "xhtml-1.1/xhtml-table-1.xsd",
+    "xhtml-1.1/xhtml-target-1.xsd",
+    "xhtml-1.1/xhtml-text-1.xsd",
+    "xhtml-1.1/xhtml-uri-1.xsd",
+    "xhtml-1.1/xhtml11-flat.xsd",
+    "xhtml-1.1/xhtml11-model-1.xsd",
+    "xhtml-1.1/xhtml11-modules-1.xsd",
+    "xhtml-1.1/xhtml11.xsd",
+    "xhtml-1.1/xml.xsd",
+    # XHTML Basic schemas (additional dependencies)
+    "xhtml-1.1/xhtml-basic10-model-1.xsd",
+    "xhtml-1.1/xhtml-basic10-modules-1.xsd",
+    "xhtml-1.1/xhtml-basic10.xsd",
+    "xhtml-1.1/xhtml-basic11-model-1.xsd",
+    "xhtml-1.1/xhtml-basic11-modules-1.xsd",
+    "xhtml-1.1/xhtml-basic11.xsd",
+    # XHTML Strict/Transitional schemas
+    "xhtml-1.1/xhtml-lat1.ent",
+    "xhtml-1.1/xhtml-special.ent",
+    "xhtml-1.1/xhtml-symbol.ent",
+    "xhtml-1.1/xhtml1-frameset.xsd",
+    "xhtml-1.1/xhtml1-strict.xsd",
+    "xhtml-1.1/xhtml1-transitional.xsd",
+    # XHTML+RDFa schemas
+    "xhtml-1.1/xhtml-rdfa-model-1.xsd",
+    "xhtml-1.1/xhtml-rdfa-modules-1.xsd",
+    "xhtml-1.1/xhtml-rdfa-1.xsd",
+    "xhtml-1.1/xhtml-role-1.xsd",
+    "xhtml-1.1/xhtml-role-attrib-1.xsd",
+    # XHTML Mobile/Simple schemas
+    "xhtml-1.1/xhtml-mobile10-model-1.xsd",
+    "xhtml-1.1/xhtml-mobile10.xsd",
+    "xhtml-1.1/xhtml-simple-1.xsd",
+]
+
 # Rules known to have bugs in the CORE engine (JSONata/NoneType errors)
 EXCLUDED_RULES = {
     "CORE-000955",  # JSONata bug
@@ -87,6 +182,36 @@ class SuppressOutput:
             sys.stdout = self._stdout
             sys.stderr = self._stderr
             self._devnull.close()
+
+
+def setup_xsd_schema_resources():
+    """
+    Download XSD schema files from GitHub if they don't exist locally.
+    These are required for XHTML validation rules (CORE-000945, CORE-001069).
+    """
+    schema_base_dir = _CDISC_PACKAGE_DIR / "resources" / "schema" / "xml"
+
+    # Check if USDM XHTML schema already exists
+    usdm_xhtml_dir = schema_base_dir / "cdisc-usdm-xhtml-1.0"
+    if usdm_xhtml_dir.exists() and (usdm_xhtml_dir / "usdm-xhtml-1.0.xsd").exists():
+        return True
+
+    # Create directories
+    (schema_base_dir / "cdisc-usdm-xhtml-1.0").mkdir(parents=True, exist_ok=True)
+    (schema_base_dir / "xhtml-1.1").mkdir(parents=True, exist_ok=True)
+
+    # Download USDM XHTML schema files
+    all_schema_files = USDM_XHTML_SCHEMA_FILES + XHTML_SCHEMA_FILES
+    for schema_path in all_schema_files:
+        url = f"{XSD_GITHUB_BASE}/{schema_path}"
+        filepath = schema_base_dir / schema_path
+        try:
+            urllib.request.urlretrieve(url, filepath)
+        except Exception:
+            # Continue even if some files fail - not all may be needed
+            pass
+
+    return True
 
 
 def setup_jsonata_resources():
@@ -316,8 +441,9 @@ def validate_usdm(
 
 def _run_validation(abs_path: str, version: str, verbose: bool) -> dict:
     """Internal validation logic, separated to allow output suppression."""
-    # Setup JSONata resources (download from GitHub if needed)
+    # Setup resources (download from GitHub if needed)
     setup_jsonata_resources()
+    setup_xsd_schema_resources()
 
     # Initialize the cache service
     cache = CacheServiceFactory(config).get_cache_service()

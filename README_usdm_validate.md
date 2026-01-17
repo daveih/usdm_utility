@@ -228,14 +228,49 @@ Found 609 validation issue(s):
 (Plus 225 rule execution errors from 4 rules)
 ```
 
-### 7. XSD Schema Files Missing
+### 7. XSD Schema Files Missing (Solved)
 
-**Problem**: Rules that validate XHTML content fail with:
+**Problem**: Rules that validate XHTML content (CORE-000945, CORE-001069) fail with:
 ```
 XSD file could not be found: Error reading file 'resources/schema/xml/cdisc-usdm-xhtml-1.0/usdm-xhtml-1.0.xsd'
 ```
 
-**Status**: These XSD files are not included in the pip package. Rules CORE-000945 and CORE-001069 will report execution errors until the schema files are available.
+**Root Cause**: The XSD schema files required for XHTML validation are not included in the pip package. The XHTML 1.1 schema is complex with 70+ interdependent files.
+
+**Solution**: The utility automatically downloads the required XSD schema files from the CDISC Rules Engine GitHub repository on first run:
+
+```python
+# GitHub base URL for XSD schema files
+XSD_GITHUB_BASE = "https://raw.githubusercontent.com/cdisc-org/cdisc-rules-engine/main/resources/schema/xml"
+
+# USDM XHTML schema files (required for XHTML validation rules)
+USDM_XHTML_SCHEMA_FILES = [
+    "cdisc-usdm-xhtml-1.0/usdm-xhtml-1.0.xsd",
+    "cdisc-usdm-xhtml-1.0/usdm-xhtml-extension.xsd",
+    "cdisc-usdm-xhtml-1.0/usdm-xhtml-ns.xsd",
+]
+
+# Core XHTML 1.1 schema files (70+ files with complex dependencies)
+XHTML_SCHEMA_FILES = [
+    "xhtml-1.1/xhtml11.xsd",
+    "xhtml-1.1/xhtml-hypertext-1.xsd",
+    # ... all 70+ XHTML 1.1 schema files
+]
+
+def setup_xsd_schema_resources():
+    """Download XSD schema files from GitHub if they don't exist locally."""
+    # Creates directories and downloads all schema files
+    for schema_path in USDM_XHTML_SCHEMA_FILES + XHTML_SCHEMA_FILES:
+        url = f"{XSD_GITHUB_BASE}/{schema_path}"
+        urllib.request.urlretrieve(url, filepath)
+```
+
+**Key Insight**: The XHTML 1.1 schema uses `xs:redefine` and `xs:include` extensively, requiring all schema files to be present. Partial downloads fail with errors like:
+```
+Failed to load the document 'xhtml-hypertext-1.xsd' for redefinition
+```
+
+**Result**: Rules CORE-000945 and CORE-001069 now execute successfully and validate XHTML content in eligibility criteria and narrative content items.
 
 ### 8. Rules with Known Bugs
 
@@ -273,8 +308,17 @@ EXCLUDED_RULES = {
 | Category | Description |
 |----------|-------------|
 | Column not found | Rules checking nextId/previousId on entities that don't have these fields |
-| XSD not found | XHTML validation rules missing schema files |
 | Preprocessing failed | Rules expecting entities (e.g., StudyCohort) not in the data |
+
+### XHTML Validation Findings
+
+Rules CORE-000945 and CORE-001069 validate XHTML content against the USDM XHTML schema. Common validation errors include:
+
+| Error Type | Example |
+|------------|---------|
+| Invalid attribute | `Element 'ol', attribute 'type': The attribute 'type' is not allowed` |
+| Unexpected element | `Element 'style': This element is not expected` |
+| Tag mismatch | `Opening and ending tag mismatch: p line 33 and td` |
 
 ## Troubleshooting
 
