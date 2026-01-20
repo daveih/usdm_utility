@@ -514,11 +514,20 @@ def _run_validation(abs_path: str, version: str, verbose: bool) -> dict:
         if rule_id in EXCLUDED_RULES:
             continue
 
+        # Extract rule description and action message
+        description = rule.get("description", "")
+        action_message = ""
+        actions = rule.get("actions", [])
+        if actions and isinstance(actions, list):
+            params = actions[0].get("params", {})
+            action_message = params.get("message", "")
+
         try:
             rule_results = rules_engine.validate_single_rule(rule, datasets)
             result = {
                 "rule_id": rule_id,
-                "message": rule.get("message", ""),
+                "description": description,
+                "message": action_message,
                 "execution_status": "success",
                 "results": list(rule_results.values()) if rule_results else []
             }
@@ -526,7 +535,8 @@ def _run_validation(abs_path: str, version: str, verbose: bool) -> dict:
         except Exception:
             result = {
                 "rule_id": rule_id,
-                "message": "",
+                "description": description,
+                "message": action_message,
                 "execution_status": "error",
                 "results": []
             }
@@ -542,9 +552,24 @@ def _run_validation(abs_path: str, version: str, verbose: bool) -> dict:
 
 
 def _is_execution_error(error: dict) -> bool:
-    """Check if an error is a rule execution error vs a validation finding."""
+    """
+    Check if an error is a rule execution error vs a validation finding.
+
+    Execution errors occur when:
+    - A rule checks a column that doesn't exist on the entity type
+    - A rule requires joining with a dataset that isn't present in the data
+
+    These are not data quality issues - they indicate the rule doesn't apply
+    to this particular USDM file's structure.
+    """
     if isinstance(error, dict):
-        return error.get("error") == "Column not found in data"
+        error_type = error.get("error", "")
+        # Column not found - rule checks fields that don't exist on entity
+        if error_type == "Column not found in data":
+            return True
+        # Preprocessing failed - rule requires dataset not in USDM file
+        if error_type == "Error occurred during dataset preprocessing":
+            return True
     return False
 
 
@@ -618,6 +643,8 @@ def format_results_text(validation_data: dict, file_path: str) -> str:
 
     for result in results:
         rule_id = result.get("rule_id", "Unknown")
+        description = result.get("description", "")
+        action_message = result.get("message", "")
         for r in result.get("results", []):
             if isinstance(r, list):
                 for item in r:
@@ -626,9 +653,11 @@ def format_results_text(validation_data: dict, file_path: str) -> str:
                         # Filter out execution errors
                         real_errors = [e for e in errors if not _is_execution_error(e)]
                         if real_errors:
-                            message = item.get("message", "No message")
                             output.append(f"\nRule: {rule_id}")
-                            output.append(f"Message: {message}")
+                            if description:
+                                output.append(f"Description: {description}")
+                            if action_message:
+                                output.append(f"Message: {action_message}")
                             output.append(f"Errors ({len(real_errors)}):")
                             for error in real_errors[:10]:
                                 output.append(f"  - {error}")
@@ -639,9 +668,11 @@ def format_results_text(validation_data: dict, file_path: str) -> str:
                 # Filter out execution errors
                 real_errors = [e for e in errors if not _is_execution_error(e)]
                 if real_errors:
-                    message = r.get("message", "No message")
                     output.append(f"\nRule: {rule_id}")
-                    output.append(f"Message: {message}")
+                    if description:
+                        output.append(f"Description: {description}")
+                    if action_message:
+                        output.append(f"Message: {action_message}")
                     output.append(f"Errors ({len(real_errors)}):")
                     for error in real_errors[:10]:
                         output.append(f"  - {error}")

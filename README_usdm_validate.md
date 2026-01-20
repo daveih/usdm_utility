@@ -209,23 +209,33 @@ JSONATA_FILES = [
 
 ### 6. Rule Execution Errors vs Validation Findings
 
-**Problem**: Many "Column not found in data" errors reported as validation issues.
+**Problem**: Many errors reported as validation issues are actually rule execution errors - they occur because the rule doesn't apply to this particular USDM file's structure.
 
-**Root Cause**: Some rules (CORE-000414, CORE-000416, CORE-000419, CORE-000849) are configured to apply to `ALL` entities but check for fields like `nextId` and `previousId` that only exist on certain entity types (Encounter, ScheduledActivityInstance, etc.).
+**Types of Execution Errors**:
+
+1. **Column not found in data**: Rules like CORE-000414, CORE-000416, CORE-000419, CORE-000849 are configured to apply to `ALL` entities but check for fields like `nextId` and `previousId` that only exist on certain entity types (Encounter, ScheduledActivityInstance, etc.).
+
+2. **Preprocessing failed**: Rules like CORE-000815 and CORE-000875 require joining with a `StudyCohort` dataset, but studies without cohorts defined will fail preprocessing. The error message is: `Failed to find related dataset for 'StudyCohort' in preprocessor`.
 
 **Solution**: Separate execution errors from validation findings:
 
 ```python
 def _is_execution_error(error: dict) -> bool:
     if isinstance(error, dict):
-        return error.get("error") == "Column not found in data"
+        error_type = error.get("error", "")
+        # Column not found - rule checks fields that don't exist on entity
+        if error_type == "Column not found in data":
+            return True
+        # Preprocessing failed - rule requires dataset not in USDM file
+        if error_type == "Error occurred during dataset preprocessing":
+            return True
     return False
 ```
 
 The output now shows:
 ```
 Found 609 validation issue(s):
-(Plus 225 rule execution errors from 4 rules)
+(Plus 227 rule execution errors from 6 rules)
 ```
 
 ### 7. XSD Schema Files Missing (Solved)
@@ -303,12 +313,12 @@ EXCLUDED_RULES = {
 | CORE-000996 | Invalid planned sex configuration |
 | CORE-001077 | Study intervention count mismatch for model type |
 
-### Configuration/Rule Issues
+### Configuration/Rule Issues (Filtered as Execution Errors)
 
-| Category | Description |
-|----------|-------------|
-| Column not found | Rules checking nextId/previousId on entities that don't have these fields |
-| Preprocessing failed | Rules expecting entities (e.g., StudyCohort) not in the data |
+| Category | Rules | Description |
+|----------|-------|-------------|
+| Column not found | CORE-000414, CORE-000416, CORE-000419, CORE-000849 | Rules checking nextId/previousId on entities that don't have these fields |
+| Preprocessing failed | CORE-000815, CORE-000875 | Rules requiring StudyCohort dataset for studies without cohorts defined |
 
 ### XHTML Validation Findings
 

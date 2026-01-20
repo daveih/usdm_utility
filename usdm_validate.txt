@@ -1,0 +1,140 @@
+============================================================
+USDM Validation Report
+============================================================
+File: /Users/daveih/Documents/python/usdm_data/source_data/protocols/CDISC_Pilot/CDISC_Pilot_Study.json
+Rules executed: 205
+CT packages available: 200
+CT packages loaded: sdtmct-2025-09-26, ddfct-2025-09-26, sdtmct-2024-09-27, ddfct-2024-09-27
+
+Found 64 validation issue(s):
+(Plus 227 rule execution errors from 6 rules)
+------------------------------------------------------------
+
+Rule: CORE-000996
+Description: A planned sex must either include a single entry of male or female or both female and male as entries.
+Message: The planned sex includes more than a single entry of male and/or female either by duplications or unexpected codes.
+Errors (1):
+  - {'value': {'instanceType': 'StudyDesignPopulation', 'id': 'StudyDesignPopulation_1', 'path': '/study/versions/0/studyDesigns/0/population', 'name': 'POP1', 'plannedSex': '[Code_642: Both (C49636)]', 'check': True}, 'dataset': 'StudyDesignPopulation', 'entity': 'StudyDesignPopulation', 'instance_id': 'StudyDesignPopulation_1', 'path': '/study/versions/0/studyDesigns/0/population'}
+
+Rule: CORE-000427
+Description: Within a code system and corresponding version, a one-to-one relationship between code and decode is expected.
+Message: There is not a one-to-one relationship between code and decode within a codeSytem and corresponding codeSystemVersion
+Errors (3):
+  - {'value': {'id': 'Code_619', 'parent_rel': 'standardCode', 'decode': 'LBORRESU', 'code': 'No Concept Code', 'parent_entity': 'AliasCode', 'parent_id': 'AliasCode_249', 'codeSystemVersion': '2024-09-27', 'codeSystem': 'http://www.cdisc.org'}, 'dataset': 'Code.json', 'row': 324, 'instance_id': 'Code_619', 'path': '/study/versions/0/biomedicalConcepts/12/properties/2/code/standardCode'}
+  - {'value': {'id': 'Code_163', 'parent_rel': 'standardCode', 'decode': 'AEHLGT', 'code': 'No Concept Code', 'parent_entity': 'AliasCode', 'parent_id': 'AliasCode_27', 'codeSystemVersion': '2024-09-27', 'codeSystem': 'http://www.cdisc.org'}, 'dataset': 'Code.json', 'row': 333, 'instance_id': 'Code_163', 'path': '/study/versions/0/biomedicalConcepts/13/properties/2/code/standardCode'}
+  - {'value': {'id': 'Code_164', 'parent_rel': 'standardCode', 'decode': 'AEHLGTCD', 'code': 'No Concept Code', 'parent_entity': 'AliasCode', 'parent_id': 'AliasCode_28', 'codeSystemVersion': '2024-09-27', 'codeSystem': 'http://www.cdisc.org'}, 'dataset': 'Code.json', 'row': 334, 'instance_id': 'Code_164', 'path': '/study/versions/0/biomedicalConcepts/13/properties/3/code/standardCode'}
+
+Rule: CORE-001077
+Description: If an interventional model indicates a cross-over, parallel or factorial design then more than 1 intervention is expected.
+Message: The number of study interventions referenced for the interventional study design is not consistent with intervention model specified for the study design - the model indicates a cross-over, parallel or factorial design (model.code is C82637, C82639, or C82638) and there are not references to multiple study interventions.
+Errors (1):
+  - {'value': {'instanceType': 'InterventionalStudyDesign', 'id': 'InterventionalStudyDesign_1', 'path': '/study/versions/0/studyDesigns/0', 'name': 'Study Design 1', 'studyType.code': 'C98388', 'studyType.decode': 'Interventional Study', 'model.code': 'C82639', 'model.decode': 'Parallel Study', '# Referenced Study Interventions': 1}, 'dataset': 'InterventionalStudyDesign', 'entity': 'InterventionalStudyDesign', 'instance_id': 'InterventionalStudyDesign_1', 'path': '/study/versions/0/studyDesigns/0'}
+
+Rule: CORE-001065
+Description: Within a study design, if study type is Interventional then at least one intervention is expected to be referenced from a procedure.
+Message: The study type is Interventional (code=C98388) but a study intervention is not referenced from any procedure.
+Errors (1):
+  - {'value': {'instanceType': 'InterventionalStudyDesign', 'id': 'InterventionalStudyDesign_1', 'path': '/study/versions/0/studyDesigns/0', 'name': 'Study Design 1', 'studyType.code': 'C98388', 'studyType.decode': 'Interventional Study', '# Referenced Study Interventions': 0}, 'dataset': 'InterventionalStudyDesign', 'entity': 'InterventionalStudyDesign', 'instance_id': 'InterventionalStudyDesign_1', 'path': '/study/versions/0/studyDesigns/0'}
+
+Rule: CORE-001069
+Description: Narrative content item text is expected to be HTML formatted.
+Message: The narrative content item text contains non-conformant XHTML.
+Errors (6):
+  - {'value': {'name': 'NCI_27', 'parent_rel': 'narrativeContentItems', 'parent_entity': 'StudyVersion', 'parent_id': 'StudyVersion_1', '$xhtml_errors': ["Invalid XHTML line 2 [ERROR]: Element 'ol', attribute 'type': The attribute 'type' is not allowed."]}, 'dataset': 'NarrativeContentItem.json', 'row': 27, 'instance_id': 'NarrativeContentItem_27', 'path': '/study/versions/0/narrativeContentItems/26'}
+  - {'value': {'name': 'NCI_35', 'parent_rel': 'narrativeContentItems', 'parent_entity': 'StudyVersion', 'parent_id': 'StudyVersion_1', '$xhtml_errors': ["Invalid XHTML line 3 [ERROR]: Element 'style': This element is not expected."]}, 'dataset': 'NarrativeContentItem.json', 'row': 35, 'instance_id': 'NarrativeContentItem_35', 'path': '/study/versions/0/narrativeContentItems/34'}
+  - {'value': {'name': 'NCI_36', 'parent_rel': 'narrativeContentItems', 'parent_entity': 'StudyVersion', 'parent_id': 'StudyVersion_1', '$xhtml_errors': ["Invalid XHTML line 13 [ERROR]: Element 'ol', attribute 'type': The attribute 'type' is not allowed.", "Invalid XHTML line 28 [ERROR]: Element 'li': This element is not expected."]}, 'dataset': 'NarrativeContentItem.json', 'row': 36, 'instance_id': 'NarrativeContentItem_36', 'path': '/study/versions/0/narrativeContentItems/35'}
+  - {'value': {'name': 'NCI_38', 'parent_rel': 'narrativeContentItems', 'parent_entity': 'StudyVersion', 'parent_id': 'StudyVersion_1', '$xhtml_errors': ["Invalid XHTML line 7 [ERROR]: Element 'ul': This element is not expected. Expected is ( li )."]}, 'dataset': 'NarrativeContentItem.json', 'row': 38, 'instance_id': 'NarrativeContentItem_38', 'path': '/study/versions/0/narrativeContentItems/37'}
+  - {'value': {'name': 'NCI_39', 'parent_rel': 'narrativeContentItems', 'parent_entity': 'StudyVersion', 'parent_id': 'StudyVersion_1', '$xhtml_errors': ["Invalid XHTML line 29 [ERROR]: Element 'style': This element is not expected."]}, 'dataset': 'NarrativeContentItem.json', 'row': 39, 'instance_id': 'NarrativeContentItem_39', 'path': '/study/versions/0/narrativeContentItems/38'}
+  - {'value': {'name': 'NCI_46', 'parent_rel': 'narrativeContentItems', 'parent_entity': 'StudyVersion', 'parent_id': 'StudyVersion_1', '$xhtml_errors': ["Invalid XHTML line 2 [ERROR]: Element 'ol', attribute 'type': The attribute 'type' is not allowed."]}, 'dataset': 'NarrativeContentItem.json', 'row': 46, 'instance_id': 'NarrativeContentItem_46', 'path': '/study/versions/0/narrativeContentItems/45'}
+
+Rule: CORE-000974
+Description: The sponsor study role must be applicable to a study version.
+Message: The study role is a sponsor role (code.code is C70793) but it is not applicable to the study version (appliesToIds does not contain the id of the study version).
+Errors (1):
+  - {'value': {'instanceType': 'StudyRole', 'id': 'StudyRole_1', 'path': '/study/versions/0/roles/0', 'name': 'ROLE_1', 'code.code': 'C70793', 'code.decode': 'Clinical Study Sponsor', 'appliesToIds': [], 'StudyVersion.id': 'StudyVersion_1'}, 'dataset': 'StudyRole', 'entity': 'StudyRole', 'instance_id': 'StudyRole_1', 'path': '/study/versions/0/roles/0'}
+
+Rule: CORE-000869
+Description: If duration will vary (attribute durationWillVary is True) then a reason (attribute reasonDurationWillVary) must be given and vice versa.
+Message: The duration will vary (durationWillVary is not 'false' or reasonDurationWillVary is populated), but it is not fully defined (durationWillVary is not 'true' or reasonDurationWillVary is missing).
+Errors (2):
+  - {'value': {'id': 'Duration_1', 'parent_rel': 'duration', 'reasonDurationWillVary': 'Need reason', 'text': None, 'parent_entity': 'Administration', 'parent_id': 'Administration_1', 'durationWillVary': False}, 'dataset': 'Duration.json', 'row': 1, 'instance_id': 'Duration_1', 'path': '/study/versions/0/studyInterventions/0/administrations/0/duration'}
+  - {'value': {'id': 'Duration_2', 'parent_rel': 'duration', 'reasonDurationWillVary': 'Need reason', 'text': None, 'parent_entity': 'Administration', 'parent_id': 'Administration_2', 'durationWillVary': False}, 'dataset': 'Duration.json', 'row': 2, 'instance_id': 'Duration_2', 'path': '/study/versions/0/studyInterventions/0/administrations/1/duration'}
+
+Rule: CORE-000969
+Description: If a dose is specified, then a corresponding administrable product must also be specified either directly or embedded in the medical device and vice versa.
+Message: The administration dose has been specified without an administrable product (either as a direct administrable product or as an embedded product via the related medical device) or vice versa.
+Errors (2):
+  - {'value': {'instanceType': 'Administration', 'id': 'Administration_1', 'path': '/study/versions/0/studyInterventions/0/administrations/0', 'StudyIntervention.id': 'StudyIntervention_1', 'StudyIntervention.name': 'XINONILINE', 'name': 'PATCH_50', 'dose.id': 'Quantity_3', 'dose(value/range)': '54 Milligram (C28253)', 'administrableProductId': None, 'medicalDeviceId': None, 'check': True}, 'dataset': 'Administration', 'entity': 'Administration', 'instance_id': 'Administration_1', 'path': '/study/versions/0/studyInterventions/0/administrations/0'}
+  - {'value': {'instanceType': 'Administration', 'id': 'Administration_2', 'path': '/study/versions/0/studyInterventions/0/administrations/1', 'StudyIntervention.id': 'StudyIntervention_1', 'StudyIntervention.name': 'XINONILINE', 'name': 'PATCH_75', 'dose.id': 'Quantity_6', 'dose(value/range)': '81 Milligram (C28253)', 'administrableProductId': None, 'medicalDeviceId': None, 'check': True}, 'dataset': 'Administration', 'entity': 'Administration', 'instance_id': 'Administration_2', 'path': '/study/versions/0/studyInterventions/0/administrations/1'}
+
+Rule: CORE-000871
+Description: Within a study design there is expected to be exactly one objective with level 'Primary Objective'.
+Message: There is not exactly one objective with a level of 'Primary Objective' within the study design.
+Errors (1):
+  - {'value': {'$num_primary_obj': 2, 'id': 'InterventionalStudyDesign_1', 'name': 'Study Design 1', 'parent_rel': 'studyDesigns', '$primary_objectives': ['To determine if there is a statistically significant relationship (overall Type 1 erroralpha=0.05) between the change in both the ADAS-Cog (11) and CIBIC+ scores, and drug dose (0, 50 cm2 [54 mg], and 75 cm2 [81 mg]).', 'To document the safety profile of the xanomeline TTS.'], 'parent_entity': 'StudyVersion', 'parent_id': 'StudyVersion_1'}, 'dataset': 'InterventionalStudyDesign.json', 'row': 1, 'instance_id': 'InterventionalStudyDesign_1', 'path': '/study/versions/0/studyDesigns/0'}
+
+Rule: CORE-000970
+Description: Every study role must apply to either a study version or at least one study design, but not both.
+Message: The study role does not only apply to the study version or at least one study design - it does not apply to anything, it applies to both the study version and at least one study design, or it applies to something that is not a study version or a study design.
+Errors (1):
+  - {'value': {'instanceType': 'StudyRole', 'id': 'StudyRole_1', 'path': '/study/versions/0/roles/0', 'name': 'ROLE_1', 'code': 'Clinical Study Sponsor', 'appliesToIds': [], 'StudyVersion.id': 'StudyVersion_1', 'StudyVersion.studyDesigns.id': 'InterventionalStudyDesign_1'}, 'dataset': 'StudyRole', 'entity': 'StudyRole', 'instance_id': 'StudyRole_1', 'path': '/study/versions/0/roles/0'}
+
+Rule: CORE-001016
+Description: A planned duration is expected for the main timeline.
+Message: The planned duration is not specified for the main timeline.
+Errors (1):
+  - {'value': {'instanceType': 'ScheduleTimeline', 'id': 'ScheduleTimeline_4', 'path': '/study/versions/0/studyDesigns/0/scheduleTimelines/0', 'name': 'Main Timeline', 'mainTimeline': True, 'check': True}, 'dataset': 'ScheduleTimeline', 'entity': 'ScheduleTimeline', 'instance_id': 'ScheduleTimeline_4', 'path': '/study/versions/0/studyDesigns/0/scheduleTimelines/0'}
+
+Rule: CORE-001006
+Description: If a synonym is specified then it is not expected to be equal to the label of the biomedical concept (case insensitive).
+Message: The synonym is equal to the label (case insensitive).
+Errors (14):
+  - {'value': {'instanceType': 'BiomedicalConcept', 'id': 'BiomedicalConcept_22', 'path': '/study/versions/0/biomedicalConcepts/2', 'name': 'Temperature (22)', 'label/synonym': 'Temperature', 'synonyms': '[Temperature, Body Temperature]', 'check': True}, 'dataset': 'BiomedicalConcept', 'entity': 'BiomedicalConcept', 'instance_id': 'BiomedicalConcept_22', 'path': '/study/versions/0/biomedicalConcepts/2'}
+  - {'value': {'instanceType': 'BiomedicalConcept', 'id': 'BiomedicalConcept_23', 'path': '/study/versions/0/biomedicalConcepts/3', 'name': 'Weight (23)', 'label/synonym': 'Weight', 'synonyms': '[WEIGHT, Body Weight]', 'check': True}, 'dataset': 'BiomedicalConcept', 'entity': 'BiomedicalConcept', 'instance_id': 'BiomedicalConcept_23', 'path': '/study/versions/0/biomedicalConcepts/3'}
+  - {'value': {'instanceType': 'BiomedicalConcept', 'id': 'BiomedicalConcept_24', 'path': '/study/versions/0/biomedicalConcepts/4', 'name': 'Height (24)', 'label/synonym': 'Height', 'synonyms': '[HEIGHT, Body Height]', 'check': True}, 'dataset': 'BiomedicalConcept', 'entity': 'BiomedicalConcept', 'instance_id': 'BiomedicalConcept_24', 'path': '/study/versions/0/biomedicalConcepts/4'}
+  - {'value': {'instanceType': 'BiomedicalConcept', 'id': 'BiomedicalConcept_2', 'path': '/study/versions/0/biomedicalConcepts/14', 'name': 'Systolic Blood Pressure (2)', 'label/synonym': 'Systolic Blood Pressure', 'synonyms': '[SYSBP, Systolic Blood Pressure]', 'check': True}, 'dataset': 'BiomedicalConcept', 'entity': 'BiomedicalConcept', 'instance_id': 'BiomedicalConcept_2', 'path': '/study/versions/0/biomedicalConcepts/14'}
+  - {'value': {'instanceType': 'BiomedicalConcept', 'id': 'BiomedicalConcept_3', 'path': '/study/versions/0/biomedicalConcepts/15', 'name': 'Diastolic Blood Pressure (3)', 'label/synonym': 'Diastolic Blood Pressure', 'synonyms': '[DIABP, Diastolic Blood Pressure]', 'check': True}, 'dataset': 'BiomedicalConcept', 'entity': 'BiomedicalConcept', 'instance_id': 'BiomedicalConcept_3', 'path': '/study/versions/0/biomedicalConcepts/15'}
+  - {'value': {'instanceType': 'BiomedicalConcept', 'id': 'BiomedicalConcept_4', 'path': '/study/versions/0/biomedicalConcepts/16', 'name': 'Temperature (4)', 'label/synonym': 'Temperature', 'synonyms': '[Temperature, Body Temperature]', 'check': True}, 'dataset': 'BiomedicalConcept', 'entity': 'BiomedicalConcept', 'instance_id': 'BiomedicalConcept_4', 'path': '/study/versions/0/biomedicalConcepts/16'}
+  - {'value': {'instanceType': 'BiomedicalConcept', 'id': 'BiomedicalConcept_5', 'path': '/study/versions/0/biomedicalConcepts/17', 'name': 'Weight (5)', 'label/synonym': 'Weight', 'synonyms': '[WEIGHT, Body Weight]', 'check': True}, 'dataset': 'BiomedicalConcept', 'entity': 'BiomedicalConcept', 'instance_id': 'BiomedicalConcept_5', 'path': '/study/versions/0/biomedicalConcepts/17'}
+  - {'value': {'instanceType': 'BiomedicalConcept', 'id': 'BiomedicalConcept_6', 'path': '/study/versions/0/biomedicalConcepts/18', 'name': 'Height (6)', 'label/synonym': 'Height', 'synonyms': '[HEIGHT, Body Height]', 'check': True}, 'dataset': 'BiomedicalConcept', 'entity': 'BiomedicalConcept', 'instance_id': 'BiomedicalConcept_6', 'path': '/study/versions/0/biomedicalConcepts/18'}
+  - {'value': {'instanceType': 'BiomedicalConcept', 'id': 'BiomedicalConcept_14', 'path': '/study/versions/0/biomedicalConcepts/26', 'name': 'Systolic Blood Pressure (14)', 'label/synonym': 'Systolic Blood Pressure', 'synonyms': '[SYSBP, Systolic Blood Pressure]', 'check': True}, 'dataset': 'BiomedicalConcept', 'entity': 'BiomedicalConcept', 'instance_id': 'BiomedicalConcept_14', 'path': '/study/versions/0/biomedicalConcepts/26'}
+  - {'value': {'instanceType': 'BiomedicalConcept', 'id': 'BiomedicalConcept_15', 'path': '/study/versions/0/biomedicalConcepts/27', 'name': 'Diastolic Blood Pressure (15)', 'label/synonym': 'Diastolic Blood Pressure', 'synonyms': '[DIABP, Diastolic Blood Pressure]', 'check': True}, 'dataset': 'BiomedicalConcept', 'entity': 'BiomedicalConcept', 'instance_id': 'BiomedicalConcept_15', 'path': '/study/versions/0/biomedicalConcepts/27'}
+  ... and 4 more
+
+Rule: CORE-001076
+Description: An activity is expected to refer to at least one procedure, biomedical concept, biomedical concept category, biomedical concept surrogate, child activity, or timeline.
+Message: The activity does not refer to any procedure, biomedical concept, biomedical concept category, biomedical concept surrogate, child activity, or timeline.
+Errors (25):
+  - {'value': {'id': 'Activity_1', 'bcSurrogateIds': False, 'parent_rel': 'activities', 'name': 'Informed consent', 'bcCategoryIds': False, 'biomedicalConceptIds': False, 'parent_entity': 'InterventionalStudyDesign', 'timelineId': None, 'childIds': False, 'definedProcedures': False, 'parent_id': 'InterventionalStudyDesign_1'}, 'dataset': 'Activity.json', 'row': 1, 'instance_id': 'Activity_1', 'path': '/study/versions/0/studyDesigns/0/activities/0'}
+  - {'value': {'id': 'Activity_2', 'bcSurrogateIds': False, 'parent_rel': 'activities', 'name': 'Inclusion/exclusion criteria', 'bcCategoryIds': False, 'biomedicalConceptIds': False, 'parent_entity': 'InterventionalStudyDesign', 'timelineId': None, 'childIds': False, 'definedProcedures': False, 'parent_id': 'InterventionalStudyDesign_1'}, 'dataset': 'Activity.json', 'row': 2, 'instance_id': 'Activity_2', 'path': '/study/versions/0/studyDesigns/0/activities/1'}
+  - {'value': {'id': 'Activity_3', 'bcSurrogateIds': False, 'parent_rel': 'activities', 'name': 'Patient number assigned', 'bcCategoryIds': False, 'biomedicalConceptIds': False, 'parent_entity': 'InterventionalStudyDesign', 'timelineId': None, 'childIds': False, 'definedProcedures': False, 'parent_id': 'InterventionalStudyDesign_1'}, 'dataset': 'Activity.json', 'row': 3, 'instance_id': 'Activity_3', 'path': '/study/versions/0/studyDesigns/0/activities/2'}
+  - {'value': {'id': 'Activity_5', 'bcSurrogateIds': False, 'parent_rel': 'activities', 'name': 'Hachinski', 'bcCategoryIds': False, 'biomedicalConceptIds': False, 'parent_entity': 'InterventionalStudyDesign', 'timelineId': None, 'childIds': False, 'definedProcedures': False, 'parent_id': 'InterventionalStudyDesign_1'}, 'dataset': 'Activity.json', 'row': 5, 'instance_id': 'Activity_5', 'path': '/study/versions/0/studyDesigns/0/activities/4'}
+  - {'value': {'id': 'Activity_6', 'bcSurrogateIds': False, 'parent_rel': 'activities', 'name': 'MMSE', 'bcCategoryIds': False, 'biomedicalConceptIds': False, 'parent_entity': 'InterventionalStudyDesign', 'timelineId': None, 'childIds': False, 'definedProcedures': False, 'parent_id': 'InterventionalStudyDesign_1'}, 'dataset': 'Activity.json', 'row': 6, 'instance_id': 'Activity_6', 'path': '/study/versions/0/studyDesigns/0/activities/5'}
+  - {'value': {'id': 'Activity_7', 'bcSurrogateIds': False, 'parent_rel': 'activities', 'name': 'Physical examination', 'bcCategoryIds': False, 'biomedicalConceptIds': False, 'parent_entity': 'InterventionalStudyDesign', 'timelineId': None, 'childIds': False, 'definedProcedures': False, 'parent_id': 'InterventionalStudyDesign_1'}, 'dataset': 'Activity.json', 'row': 7, 'instance_id': 'Activity_7', 'path': '/study/versions/0/studyDesigns/0/activities/6'}
+  - {'value': {'id': 'Activity_8', 'bcSurrogateIds': False, 'parent_rel': 'activities', 'name': 'Medical history', 'bcCategoryIds': False, 'biomedicalConceptIds': False, 'parent_entity': 'InterventionalStudyDesign', 'timelineId': None, 'childIds': False, 'definedProcedures': False, 'parent_id': 'InterventionalStudyDesign_1'}, 'dataset': 'Activity.json', 'row': 8, 'instance_id': 'Activity_8', 'path': '/study/versions/0/studyDesigns/0/activities/7'}
+  - {'value': {'id': 'Activity_9', 'bcSurrogateIds': False, 'parent_rel': 'activities', 'name': 'Habits', 'bcCategoryIds': False, 'biomedicalConceptIds': False, 'parent_entity': 'InterventionalStudyDesign', 'timelineId': None, 'childIds': False, 'definedProcedures': False, 'parent_id': 'InterventionalStudyDesign_1'}, 'dataset': 'Activity.json', 'row': 9, 'instance_id': 'Activity_9', 'path': '/study/versions/0/studyDesigns/0/activities/8'}
+  - {'value': {'id': 'Activity_10', 'bcSurrogateIds': False, 'parent_rel': 'activities', 'name': 'Chest X-ray', 'bcCategoryIds': False, 'biomedicalConceptIds': False, 'parent_entity': 'InterventionalStudyDesign', 'timelineId': None, 'childIds': False, 'definedProcedures': False, 'parent_id': 'InterventionalStudyDesign_1'}, 'dataset': 'Activity.json', 'row': 10, 'instance_id': 'Activity_10', 'path': '/study/versions/0/studyDesigns/0/activities/9'}
+  - {'value': {'id': 'Activity_11', 'bcSurrogateIds': False, 'parent_rel': 'activities', 'name': 'Apo E genotyping', 'bcCategoryIds': False, 'biomedicalConceptIds': False, 'parent_entity': 'InterventionalStudyDesign', 'timelineId': None, 'childIds': False, 'definedProcedures': False, 'parent_id': 'InterventionalStudyDesign_1'}, 'dataset': 'Activity.json', 'row': 11, 'instance_id': 'Activity_11', 'path': '/study/versions/0/studyDesigns/0/activities/10'}
+  ... and 15 more
+
+Rule: CORE-000808
+Description: Only one version of any code system is expected to be used within a study version.
+Message: More than one code system version is used for the code system.
+Errors (2):
+  - {'value': {'$record_count': 197, 'codeSystemVersion': '2025-09-26', 'codeSystem': 'http://www.cdisc.org'}, 'dataset': 'Code.json', 'row': 185, 'instance_id': 'Code_1', 'path': '/study/versions/0/organizations/0/type'}
+  - {'value': {'$record_count': 465, 'codeSystemVersion': '2024-09-27', 'codeSystem': 'http://www.cdisc.org'}, 'dataset': 'Code.json', 'row': 331, 'instance_id': 'Code_161', 'path': '/study/versions/0/biomedicalConcepts/13/properties/0/code/standardCode'}
+
+Rule: CORE-001071
+Description: A masking is expected to be defined for at least two study roles in a study design with a double blind blinding schema.
+Message: The study design has a double blind blinding schema (code=C15228) but there are not at least two applicable study roles that are masked.
+Errors (1):
+  - {'value': {'instanceType': 'InterventionalStudyDesign', 'id': 'InterventionalStudyDesign_1', 'path': '/study/versions/0/studyDesigns/0', 'name': 'Study Design 1', 'blindingSchema.code': 'C15228', 'blindingSchema.decode': 'Double Blind Study', '# Masked Roles': 0}, 'dataset': 'InterventionalStudyDesign', 'entity': 'InterventionalStudyDesign', 'instance_id': 'InterventionalStudyDesign_1', 'path': '/study/versions/0/studyDesigns/0'}
+
+Rule: CORE-000945
+Description: Syntax template text is expected to be HTML formatted.
+Message: The text attribute contains non-conformant XHTML.
+Errors (2):
+  - {'value': {'name': 'IN05', 'parent_rel': 'eligibilityCriterionItems', 'parent_entity': 'StudyVersion', 'parent_id': 'StudyVersion_1', '$xhtml_errors': ['Invalid XHTML line 33, col 12 [FATAL]: Opening and ending tag mismatch: p line 30 and li', 'Invalid XHTML line 34, col 10 [FATAL]: Opening and ending tag mismatch: li line 29 and ol', 'Invalid XHTML line 35, col 8 [FATAL]: Opening and ending tag mismatch: ol line 22 and li', 'Invalid XHTML line 48, col 6 [FATAL]: Opening and ending tag mismatch: li line 20 and ol', 'Invalid XHTML (wrapper end) [FATAL]: Opening and ending tag mismatch: ol line 3 and body', 'Invalid XHTML (wrapper end) [FATAL]: Opening and ending tag mismatch: body (wrapper start) and html', "Invalid XHTML line 36 [ERROR]: Element 'li': This element is not expected."]}, 'dataset': 'EligibilityCriterionItem.json', 'row': 5, 'instance_id': 'EligibilityCriterionItem_5', 'path': '/study/versions/0/eligibilityCriterionItems/4'}
+  - {'value': {'name': 'EX23', 'parent_rel': 'eligibilityCriterionItems', 'parent_entity': 'StudyVersion', 'parent_id': 'StudyVersion_1', '$xhtml_errors': ['Invalid XHTML line 434, col 12 [FATAL]: Opening and ending tag mismatch: td line 433 and tr', 'Invalid XHTML line 439, col 13 [FATAL]: Opening and ending tag mismatch: tr line 430 and table', 'Invalid XHTML line 440, col 8 [FATAL]: Opening and ending tag mismatch: table line 421 and li', 'Invalid XHTML line 449, col 12 [FATAL]: Opening and ending tag mismatch: td line 448 and tr', 'Invalid XHTML line 454, col 12 [FATAL]: Opening and ending tag mismatch: td line 453 and tr', 'Invalid XHTML line 459, col 12 [FATAL]: Opening and ending tag mismatch: td line 458 and tr', 'Invalid XHTML line 464, col 12 [FATAL]: Opening and ending tag mismatch: td line 463 and tr', 'Invalid XHTML line 465, col 13 [FATAL]: Opening and ending tag mismatch: tr line 460 and table', 'Invalid XHTML line 466, col 8 [FATAL]: Opening and ending tag mismatch: tr line 455 and li', 'Invalid XHTML line 861, col 6 [FATAL]: Opening and ending tag mismatch: tr line 450 and ol', 'Invalid XHTML (wrapper end) [FATAL]: Opening and ending tag mismatch: tr line 445 and body', 'Invalid XHTML (wrapper end) [FATAL]: Opening and ending tag mismatch: table line 444 and html', "Invalid XHTML line 435 [ERROR]: Element 'tr': This element is not expected.", "Invalid XHTML line 441 [ERROR]: Element 'li': This element is not expected."]}, 'dataset': 'EligibilityCriterionItem.json', 'row': 31, 'instance_id': 'EligibilityCriterionItem_31', 'path': '/study/versions/0/eligibilityCriterionItems/30'}
+
+============================================================
